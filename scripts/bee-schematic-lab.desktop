@@ -1,0 +1,26 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Bee Schematic Lab
+GenericName=Mindustry Schematic Editor
+Comment=Редактор и генератор схем Mindustry (с автообновлением)
+Exec=gnome-terminal --title="Bee Schematic Lab" --working-directory="%PROJECT_DIR%" -- bash -c "bash scripts/launcher.sh; echo; read -n 1 -s -p 'Нажмите любую клавишу для закрытия...'"
+Icon=bee-schematic-lab
+Terminal=false
+Categories=Development;Graphics;Game;
+Keywords=mindustry;schematic;editor;bee;psbees;
+StartupNotify=true
+Path=%PROJECT_DIR%
+Actions=UpdateOnly;OpenLog;DevMode;
+
+[Desktop Action UpdateOnly]
+Name=Только обновить (без запуска)
+Exec=gnome-terminal --title="Bee Schematic Lab — обновление" --working-directory="%PROJECT_DIR%" -- bash -c "git pull origin main && npm install && npm run build; echo; read -n 1 -s -p 'Готово. Нажмите любую клавишу...'"
+
+[Desktop Action OpenLog]
+Name=Открыть лог запуска
+Exec=gnome-terminal -- bash -c "less '%PROJECT_DIR%/launcher.log'"
+
+[Desktop Action DevMode]
+Name=Запустить в режиме разработки (vite dev)
+Exec=gnome-terminal --title="Bee Schematic Lab — dev" --working-directory="%PROJECT_DIR%" -- bash -c "if [ ! -d node_modules ]; then npm install; fi; npm run dev; echo; read -n 1 -s -p 'Нажмите любую клавишу...'"
