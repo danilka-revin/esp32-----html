@@ -64,6 +64,54 @@ fi
 # -----------------------------------------------------------------------------
 # 1. Проверка системных зависимостей
 # -----------------------------------------------------------------------------
+install_node_with_nvm() {
+    local node_ok=0
+    if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
+        local node_ver node_major
+        node_ver=$(node -v | sed 's/^v//')
+        node_major=$(echo "$node_ver" | cut -d. -f1)
+        if [ "$node_major" -ge "$REQUIRED_NODE_MAJOR" ] 2>/dev/null; then
+            node_ok=1
+            ok "node.js v$node_ver, npm v$(npm -v)"
+        else
+            warn "node.js v$node_ver слишком старый (нужна >= v$REQUIRED_NODE_MAJOR.x)"
+        fi
+    fi
+
+    [ "$node_ok" = "1" ] && return 0
+
+    info "Node.js не найден или устарел — скачиваю актуальную LTS-версию автоматически"
+    export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+    mkdir -p "$NVM_DIR"
+
+    if [ ! -s "$NVM_DIR/nvm.sh" ]; then
+        info "Устанавливаю nvm в $NVM_DIR"
+        if ! curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash; then
+            err "Не удалось скачать nvm. Проверьте интернет-соединение."
+            exit 1
+        fi
+    fi
+
+    # nvm — shell-функция, поэтому после установки загружаем её в текущий процесс.
+    # shellcheck disable=SC1090
+    . "$NVM_DIR/nvm.sh"
+    if ! nvm install --lts; then
+        err "Не удалось скачать Node.js LTS через nvm."
+        exit 1
+    fi
+    nvm alias default 'lts/*' >/dev/null 2>&1 || true
+    nvm use --lts >/dev/null
+
+    local installed_ver installed_major
+    installed_ver=$(node -v | sed 's/^v//')
+    installed_major=$(echo "$installed_ver" | cut -d. -f1)
+    if [ "$installed_major" -lt "$REQUIRED_NODE_MAJOR" ] 2>/dev/null; then
+        err "Скачанная версия Node.js слишком старая: v$installed_ver"
+        exit 1
+    fi
+    ok "Node.js v$installed_ver и npm v$(npm -v) готовы"
+}
+
 check_system_deps() {
     step "Проверка системных утилит"
 
@@ -78,29 +126,6 @@ check_system_deps() {
             missing+=("$cmd")
         fi
     done
-
-    # Node.js
-    if command -v node >/dev/null 2>&1; then
-        NODE_VER=$(node -v | sed 's/^v//')
-        NODE_MAJOR=$(echo "$NODE_VER" | cut -d. -f1)
-        if [ "$NODE_MAJOR" -ge "$REQUIRED_NODE_MAJOR" ] 2>/dev/null; then
-            ok "node.js v$NODE_VER"
-        else
-            warn "node.js v$NODE_VER слишком старый (нужна >= v$REQUIRED_NODE_MAJOR.x)"
-            missing+=("nodejs")
-        fi
-    else
-        warn "node.js не найден"
-        missing+=("nodejs")
-    fi
-
-    # npm
-    if command -v npm >/dev/null 2>&1; then
-        ok "npm v$(npm -v)"
-    else
-        warn "npm не найден"
-        missing+=("npm")
-    fi
 
     # fuser — нужно для лаунчера (чтобы убивать старый сервер на порту)
     if ! command -v fuser >/dev/null 2>&1; then
@@ -152,6 +177,10 @@ check_system_deps() {
     else
         ok "Все системные зависимости присутствуют"
     fi
+
+    # Node.js и npm устанавливаем через nvm в домашнюю папку пользователя.
+    # Так не зависит от того, насколько свежая версия nodejs есть в apt.
+    install_node_with_nvm
 }
 
 # -----------------------------------------------------------------------------
