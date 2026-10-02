@@ -3,6 +3,11 @@ export const UPDATE_BRANCH = 'main';
 export const UPDATE_REPOSITORY_URL = `https://github.com/${UPDATE_REPOSITORY}`;
 export const UPDATE_COMMIT_API = `https://api.github.com/repos/${UPDATE_REPOSITORY}/commits/${UPDATE_BRANCH}`;
 
+export function sourceArchiveUrl(ref = UPDATE_BRANCH) {
+  const revision = String(ref ?? '').trim() || UPDATE_BRANCH;
+  return `https://codeload.github.com/${UPDATE_REPOSITORY}/zip/${encodeURIComponent(revision)}`;
+}
+
 export const appBuildInfo = typeof __APP_BUILD_INFO__ === 'undefined'
   ? { version: '1.0.0', commit: 'dev', branch: 'dev', builtAt: null, buildId: 'dev' }
   : __APP_BUILD_INFO__;
