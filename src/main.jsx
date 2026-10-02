@@ -2,16 +2,17 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client';
 import {
   buildableBlocks, categories, categoryById, directionMeta, gameBlocks, gameCatalog,
-  getPlanetLabel, getStageLabel, itemById, materials, productsByDirection, stageMeta, typeLabels,
+  getPlanetLabel, getStageLabel, getProductsForDirection, itemById, visibleMaterials, stageMeta, typeLabels,
 } from './catalog.js';
-import { blockFits, blockRect, canvasPresets, generateLayout, initialSettings, supplyModes, tileAtCell } from './generator.js';
+import { blockFits, blockRect, canvasPresets, generateLayout, generateLayoutVariants, initialSettings, supplyModes, tileAtCell } from './generator.js';
 import { buildLogicProgram, getLogicLinkInstructions, getTransportItem, needsLogicProgram } from './logic.js';
 import { appBuildInfo, checkForUpdates, formatCommit, UPDATE_BRANCH, UPDATE_REPOSITORY_URL } from './update-checker.js';
 import UpdateDialog from './update-dialog.jsx';
 import { decodeSchematicFile, decodeSchematic, downloadSchematic, schematicToBase64 } from './schematic-io.js';
 import './styles.css';
 import sprites from './sprite-manifest.json';
-import { analyzeMechanics, blockFacts, productionMachines } from './mechanics.js';
+import { analyzeMechanics, blockFacts } from './mechanics.js';
+import { GAME_VERSION } from './game-version.js';
 
 const iconPaths = {
   spark: <><path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z" /><path d="m19 14 .9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9L19 14Z" /><path d="m5 3 .6 1.4L7 5l-1.4.6L5 7l-.6-1.4L3 5l1.4-.6L5 3Z" /></>,
@@ -95,7 +96,7 @@ function MechanicsReport({ mechanics }) {
   const name = id => gameCatalog.find(e => ['item', 'liquid'].includes(e.type) && e.id === id)?.name ?? id;
   const fmt = n => n.toLocaleString('ru-RU', { maximumFractionDigits: 2 });
   return <section className="inspector-section mechanics-report">
-    <div className="panel-section-heading"><span>МЕХАНИКИ / v146</span></div>
+    <div className="panel-section-heading"><span>МЕХАНИКИ / {GAME_VERSION}</span></div>
     <p className="microcopy">Базовая скорость · без ускорения.</p>
     {mechanics.requirements.map((r, i) => <div className="recipe-report" key={i}>
       <b>{buildableBlocks.find(b => b.id === r.tile.id)?.name ?? r.tile.id}</b>
@@ -110,8 +111,8 @@ function MechanicsReport({ mechanics }) {
 
 function TinyTag({ children, tone = '' }) { return <span className={`tiny-tag ${tone}`}>{children}</span>; }
 
-function Toggle({ checked, onChange, label, detail }) {
-  return <button className={`toggle-row ${checked ? 'checked' : ''}`} type="button" onClick={() => onChange(!checked)} aria-pressed={checked} title={detail}>
+function Toggle({ checked, onChange, label, detail, disabled = false }) {
+  return <button className={`toggle-row ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''}`} type="button" disabled={disabled} onClick={() => !disabled && onChange(!checked)} aria-pressed={checked} aria-disabled={disabled} title={detail}>
     <span className="toggle-copy"><b>{label}</b>{detail && <small className="visually-hidden">{detail}</small>}</span><span className="switch"><i /></span>
   </button>;
 }
@@ -143,7 +144,7 @@ function Header({ view, setView, canUndo, canRedo, onUndo, onRedo, theme, setThe
     <button className={`tool-btn update-check-button ${updateAttention ? 'available' : ''} ${updateState?.checking ? 'checking' : ''}`} type="button" onClick={onOpenUpdates} title={updateAttention ? 'Доступно обновление приложения' : 'Проверить обновления'} aria-label="Проверить обновления">
       <Icon name="refresh" size={15} /><span className="button-label">Обновления</span>{updateAttention && <i className="update-badge-dot" />}
     </button>
-    <div className="vanilla-badge"><span className="status-dot" /> VANILLA <b>146</b></div>
+    <div className="vanilla-badge"><span className="status-dot" /> STEAM <b>{GAME_VERSION}</b></div>
     <div className="toolbar-group file-group">
       <button className="tool-btn wide" type="button" title="Сохранить в браузере" onClick={onSave}><Icon name="bookmark" /><span className="button-label">Сохранить</span>{savedCount > 0 && <i className="save-count">{savedCount}</i>}</button>
       <button className="tool-btn wide" type="button" title="Импортировать .msch" onClick={onImport}><Icon name="upload" /><span className="button-label">Импорт</span></button>
@@ -155,12 +156,13 @@ function Header({ view, setView, canUndo, canRedo, onUndo, onRedo, theme, setThe
 }
 
 function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCategory, setPaletteCategory, paletteSearch, setPaletteSearch, onSelectBlock, selectedBlock, activeTool, setView }) {
-  const minimalModule = settings.minimal && settings.direction === 'production';
-  const productOptions = (productsByDirection[settings.direction] ?? []).filter(option => settings.direction !== 'production' || productionMachines[settings.planet]?.[option.id]);
+  const minimalModule = (settings.minimal || (settings.campaignLink && settings.direction === 'production')) && settings.direction === 'production';
+  const productOptions = getProductsForDirection(settings.direction, settings.planet, settings.stage);
   const product = productOptions.find((item) => item.id === settings.goal) ?? productOptions[0];
   const hasSupplySettings = ['production', 'defense', 'units', 'logistics'].includes(settings.direction);
   const isErekir = settings.planet === 'erekir';
   const isDroneMode = ['drones', 'hybrid'].includes(settings.supplyMode);
+  const campaignDefenseImport = settings.campaignLink && settings.direction === 'defense' && !isErekir;
   const showTransportSettings = isErekir
     ? ['core', 'drones', 'hybrid'].includes(settings.supplyMode)
     : (settings.processorControl || isDroneMode);
@@ -170,34 +172,46 @@ function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCat
     drones: { label: 'Грузовой дрон', hint: `Unit Cargo Loader создаёт Manifold автоматически. Подай @${getTransportItem(settings)} в загрузчик; точка выгрузки настроена на тот же предмет.` },
     hybrid: { label: 'Гибрид', hint: `Линия от складского буфера плюс Manifold. Наполни контейнер ресурсом @${getTransportItem(settings)} и подай его в загрузчик.` },
   };
-  const transportOptions = materials.filter((item) => item.planet === settings.planet || item.planet === 'both');
+  const transportOptions = visibleMaterials.filter((item) => item.planet === settings.planet || item.planet === 'both');
   const droneUnitOptions = settings.planet === 'erekir'
     ? [{ id: 'manifold', label: 'Manifold · грузовой дрон' }]
     : [{ id: 'mono', label: 'Mono · базовый' }, { id: 'poly', label: 'Poly · строитель' }, { id: 'mega', label: 'Mega · грузовой' }];
-  const filteredPalette = useMemo(() => buildableBlocks.filter((block) => {
+  const planetBlocks = useMemo(() => buildableBlocks.filter((block) => block.planet === 'both' || block.planet === settings.planet), [settings.planet]);
+  const filteredPalette = useMemo(() => planetBlocks.filter((block) => {
     const matchesCategory = paletteCategory === 'all' || block.category === paletteCategory;
     const query = paletteSearch.trim().toLocaleLowerCase('ru');
     return matchesCategory && (!query || `${block.name} ${block.id}`.toLocaleLowerCase('ru').includes(query));
-  }), [paletteCategory, paletteSearch]);
+  }), [planetBlocks, paletteCategory, paletteSearch]);
+  const paletteCategories = categories.filter((category) => planetBlocks.some((block) => block.category === category.id));
   const patch = (field, value) => setSettings((current) => ({ ...current, [field]: value }));
-  const setDirection = (direction) => setSettings((current) => ({ ...current, direction, goal: productsByDirection[direction]?.[0]?.id ?? current.goal }));
+  const setDirection = (direction) => setSettings((current) => {
+    const options = getProductsForDirection(direction, current.planet, current.stage);
+    return options.length ? { ...current, direction, goal: options.some(option => option.id === current.goal) ? current.goal : options[0].id } : current;
+  });
   const setPlanet = (planet) => setSettings((current) => {
     const fallbackItem = planet === 'erekir' ? 'beryllium' : 'copper';
-    const currentItem = materials.find((item) => item.id === current.transportItem && (item.planet === planet || item.planet === 'both'))?.id;
+    const currentItem = visibleMaterials.find((item) => item.id === current.transportItem && (item.planet === planet || item.planet === 'both'))?.id;
     const processorControl = planet === 'erekir' ? false : current.planet === 'erekir' ? true : current.processorControl;
-    const goal = current.direction === 'production' && !productionMachines[planet]?.[current.goal] ? 'silicon' : current.goal;
-    return { ...current, planet, goal, processorControl, droneUnit: planet === 'erekir' ? 'manifold' : 'mono', transportItem: currentItem ?? fallbackItem };
+    const productChoices = getProductsForDirection(current.direction, planet, current.stage);
+    const goal = productChoices.some(option => option.id === current.goal) ? current.goal : productChoices[0]?.id ?? current.goal;
+    return { ...current, planet, goal, processorControl, campaignLink: planet === 'serpulo' ? current.campaignLink : false, droneUnit: planet === 'erekir' ? 'manifold' : 'mono', transportItem: currentItem ?? fallbackItem };
   });
   const setSupplyMode = (supplyMode) => setSettings((current) => ({
     ...current,
     supplyMode,
     processorControl: current.planet === 'erekir' ? false : ['drones', 'hybrid'].includes(supplyMode) ? true : current.processorControl,
   }));
+  const setCampaignLink = (enabled) => setSettings((current) => ({
+    ...current,
+    campaignLink: enabled && current.planet === 'serpulo' && ['production', 'defense'].includes(current.direction),
+    ...(enabled && current.direction === 'production' ? { minimal: true } : {}),
+    ...(enabled && current.direction === 'defense' ? { processorControl: false } : {}),
+  }));
 
   return <aside className="left-sidebar panel-scroll">
     <div className="sidebar-title-row"><div><h1>Генератор</h1></div><span className="generator-spark"><Icon name="spark" size={18} /></span></div>
     <section className="setting-section"><div className="field-label"><span>НАПРАВЛЕНИЕ</span></div><div className="direction-grid">
-      {Object.entries(directionMeta).map(([id, direction]) => <button className={`direction-option ${settings.direction === id ? 'selected' : ''}`} type="button" key={id} onClick={() => setDirection(id)}><span className="direction-icon">{direction.icon}</span><span>{direction.short}</span></button>)}
+      {Object.entries(directionMeta).map(([id, direction]) => { const available = getProductsForDirection(id, settings.planet, settings.stage).length > 0; return <button className={`direction-option ${settings.direction === id ? 'selected' : ''}`} type="button" key={id} disabled={!available} title={available ? direction.label : `В ${getPlanetLabel(settings.planet)} нет поддержанной схемы для этого направления`} onClick={() => setDirection(id)}><span className="direction-icon">{direction.icon}</span><span>{direction.short}</span></button>; })}
     </div></section>
     <section className="setting-section compact-section"><div className="field-label"><span>ЭТАП ИГРЫ</span></div><div className="stage-segment">
       {Object.entries(stageMeta).map(([id, stage]) => <button type="button" key={id} className={`stage-choice ${settings.stage === id ? `active ${stage.color}` : ''}`} onClick={() => patch('stage', id)}><i>{stage.number}</i><span>{stage.label}</span></button>)}
@@ -209,7 +223,14 @@ function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCat
     <section className="setting-section compact-section"><label className="field-label" htmlFor="goal-select"><span>ЦЕЛЬ</span></label><div className="select-wrap">
       <select id="goal-select" value={product?.id ?? ''} onChange={(event) => patch('goal', event.target.value)}>{productOptions.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}</select><Icon name="chevron" size={13} />
     </div></section>
-    {hasSupplySettings && !minimalModule && <>
+    {['production', 'defense'].includes(settings.direction) && <section className="setting-section campaign-link-setting">
+      <div className="field-label"><span>КАМПАНИЯ / ОБМЕН РЕСУРСАМИ</span><small>{GAME_VERSION}</small></div>
+      <Toggle checked={Boolean(settings.campaignLink && !isErekir)} disabled={isErekir} onChange={setCampaignLink}
+        label={settings.direction === 'production' ? 'Экспорт продукта с площадки' : 'Импорт боеприпасов на посадочную площадку'}
+        detail={isErekir ? 'Посадочные площадки v8 доступны на Серпуло.' : settings.direction === 'production' ? 'Advanced Launch Pad подключится к продукту; в кампании выбери сектор-получатель.' : 'Landing Pad настроится на выбранный предмет и подаст его в оборону.'} />
+      {isErekir && <p className="microcopy">В v160.2 посадочная/пусковая цепочка для этого шаблона доступна на Серпуло.</p>}
+    </section>}
+    {hasSupplySettings && !minimalModule && !campaignDefenseImport && <>
       <section className="setting-section supply-section"><div className="field-label"><span>СНАБЖЕНИЕ</span></div>
         <div className="supply-mode-grid" role="group" aria-label="Способ снабжения">
           {supplyModes.map((mode) => <button type="button" key={mode.id} title={isErekir ? erekirSupplyModes[mode.id]?.hint ?? mode.hint : mode.hint} className={`supply-mode-option ${settings.supplyMode === mode.id ? 'selected' : ''}`} onClick={() => setSupplyMode(mode.id)}><span>{mode.mark}</span><b>{isErekir ? erekirSupplyModes[mode.id]?.label ?? mode.label : mode.label}</b></button>)}
@@ -233,7 +254,12 @@ function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCat
         </>}
       </section>}
     </>}
-    <section className="setting-section"><Toggle checked={settings.minimal} onChange={(value) => patch('minimal', value)} label="Минимальная схема" detail="Одна фабрика без вспомогательных блоков." />{minimalModule && <p className="microcopy">Подключи сырьё, энергию и жидкости снаружи.</p>}{minimalModule && <Toggle checked={settings.includePower} onChange={(value) => patch('includePower', value)} label="Узел внешнего питания" detail="Только соединение; генерация энергии вне модуля" />}</section>
+    {campaignDefenseImport && <section className="setting-section compact-section logic-settings-section">
+      <label className="field-label" htmlFor="landing-ammo-select"><span>БОЕПРИПАС ДЛЯ ИМПОРТА</span></label>
+      <div className="select-wrap"><select id="landing-ammo-select" value={getTransportItem(settings)} onChange={(event) => patch('transportItem', event.target.value)}>{transportOptions.map((item) => <option key={item.id} value={item.id}>{item.name} · @{item.id}</option>)}</select><Icon name="chevron" size={13} /></div>
+      <p className="microcopy">Фильтр Landing Pad сохранится в .msch. Выбери для сектора экспорт этого предмета и проверь, что тип турели принимает эти боеприпасы.</p>
+    </section>}
+    <section className="setting-section"><Toggle checked={minimalModule} disabled={Boolean(settings.campaignLink && settings.direction === 'production')} onChange={(value) => patch('minimal', value)} label="Минимальная схема" detail={settings.campaignLink && settings.direction === 'production' ? 'Экспортный модуль автоматически использует компактную компоновку.' : 'Одна фабрика с отдельными портами по рецепту.'} />{minimalModule && <p className="microcopy">Подключи предметные входы, жидкости, тепло и энергию снаружи. Для экспорта дополнительно нужны масло и питание.</p>}{minimalModule && <Toggle checked={settings.includePower} onChange={(value) => patch('includePower', value)} label="Узел внешнего питания" detail="Только соединение; энергию и топливо подай снаружи" />}</section>
     {!minimalModule && <><section className="setting-section compact-section"><div className="field-label"><span>РАЗМЕР СХЕМЫ</span><small>ДО 128 × 128</small></div><div className="size-options">
       {Object.entries(canvasPresets).map(([id, preset]) => <button type="button" key={id} className={`size-option ${settings.footprint === id ? 'selected' : ''}`} onClick={() => patch('footprint', id)}><span className={`size-preview ${id}`}><i /></span><span>{preset.label}</span><small>{preset.note}</small></button>)}
     </div></section>
@@ -249,9 +275,9 @@ function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCat
     <button className="button button-primary generate-button" type="button" onClick={onGenerate}><Icon name="spark" size={17} /><span>Сгенерировать схему</span><kbd>↵</kbd></button>
     {dirty && <div className="generator-hint dirty"><span className="hint-dot" />Параметры изменены</div>}
     <div className="sidebar-divider" />
-    <div className="palette-heading"><div><div className="field-label"><span>ПАЛИТРА</span><small>{filteredPalette.length} / {buildableBlocks.length}</small></div></div><button className="link-button" type="button" onClick={() => setView('catalog')}>Каталог <Icon name="external" size={12} /></button></div>
+    <div className="palette-heading"><div><div className="field-label"><span>ПАЛИТРА</span><small>{filteredPalette.length} / {planetBlocks.length}</small></div></div><button className="link-button" type="button" onClick={() => setView('catalog')}>Каталог <Icon name="external" size={12} /></button></div>
     <div className="palette-controls"><div className="search-field palette-search"><Icon name="search" size={14} /><input value={paletteSearch} onChange={(event) => setPaletteSearch(event.target.value)} placeholder="Найти блок..." aria-label="Найти блок" /></div>
-      <div className="select-wrap palette-select-wrap"><select value={paletteCategory} onChange={(event) => setPaletteCategory(event.target.value)} aria-label="Категория блоков"><option value="all">Все категории</option>{categories.filter((category) => buildableBlocks.some((block) => block.category === category.id)).map((category) => <option key={category.id} value={category.id}>{category.label}</option>)}</select><Icon name="chevron" size={12} /></div>
+      <div className="select-wrap palette-select-wrap"><select value={paletteCategory} onChange={(event) => setPaletteCategory(event.target.value)} aria-label="Категория блоков"><option value="all">Все категории</option>{paletteCategories.map((category) => <option key={category.id} value={category.id}>{category.label}</option>)}</select><Icon name="chevron" size={12} /></div>
     </div>
     <div className="palette-list">
       {filteredPalette.slice(0, 72).map((block) => <button type="button" key={block.id} draggable onDragStart={(event) => { event.dataTransfer.setData('text/plain', block.id); event.dataTransfer.effectAllowed = 'copy'; }} className={`palette-item ${selectedBlock === block.id && activeTool === 'place' ? 'selected' : ''}`} onClick={() => onSelectBlock(block.id)} title={`${block.name} · ${block.id}`}>
@@ -263,8 +289,24 @@ function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCat
   </aside>;
 }
 
-function BlockCanvas({ scheme, selectedKey, setSelectedKey, tool, selectedBlock, onPlace, onErase, onSelect, gridVisible, showNames, zoom, svgRef, onDropBlock }) {
+function BlockCanvas({ scheme, selectedKey, setSelectedKey, tool, selectedBlock, onPlace, onErase, onMove, onSelect, gridVisible, showNames, zoom, svgRef, onDropBlock }) {
   const width = scheme.width; const height = scheme.height;
+  const viewportRef = useRef(null);
+  const panRef = useRef(null);
+  const blockDragRef = useRef(null);
+  const suppressClickRef = useRef(false);
+  const spacePressedRef = useRef(false);
+  const [spacePanReady, setSpacePanReady] = useState(false);
+  const [isPanning, setIsPanning] = useState(false);
+  const [dragPreview, setDragPreview] = useState(null);
+  useEffect(() => {
+    const isInteractive = (target) => target instanceof HTMLElement && (['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON', 'A'].includes(target.tagName) || target.isContentEditable || Boolean(target.closest('[role="button"]')));
+    const keyDown = (event) => { if (event.code === 'Space' && !isInteractive(event.target)) { event.preventDefault(); spacePressedRef.current = true; setSpacePanReady(true); } };
+    const keyUp = (event) => { if (event.code === 'Space') { spacePressedRef.current = false; setSpacePanReady(false); } };
+    const blur = () => { spacePressedRef.current = false; setSpacePanReady(false); };
+    window.addEventListener('keydown', keyDown); window.addEventListener('keyup', keyUp); window.addEventListener('blur', blur);
+    return () => { window.removeEventListener('keydown', keyDown); window.removeEventListener('keyup', keyUp); window.removeEventListener('blur', blur); };
+  }, []);
   const entryFor = (id) => buildableBlocks.find((block) => block.id === id) ?? gameBlocks.find((block) => block.id === id) ?? { id, type: 'block', category: 'sandbox', name: id };
   const color = (id) => categoryColors[entryFor(id).category] ?? '#adb7c3';
   const iconFor = (id) => markFor(entryFor(id));
@@ -278,6 +320,7 @@ function BlockCanvas({ scheme, selectedKey, setSelectedKey, tool, selectedBlock,
     return { x: Math.floor(transformed.x), y: height - 1 - Math.floor(transformed.y) };
   };
   const handlePointer = (event) => {
+    if (suppressClickRef.current) { suppressClickRef.current = false; return; }
     event.preventDefault?.();
     const point = makePoint(event); if (!point) return;
     const hit = tileAtCell(scheme.tiles, point.x, point.y);
@@ -285,12 +328,60 @@ function BlockCanvas({ scheme, selectedKey, setSelectedKey, tool, selectedBlock,
     if (tool === 'place') { if (selectedBlock) onPlace(point.x, point.y, selectedBlock); return; }
     if (hit) onSelect(hit); else setSelectedKey(null);
   };
+  const startPan = (event) => {
+    if (event.button !== 1 && !(event.button === 0 && spacePressedRef.current)) return;
+    event.preventDefault();
+    suppressClickRef.current = false;
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    panRef.current = { pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, scrollLeft: viewport.scrollLeft, scrollTop: viewport.scrollTop, moved: false };
+    setIsPanning(true);
+    viewport.setPointerCapture?.(event.pointerId);
+  };
+  const startBlockDrag = (event, tile) => {
+    if (event.button !== 0 || tool !== 'select' || spacePressedRef.current) return;
+    event.preventDefault(); event.stopPropagation(); suppressClickRef.current = false;
+    const point = makePoint(event);
+    if (!point) return;
+    setSelectedKey(`${tile.x}:${tile.y}`);
+    blockDragRef.current = { tile, startX: point.x, startY: point.y };
+    svgRef.current?.setPointerCapture?.(event.pointerId);
+  };
+  const movePointer = (event) => {
+    if (panRef.current) {
+      const pan = panRef.current;
+      const dx = event.clientX - pan.startX; const dy = event.clientY - pan.startY;
+      if (Math.abs(dx) + Math.abs(dy) > 3) pan.moved = true;
+      const viewport = viewportRef.current;
+      if (viewport) { viewport.scrollLeft = pan.scrollLeft - dx; viewport.scrollTop = pan.scrollTop - dy; }
+      return;
+    }
+    if (!blockDragRef.current) return;
+    const point = makePoint(event); if (!point) return;
+    const drag = blockDragRef.current;
+    const dx = point.x - drag.startX; const dy = point.y - drag.startY;
+    if (dx || dy) setDragPreview({ key: `${drag.tile.x}:${drag.tile.y}`, dx, dy });
+    else setDragPreview(null);
+  };
+  const finishPointer = (event) => {
+    if (panRef.current) {
+      if (panRef.current.moved) suppressClickRef.current = true;
+      panRef.current = null; setIsPanning(false);
+    }
+    if (blockDragRef.current) {
+      const drag = blockDragRef.current;
+      const point = makePoint(event);
+      const dx = point ? point.x - drag.startX : 0; const dy = point ? point.y - drag.startY : 0;
+      blockDragRef.current = null; setDragPreview(null);
+      if (dx || dy) { suppressClickRef.current = true; onMove?.(drag.tile, drag.tile.x + dx, drag.tile.y + dy); }
+    }
+  };
   const gridPath = useMemo(() => { let path = ''; for (let x = 0; x <= width; x += 1) path += `M${x} 0V${height} `; for (let y = 0; y <= height; y += 1) path += `M0 ${y}H${width} `; return path; }, [width, height]);
   const majorGridPath = useMemo(() => { let path = ''; for (let x = 0; x <= width; x += 4) path += `M${x} 0V${height} `; for (let y = 0; y <= height; y += 4) path += `M0 ${y}H${width} `; return path; }, [width, height]);
 
-  return <div className="canvas-viewport" onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); const id = event.dataTransfer.getData('text/plain'); const point = makePoint(event); if (id && point) onDropBlock(point.x, point.y, id); }}>
+  return <div ref={viewportRef} className={`canvas-viewport ${spacePanReady ? 'pan-ready' : ''} ${isPanning ? 'panning' : ''}`} onPointerDown={startPan} onPointerMove={movePointer} onPointerUp={finishPointer} onPointerCancel={finishPointer} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); const id = event.dataTransfer.getData('text/plain'); const point = makePoint(event); if (id && point) onDropBlock(point.x, point.y, id); }}>
     <div className="canvas-blueprint" /><div className="coordinate-label coord-nw">0,{height - 1} <span>GRID / TILE</span></div><div className="coordinate-label coord-ne">{width} × {height} <span>MSCH</span></div>
-    <svg ref={svgRef} className={`schematic-svg ${gridVisible ? '' : 'no-grid'} ${tool === 'place' ? 'placing' : ''} ${tool === 'erase' ? 'erasing' : ''}`} viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid meet" style={{ transform: `scale(${zoom})` }} role="img" aria-label={`Схема Mindustry ${width} на ${height}, ${scheme.tiles.length} построек`} onClick={handlePointer}>
+    <svg ref={svgRef} className={`schematic-svg ${gridVisible ? '' : 'no-grid'} ${tool === 'place' ? 'placing' : ''} ${tool === 'erase' ? 'erasing' : ''}`} viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid meet" style={{ width: `${zoom * 100}%`, height: `${zoom * 100}%` }} role="img" aria-label={`Схема Mindustry ${width} на ${height}, ${scheme.tiles.length} построек`} onClick={handlePointer}>
       <defs><radialGradient id="canvas-vignette"><stop offset="0" stopColor="var(--canvas-vignette-center)" /><stop offset="1" stopColor="var(--canvas-vignette-edge)" /></radialGradient><filter id="selected-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="0.11" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter></defs>
       <rect width={width} height={height} className="canvas-base" rx="0.5" />
       {gridVisible && <><path d={gridPath} className="canvas-grid-minor" /><path d={majorGridPath} className="canvas-grid-major" /></>}
@@ -300,7 +391,7 @@ function BlockCanvas({ scheme, selectedKey, setSelectedKey, tool, selectedBlock,
         const key = `${tile.x}:${tile.y}`; const size = sizeFor(tile.id); const worldRect = blockRect(tile); const rect = { ...worldRect, startY: height - 1 - worldRect.endY, endY: height - 1 - worldRect.startY };
         const x = rect.startX + .08; const y = rect.startY + .08; const visualSize = Math.max(.78, size - .16);
         const selected = selectedKey === key; const tone = color(tile.id); const glyph = iconFor(tile.id); const label = nameFor(tile.id);
-              return <g key={key} className={`canvas-block ${selected ? 'selected' : ''} ${size > 1 ? 'large-block' : ''}`} onClick={(event) => { event.stopPropagation(); handlePointer(event); }} onContextMenu={(event) => { event.preventDefault(); onErase(tile); }} style={{ '--block-color': tone }}>
+              return <g key={key} className={`canvas-block ${selected ? 'selected' : ''} ${size > 1 ? 'large-block' : ''}`} transform={dragPreview?.key === key ? `translate(${dragPreview.dx} ${-dragPreview.dy})` : undefined} onPointerDown={(event) => startBlockDrag(event, tile)} onClick={(event) => { event.stopPropagation(); handlePointer(event); }} onContextMenu={(event) => { event.preventDefault(); onErase(tile); }} style={{ '--block-color': tone }}>
           <title>{`${label} · ${tile.id} · ${size}×${size} · поворот ${tile.rotation ?? 0}`}</title>
           <rect x={x} y={y} width={visualSize} height={visualSize} rx=".08" className="block-shadow" />
           <CanvasTexture id={tile.id} x={rect.startX} y={rect.startY} size={size} rotation={tile.rotation ?? 0} glyph={glyph} />
@@ -310,7 +401,7 @@ function BlockCanvas({ scheme, selectedKey, setSelectedKey, tool, selectedBlock,
         </g>;
       })}
     </svg>
-    <div className="canvas-legend"><span className="legend-pulse" />{tool === 'place' && selectedBlock ? `Поставить: ${buildableBlocks.find((block) => block.id === selectedBlock)?.name ?? selectedBlock}` : tool === 'erase' ? 'Клик — удалить' : 'Клик — выбрать · правый клик — удалить'}</div>
+    <div className="canvas-legend"><span className="legend-pulse" />{tool === 'place' && selectedBlock ? `Поставить: ${buildableBlocks.find((block) => block.id === selectedBlock)?.name ?? selectedBlock}` : tool === 'erase' ? 'Клик — удалить' : 'Клик — выбрать · правый клик — удалить'}<small>Space + перетаскивание или средняя кнопка — панорама · перетащи блок, чтобы переместить</small></div>
     <div className="canvas-coordinates">X {Math.floor(width / 2)} <i /> Y {Math.floor(height / 2)}</div>
   </div>;
 }
@@ -334,7 +425,7 @@ function Inspector({ scheme, analytics, selectedTile, onRotate, onRemove, onSave
   const direction = directionMeta[scheme.settings?.direction] ?? directionMeta.production;
   const stage = stageMeta[scheme.settings?.stage] ?? stageMeta.mid;
   const world = getPlanetLabel(scheme.settings?.planet ?? 'serpulo');
-  const product = (productsByDirection[scheme.settings?.direction] ?? []).find((item) => item.id === scheme.settings?.goal);
+  const product = getProductsForDirection(scheme.settings?.direction, scheme.settings?.planet, scheme.settings?.stage).find((item) => item.id === scheme.settings?.goal);
   const logicSettings = scheme.settings ?? {};
   const showLogicProgram = needsLogicProgram(logicSettings);
   const logicProgram = showLogicProgram ? buildLogicProgram(logicSettings) : '';
@@ -407,6 +498,11 @@ function EditorPage({ settings, setSettings, setView, dirty, onGenerate, scheme,
   const activeScheme = useMemo(() => ({ ...scheme, name: name.trim() || scheme.name, tags: { ...(scheme.tags ?? {}), name: name.trim() || scheme.name } }), [scheme, name]);
   const commitTiles = (tiles) => setScheme((current) => ({ ...current, tiles }));
   const placeBlock = (x, y, id) => {
+    const block = buildableBlocks.find((entry) => entry.id === id);
+    if (!block?.campaignBuildable || (block.planet !== 'both' && block.planet !== settings.planet)) {
+      notify({ type: 'error', message: 'Эта постройка недоступна для кампании на выбранной планете.' });
+      return;
+    }
     const px = Math.max(0, Math.min(scheme.width - 1, x)); const py = Math.max(0, Math.min(scheme.height - 1, y));
     if (tileAtCell(scheme.tiles, px, py)) { notify({ type: 'error', message: 'Место занято. Выбери пустую клетку или сначала удали блок.' }); return; }
     if (!blockFits(scheme.tiles, id, px, py, scheme.width, scheme.height)) { notify({ type: 'error', message: 'Этот блок не помещается здесь или пересекается с другой постройкой.' }); return; }
@@ -414,6 +510,16 @@ function EditorPage({ settings, setSettings, setView, dirty, onGenerate, scheme,
     setSelectedTileKey(`${px}:${py}`); setActiveTool('select'); setSelectedBlock(id);
   };
   const eraseTile = (tile) => { commitTiles(scheme.tiles.filter((item) => item !== tile)); setSelectedTileKey(null); };
+  const moveBlock = (tile, x, y) => {
+    const nextX = Math.max(0, Math.min(scheme.width - 1, x));
+    const nextY = Math.max(0, Math.min(scheme.height - 1, y));
+    if (!blockFits(scheme.tiles, tile.id, nextX, nextY, scheme.width, scheme.height, tile)) {
+      notify({ type: 'error', message: 'Нельзя переместить блок: клетка занята или часть блока выйдет за край поля.' });
+      return;
+    }
+    commitTiles(scheme.tiles.map((item) => item === tile ? { ...item, x: nextX, y: nextY } : item));
+    setSelectedTileKey(`${nextX}:${nextY}`);
+  };
   const rotateTile = () => { if (!selectedTile) return; commitTiles(scheme.tiles.map((tile) => tile === selectedTile ? { ...tile, rotation: ((tile.rotation ?? 0) + 1) % 4 } : tile)); };
   const moveZoom = (change) => setZoom((current) => Math.max(.7, Math.min(1.28, Math.round((current + change) * 100) / 100)));
 
@@ -431,9 +537,9 @@ function EditorPage({ settings, setSettings, setView, dirty, onGenerate, scheme,
         <button className={`tool-square ${gridVisible ? 'active-soft' : ''}`} type="button" title="Показать / скрыть сетку" onClick={() => setGridVisible(!gridVisible)}><Icon name="grid" size={15} /></button>
         <button className={`tool-square ${showNames ? 'active-soft' : ''}`} type="button" title="Подписи блоков" onClick={() => setShowNames(!showNames)}><Icon name="eye" size={15} /></button>
       </div><div className="editor-toolbar-right"><span className="canvas-size-label"><Icon name="box" size={13} />{scheme.width} × {scheme.height}</span><span className="tool-separator" />
-        <button className="tool-square zoom-button" type="button" title="Уменьшить" onClick={() => moveZoom(-.1)}><Icon name="zoomOut" size={15} /></button><span className="zoom-level">{Math.round(zoom * 100)}%</span><button className="tool-square zoom-button" type="button" title="Увеличить" onClick={() => moveZoom(.1)}><Icon name="zoomIn" size={15} /></button><span className="tool-separator" /><button className="tool-square" type="button" title="Экспортировать схему" onClick={onExport}><Icon name="download" size={15} /></button>
+        <button className="tool-square zoom-button" type="button" title="Уменьшить" onClick={() => moveZoom(-.1)}><Icon name="zoomOut" size={15} /></button><span className="zoom-level">{Math.round(zoom * 100)}%</span><button className="tool-square zoom-button" type="button" title="Увеличить" onClick={() => moveZoom(.1)}><Icon name="zoomIn" size={15} /></button><button className="tool-square zoom-button" type="button" title="Сбросить масштаб до 100%" onClick={() => setZoom(1)}><Icon name="refresh" size={14} /></button><span className="tool-separator" /><button className="tool-square" type="button" title="Экспортировать схему" onClick={onExport}><Icon name="download" size={15} /></button>
       </div></div>
-      <div className="canvas-stage"><BlockCanvas scheme={scheme} selectedKey={selectedTileKey} setSelectedKey={setSelectedTileKey} tool={activeTool} selectedBlock={selectedBlock} onPlace={placeBlock} onErase={eraseTile} onSelect={(tile) => setSelectedTileKey(`${tile.x}:${tile.y}`)} gridVisible={gridVisible} showNames={showNames} zoom={zoom} svgRef={svgRef} onDropBlock={(x, y, id) => { setSelectedBlock(id); placeBlock(x, y, id); }} /></div>
+      <div className="canvas-stage"><BlockCanvas scheme={scheme} selectedKey={selectedTileKey} setSelectedKey={setSelectedTileKey} tool={activeTool} selectedBlock={selectedBlock} onPlace={placeBlock} onErase={eraseTile} onMove={moveBlock} onSelect={(tile) => setSelectedTileKey(`${tile.x}:${tile.y}`)} gridVisible={gridVisible} showNames={showNames} zoom={zoom} svgRef={svgRef} onDropBlock={(x, y, id) => { setSelectedBlock(id); placeBlock(x, y, id); }} /></div>
       <div className="editor-statusbar"><div className="status-left"><span><b>{analytics.total}</b> блоков</span><i className="status-separator" /><span>{analytics.unique} типов</span></div><div className="status-right"><span><Icon name="cursor" size={12} /> {activeTool === 'place' ? 'РАЗМЕСТИТЬ' : activeTool === 'erase' ? 'УДАЛИТЬ' : 'ВЫБРАТЬ'}</span></div></div>
       </div>
     </section>
@@ -441,21 +547,25 @@ function EditorPage({ settings, setSettings, setView, dirty, onGenerate, scheme,
   </main>;
 }
 
-function CatalogPage({ onBack, onUseBlock, selectedObject, setSelectedObject }) {
+function CatalogPage({ onBack, onUseBlock, selectedObject, setSelectedObject, initialPlanet = 'serpulo' }) {
   const [catalogType, setCatalogType] = useState('buildings');
   const [catalogCategory, setCatalogCategory] = useState('all');
-  const [planetFilter, setPlanetFilter] = useState('all');
+  const [planetFilter, setPlanetFilter] = useState(initialPlanet);
   const [query, setQuery] = useState('');
   const [sortBy, setSortBy] = useState('name');
+  const belongsToPlanet = (entry) => planetFilter === 'all' || entry.planet === 'both' || entry.planet === planetFilter;
   const visibleCountByTab = {
-    buildings: buildableBlocks.length, environment: gameBlocks.length - buildableBlocks.length,
-    item: gameCatalog.filter((entry) => entry.type === 'item').length, liquid: gameCatalog.filter((entry) => entry.type === 'liquid').length,
-    unit: gameCatalog.filter((entry) => entry.type === 'unit').length, all: gameCatalog.length,
+    buildings: gameBlocks.filter((entry) => entry.campaignBuildable && belongsToPlanet(entry)).length,
+    environment: gameBlocks.filter((entry) => !entry.campaignBuildable && belongsToPlanet(entry)).length,
+    item: gameCatalog.filter((entry) => entry.type === 'item' && belongsToPlanet(entry)).length,
+    liquid: gameCatalog.filter((entry) => entry.type === 'liquid' && belongsToPlanet(entry)).length,
+    unit: gameCatalog.filter((entry) => entry.type === 'unit' && belongsToPlanet(entry)).length,
+    all: gameCatalog.filter(belongsToPlanet).length,
   };
   const filtered = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase('ru');
     let rows = gameCatalog.filter((entry) => {
-      const typeMatch = catalogType === 'buildings' ? entry.type === 'block' && entry.buildable : catalogType === 'environment' ? entry.type === 'block' && !entry.buildable : catalogType === 'all' ? true : entry.type === catalogType;
+      const typeMatch = catalogType === 'buildings' ? entry.type === 'block' && entry.campaignBuildable : catalogType === 'environment' ? entry.type === 'block' && !entry.campaignBuildable : catalogType === 'all' ? true : entry.type === catalogType;
       const categoryMatch = catalogCategory === 'all' || entry.category === catalogCategory;
       const planetMatch = planetFilter === 'all' || entry.planet === planetFilter || entry.planet === 'both';
       const queryMatch = !needle || `${entry.name} ${entry.id} ${entry.description}`.toLocaleLowerCase('ru').includes(needle);
@@ -465,16 +575,19 @@ function CatalogPage({ onBack, onUseBlock, selectedObject, setSelectedObject }) 
     return rows;
   }, [catalogType, catalogCategory, planetFilter, query, sortBy]);
   const tabs = [
-    { id: 'buildings', label: 'Постройки', count: visibleCountByTab.buildings }, { id: 'environment', label: 'Окружение', count: visibleCountByTab.environment },
+    { id: 'buildings', label: 'Постройки', count: visibleCountByTab.buildings }, { id: 'environment', label: 'Окружение / спецблоки', count: visibleCountByTab.environment },
     { id: 'item', label: 'Предметы', count: visibleCountByTab.item }, { id: 'liquid', label: 'Жидкости', count: visibleCountByTab.liquid },
     { id: 'unit', label: 'Юниты', count: visibleCountByTab.unit }, { id: 'all', label: 'Все объекты', count: visibleCountByTab.all },
   ];
-  const typeRows = catalogType === 'buildings' ? buildableBlocks : catalogType === 'environment' ? gameBlocks.filter((entry) => !entry.buildable) : catalogType === 'all' ? gameCatalog : gameCatalog.filter((entry) => entry.type === catalogType);
+  const typeRows = gameCatalog.filter((entry) => {
+    const matchesTab = catalogType === 'buildings' ? entry.type === 'block' && entry.campaignBuildable : catalogType === 'environment' ? entry.type === 'block' && !entry.campaignBuildable : catalogType === 'all' ? true : entry.type === catalogType;
+    return matchesTab && belongsToPlanet(entry);
+  });
   const categoryOptions = [...new Set(typeRows.map((entry) => entry.category))].map((id) => categories.find((category) => category.id === id) ?? { id, label: typeLabels[id] ?? id });
   const selectedVisible = selectedObject && filtered.some((entry) => entry.id === selectedObject.id && entry.type === selectedObject.type);
   const active = selectedVisible ? selectedObject : filtered[0] ?? null;
   const activeCategory = categoryById.get(active?.category);
-  const activeTypeLabel = active?.type === 'block' ? (active.buildable ? 'Постройка' : 'Объект окружения') : typeLabels[active?.type] ?? 'Игровой объект';
+  const activeTypeLabel = active?.type === 'block' ? (active.campaignBuildable ? 'Постройка кампании' : active.buildable ? 'Редактор / песочница' : 'Объект окружения') : typeLabels[active?.type] ?? 'Игровой объект';
 
   return <main className="catalog-page">
     <div className="catalog-titlebar"><h1>Каталог</h1><button className="button button-outline" type="button" onClick={onBack}><Icon name="chevronLeft" size={15} /> Редактор</button></div>
@@ -482,27 +595,87 @@ function CatalogPage({ onBack, onUseBlock, selectedObject, setSelectedObject }) 
     <div className="catalog-content-grid"><section className="catalog-main-panel">
       <div className="catalog-controls"><div className="search-field catalog-search"><Icon name="search" size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Название или внутренний ID..." aria-label="Поиск объектов" /><kbd>/</kbd></div>
         <div className="select-wrap catalog-filter"><Icon name="filter" size={13} /><select value={catalogCategory} onChange={(event) => setCatalogCategory(event.target.value)} aria-label="Категория"><option value="all">Все категории</option>{categoryOptions.map((category) => <option key={category.id} value={category.id}>{category.label}</option>)}</select><Icon name="chevron" size={12} /></div>
-        <div className="select-wrap planet-filter"><select value={planetFilter} onChange={(event) => setPlanetFilter(event.target.value)} aria-label="Планета"><option value="all">Все планеты</option><option value="serpulo">Серпуло</option><option value="erekir">Эрекир</option></select><Icon name="chevron" size={12} /></div>
+        <div className="select-wrap planet-filter"><select value={planetFilter} onChange={(event) => { setPlanetFilter(event.target.value); setCatalogCategory('all'); setSelectedObject(null); }} aria-label="Планета"><option value="all">Все планеты</option><option value="serpulo">Серпуло</option><option value="erekir">Эрекир</option></select><Icon name="chevron" size={12} /></div>
         <button className="sort-button" type="button" title="Сортировать по ID" onClick={() => setSortBy(sortBy === 'name' ? 'id' : 'name')}><Icon name="sliders" size={14} />{sortBy === 'name' ? 'А–Я' : 'ID'}</button>
       </div>
       <div className="catalog-results-head"><b>{filtered.length.toLocaleString('ru-RU')} объектов</b><span className="catalog-results-line" /></div>
       <div className="catalog-grid">{filtered.map((entry) => <button type="button" key={`${entry.type}:${entry.id}`} className={`catalog-card ${selectedObject?.id === entry.id && selectedObject?.type === entry.type ? 'active' : ''}`} onClick={() => setSelectedObject(entry)} title={`${entry.name} · ${entry.id}`}>
-        <GameGlyph entry={entry} size="medium" /><span className="catalog-card-copy"><b>{entry.name}</b><code>{entry.id}</code><small>{entry.type === 'block' ? entry.buildable ? 'Постройка' : entry.category === 'ore' ? 'Руда' : 'Окружение' : typeLabels[entry.type]}</small></span><span className={`catalog-planet-dot ${entry.planet}`} title={getPlanetLabel(entry.planet)} />
+        <GameGlyph entry={entry} size="medium" /><span className="catalog-card-copy"><b>{entry.name}</b><code>{entry.id}</code><small>{entry.type === 'block' ? entry.campaignBuildable ? 'Постройка кампании' : entry.buildable ? 'Редактор / спецблок' : entry.category === 'ore' ? 'Руда' : 'Окружение' : typeLabels[entry.type]}</small></span><span className={`catalog-planet-dot ${entry.planet}`} title={getPlanetLabel(entry.planet)} />
       </button>)}
         {filtered.length === 0 && <div className="catalog-empty"><span className="empty-search-icon"><Icon name="search" size={22} /></span><b>Ничего не найдено</b><small>Измени запрос или сбрось фильтры.</small><button type="button" onClick={() => { setQuery(''); setCatalogCategory('all'); setPlanetFilter('all'); }}>Сбросить фильтры</button></div>}
       </div>
     </section>
     <aside className="catalog-detail-panel"><div className="catalog-detail-head"><span className="field-label">ОБЪЕКТ / ПРОСМОТР</span><span className="catalog-detail-counter">{active ? `${String(filtered.findIndex((entry) => entry.id === active.id && entry.type === active.type) + 1).padStart(2, '0')}` : '—'} <i>/ {String(filtered.length).padStart(2, '0')}</i></span></div>
       {active ? <><div className="catalog-detail-art"><div className="detail-art-grid" /><div className="detail-art-glow" /><GameGlyph entry={active} size="hero" /></div>
-        <div className="catalog-detail-title"><TinyTag tone={active.buildable ? 'green' : active.type === 'block' ? '' : 'blue'}>{activeTypeLabel}</TinyTag><h2>{active.name}</h2><code>{active.id}</code></div>
-        <p className="catalog-description">{stripGameMarkup(active.description) || `${activeCategory?.label ?? typeLabels[active.type] ?? 'Объект'} из стандартного набора Mindustry v146.`}</p>
+        <div className="catalog-detail-title"><TinyTag tone={active.campaignBuildable ? 'green' : active.buildable ? 'gold' : active.type === 'block' ? '' : 'blue'}>{activeTypeLabel}</TinyTag><h2>{active.name}</h2><code>{active.id}</code></div>
+        <p className="catalog-description">{stripGameMarkup(active.description) || `${activeCategory?.label ?? typeLabels[active.type] ?? 'Объект'} из стандартного набора Mindustry ${GAME_VERSION}.`}</p>
         <div className="detail-meta-grid"><div><small>ТИП</small><b>{activeCategory?.label ?? typeLabels[active.type] ?? 'Объект'}</b></div><div><small>ПЛАНЕТА</small><b>{getPlanetLabel(active.planet)}</b></div>
           <div><small>ИГРОВОЙ ЭТАП</small><b>{active.type === 'block' ? getStageLabel(active.stage) : active.type === 'unit' ? 'Технологическая ветка' : 'Ресурс'}</b></div><div><small>РАЗМЕР</small><b>{active.type === 'block' ? `${active.size} × ${active.size} тайл.` : '—'}</b></div></div>
-        {active.buildable ? <button className="button button-primary full-width place-catalog-button" type="button" onClick={() => onUseBlock(active)}><Icon name="plus" size={15} /> Выбрать для редактора</button> : <div className="nonbuildable-note"><Icon name="info" size={14} />{active.type === 'block' ? 'Это элемент карты, его нельзя поместить в схему.' : 'Ресурс или юнит. В схеме отображаются связанные с ним постройки.'}</div>}
+        {active.campaignBuildable ? <button className="button button-primary full-width place-catalog-button" type="button" onClick={() => onUseBlock(active)}><Icon name="plus" size={15} /> Выбрать для редактора</button> : <div className="nonbuildable-note"><Icon name="info" size={14} />{active.type === 'block' ? active.buildable ? 'Этот блок есть в игре, но доступен только в редакторе/песочнице; в обычные схемы не добавляется.' : 'Это элемент карты или служебный объект, его нельзя построить в кампании.' : ['hidden', 'debugOnly', 'sandboxOnly', 'editorOnly', 'worldProcessorOnly'].includes(active.visibility) ? 'Служебный, тестовый или редакторский объект из игры; в обычной кампании не строится.' : 'Ресурс или юнит. В схеме отображаются связанные с ним постройки.'}</div>}
       </> : <div className="catalog-select-empty"><GameGlyph entry={{ category: 'storage' }} size="large" /><b>Выбери объект</b></div>}
     </aside></div>
-    <div className="catalog-attribution">Данные каталога: Mindustry v146.</div>
+    <div className="catalog-attribution">Только содержимое Mindustry {GAME_VERSION} · источник — версия Steam/upstream.</div>
   </main>;
+}
+
+function BlueprintPreview({ scheme }) {
+  const width = scheme.width;
+  const height = scheme.height;
+  const tileRows = [...scheme.tiles].sort((a, b) => a.y - b.y || a.x - b.x);
+  return <div className="blueprint-preview">
+    <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`Предпросмотр ${scheme.width} на ${scheme.height}`}>
+      <rect width={width} height={height} className="blueprint-preview-bg" />
+      {Array.from({ length: width + 1 }, (_, x) => <path key={`x${x}`} d={`M${x} 0V${height}`} className="blueprint-preview-grid" />)}
+      {Array.from({ length: height + 1 }, (_, y) => <path key={`y${y}`} d={`M0 ${y}H${width}`} className="blueprint-preview-grid" />)}
+      {tileRows.map((tile, index) => {
+        const entry = gameBlocks.find(block => block.id === tile.id);
+        const size = entry?.size ?? 1;
+        const rect = blockRect(tile);
+        const top = height - 1 - rect.endY;
+        const sprite = sprites[`block:${tile.id}`];
+        const color = categoryColors[entry?.category] ?? '#b7c2cd';
+        const directional = blockFacts[tile.id]?.rotate || /conveyor|duct|conduit/.test(tile.id);
+        return <g key={`${tile.id}:${tile.x}:${tile.y}:${index}`}>
+          <rect x={rect.startX + .06} y={top + .06} width={size - .12} height={size - .12} rx=".08" fill={color} fillOpacity=".2" stroke={color} strokeOpacity=".8" strokeWidth=".055" />
+          {sprite && !sprite.invisible && <image href={sprite.file} x={rect.startX} y={top} width={size} height={size} preserveAspectRatio="xMidYMid meet" transform={directional ? `rotate(${-((tile.rotation ?? 0) * 90)} ${rect.startX + size / 2} ${top + size / 2})` : undefined} />}
+        </g>;
+      })}
+    </svg>
+  </div>;
+}
+
+function BlueprintPicker({ candidates, onClose, onSelect }) {
+  if (!candidates) return null;
+  return <div className="modal-backdrop blueprint-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+    <section className="blueprint-modal" role="dialog" aria-modal="true" aria-labelledby="blueprint-picker-title">
+      <div className="modal-heading blueprint-modal-heading">
+        <div><span className="section-kicker"><span className="kicker-line" /> {GAME_VERSION} / AUTO LAYOUT</span><h2 id="blueprint-picker-title">Выбери чертёж</h2><p>Сравни три компоновки, затем вставь подходящую в редактор. После вставки её можно менять вручную.</p></div>
+        <button className="icon-button" type="button" onClick={onClose} aria-label="Закрыть"><Icon name="close" /></button>
+      </div>
+      <div className="blueprint-candidates">
+        {candidates.map((candidate, index) => {
+          const { scheme } = candidate;
+          const mechanics = analyzeMechanics(scheme);
+          const requirements = mechanics.requirements[0];
+          const recipeInputs = requirements ? [
+            ...requirements.inputs.map(input => `${gameCatalog.find(entry => entry.type === 'item' && entry.id === input.id)?.name ?? input.id} ${input.rate.toLocaleString('ru-RU', { maximumFractionDigits: 2 })}/с`),
+            ...Object.entries(requirements.liquids ?? {}).map(([id, rate]) => `${gameCatalog.find(entry => entry.type === 'liquid' && entry.id === id)?.name ?? id} ${rate.toLocaleString('ru-RU', { maximumFractionDigits: 2 })} л/с`),
+          ] : [];
+          const recipeLine = requirements ? `${recipeInputs.join(' · ') || 'Без предметного сырья'} → ${requirements.output.map(output => `${gameCatalog.find(entry => entry.type === 'item' && entry.id === output.id)?.name ?? output.id} ${output.rate.toLocaleString('ru-RU', { maximumFractionDigits: 2 })}/с`).join(' · ')}` : `${scheme.tiles.length} блоков · компоновка для ${getPlanetLabel(scheme.settings?.planet)}`;
+          return <article className="blueprint-candidate" key={`${candidate.label}-${index}`}>
+            <div className="blueprint-candidate-top"><span className="blueprint-number">0{index + 1}</span><span className="tiny-tag muted">{scheme.width} × {scheme.height}</span></div>
+            <BlueprintPreview scheme={scheme} />
+            <div className="blueprint-candidate-copy"><h3>{candidate.label}</h3><p>{candidate.note}</p></div>
+            <div className="blueprint-stats"><span><b>{scheme.tiles.length}</b> блоков</span><span><b>{mechanics.unknownCosts ? '—' : mechanics.costs.size}</b> ресурсов в смете</span></div>
+            <p className="blueprint-recipe">{recipeLine}</p>
+            <div className="blueprint-checks">{mechanics.warnings.slice(0, 2).map((warning, warningIndex) => <span key={warningIndex}><Icon name="info" size={12} />{warning}</span>)}</div>
+            <button className="button button-primary full-width blueprint-insert-button" type="button" onClick={() => onSelect(candidate)}><Icon name="check" size={14} /> Вставить в редактор</button>
+          </article>;
+        })}
+      </div>
+      <div className="blueprint-modal-footer"><span>Схемы локальные. Перед игрой проверь карту, исследования, питание и доступность экспорта.</span><button className="button button-outline" type="button" onClick={onClose}>Отмена</button></div>
+    </section>
+  </div>;
 }
 
 function ImportPasteDialog({ value, setValue, onClose, onImport }) {
@@ -534,6 +707,7 @@ function App() {
   const [toast, setToast] = useState(null);
   const [pasteOpen, setPasteOpen] = useState(false);
   const [pasteValue, setPasteValue] = useState('');
+  const [blueprintCandidates, setBlueprintCandidates] = useState(null);
   const [selectedObject, setSelectedObject] = useState(null);
   const [updateOpen, setUpdateOpen] = useState(false);
   const [updateState, setUpdateState] = useState({ status: 'idle', available: false, checking: false });
@@ -592,7 +766,22 @@ function App() {
     else { const nextHistory = [...history.slice(0, historyIndex + 1), nextScheme].slice(-60); setHistory(nextHistory); setHistoryIndex(nextHistory.length - 1); }
     setName(nextScheme.name || nextScheme.tags?.name || 'Новая схема'); setSelectedTileKey(null);
   };
-  const generateNow = () => { const next = generateLayout({ ...settings, variant: Math.floor(Math.random() * 3) }); commitScheme(next, true); setView('editor'); notify(`Готово: ${next.tiles.length} блоков · ${next.width}×${next.height}`); };
+  const generateNow = () => {
+    try {
+      setBlueprintCandidates(generateLayoutVariants(settings));
+      setView('editor');
+    } catch (error) {
+      notify({ type: 'error', message: error.message || 'Не удалось создать варианты схемы.' });
+    }
+  };
+  const acceptCandidate = (candidate) => {
+    const next = candidate.scheme;
+    commitScheme(next, true);
+    if (next.settings) setSettings((current) => ({ ...current, ...next.settings }));
+    setBlueprintCandidates(null);
+    setView('editor');
+    notify(`В редактор вставлен вариант «${candidate.label}» · ${next.tiles.length} блоков · ${next.width}×${next.height}`);
+  };
   const undo = () => { if (historyIndex <= 0) return; const index = historyIndex - 1; setHistoryIndex(index); setScheme(history[index]); setSelectedTileKey(null); };
   const redo = () => { if (historyIndex >= history.length - 1) return; const index = historyIndex + 1; setHistoryIndex(index); setScheme(history[index]); setSelectedTileKey(null); };
   const setSchemeWithHistory = (updater) => {
@@ -643,12 +832,19 @@ function App() {
         event.preventDefault(); const selected = scheme.tiles.find((tile) => `${tile.x}:${tile.y}` === selectedTileKey); if (selected) setSchemeWithHistory((current) => ({ ...current, tiles: current.tiles.filter((tile) => tile !== selected) })); setSelectedTileKey(null);
       } else if (event.key === '+' || event.key === '=') setZoom((current) => Math.min(1.28, current + .1));
       else if (event.key === '-') setZoom((current) => Math.max(.7, current - .1));
-      else if (event.key === 'Escape') { setSelectedTileKey(null); setActiveTool('select'); setPasteOpen(false); }
+      else if (event.key === 'Escape') { setSelectedTileKey(null); setActiveTool('select'); setPasteOpen(false); setBlueprintCandidates(null); }
       else if (event.key === '/' && view === 'catalog') { event.preventDefault(); document.querySelector('.catalog-search input')?.focus(); }
     };
     window.addEventListener('keydown', onKeyDown); return () => window.removeEventListener('keydown', onKeyDown);
   }, [history, historyIndex, selectedTileKey, scheme, view, name]);
-  const selectCatalogBlock = (block) => { setSelectedBlock(block.id); setActiveTool('place'); setView('editor'); notify(`${block.name} выбрана — кликни по свободной клетке сетки.`); };
+  const selectCatalogBlock = (block) => {
+    const campaignBlock = buildableBlocks.find((entry) => entry.id === block.id);
+    if (!campaignBlock?.campaignBuildable || (campaignBlock.planet !== 'both' && campaignBlock.planet !== settings.planet)) {
+      notify({ type: 'error', message: `${block.name} не строится в кампании на планете ${getPlanetLabel(settings.planet)}.` });
+      return;
+    }
+    setSelectedBlock(block.id); setActiveTool('place'); setView('editor'); notify(`${block.name} выбрана — кликни по свободной клетке сетки.`);
+  };
   const displayCatalogCount = gameCatalog.length;
   const updateAttention = Boolean(updateState.available && updateState.targetId && updateState.targetId !== seenUpdate);
   const openUpdates = () => { setUpdateOpen(true); checkUpdates(false); };
@@ -663,9 +859,10 @@ function App() {
   return <div className="app-shell">
     <Header view={view} setView={setView} canUndo={historyIndex > 0} canRedo={historyIndex < history.length - 1} onUndo={undo} onRedo={redo} theme={theme} setTheme={setTheme} onImport={() => importRef.current?.click()} onExport={exportFile} onCopy={copyCode} onPaste={() => setPasteOpen(true)} onSave={saveCurrent} savedCount={savedSchemes.length} catalogCount={displayCatalogCount} onOpenUpdates={openUpdates} updateState={updateState} updateAttention={updateAttention} />
     <input ref={importRef} type="file" accept=".msch,.txt,application/octet-stream,text/plain" className="visually-hidden" onChange={importFile} />
-    {view === 'editor' ? <EditorPage settings={settings} setSettings={setSettings} setView={setView} dirty={settingsDirty} onGenerate={generateNow} scheme={scheme} setScheme={setSchemeWithHistory} name={name} setName={setName} activeTool={activeTool} setActiveTool={setActiveTool} selectedBlock={selectedBlock} setSelectedBlock={setSelectedBlock} selectedTileKey={selectedTileKey} setSelectedTileKey={setSelectedTileKey} gridVisible={gridVisible} setGridVisible={setGridVisible} showNames={showNames} setShowNames={setShowNames} zoom={zoom} setZoom={setZoom} onSave={saveCurrent} savedSchemes={savedSchemes} onLoadSaved={loadSaved} onDeleteSaved={deleteSaved} onExport={exportFile} onCopy={copyCode} onCopyLogic={copyLogic} onPaste={() => setPasteOpen(true)} notify={notify} /> : <CatalogPage onBack={() => setView('editor')} onUseBlock={selectCatalogBlock} selectedObject={selectedObject} setSelectedObject={setSelectedObject} />}
+    {view === 'editor' ? <EditorPage settings={settings} setSettings={setSettings} setView={setView} dirty={settingsDirty} onGenerate={generateNow} scheme={scheme} setScheme={setSchemeWithHistory} name={name} setName={setName} activeTool={activeTool} setActiveTool={setActiveTool} selectedBlock={selectedBlock} setSelectedBlock={setSelectedBlock} selectedTileKey={selectedTileKey} setSelectedTileKey={setSelectedTileKey} gridVisible={gridVisible} setGridVisible={setGridVisible} showNames={showNames} setShowNames={setShowNames} zoom={zoom} setZoom={setZoom} onSave={saveCurrent} savedSchemes={savedSchemes} onLoadSaved={loadSaved} onDeleteSaved={deleteSaved} onExport={exportFile} onCopy={copyCode} onCopyLogic={copyLogic} onPaste={() => setPasteOpen(true)} notify={notify} /> : <CatalogPage initialPlanet={settings.planet} onBack={() => setView('editor')} onUseBlock={selectCatalogBlock} selectedObject={selectedObject} setSelectedObject={setSelectedObject} />}
     <Toast toast={toast} onClose={() => setToast(null)} />
     {pasteOpen && <ImportPasteDialog value={pasteValue} setValue={setPasteValue} onClose={() => setPasteOpen(false)} onImport={applyImport} />}
+    {blueprintCandidates && <BlueprintPicker candidates={blueprintCandidates} onClose={() => setBlueprintCandidates(null)} onSelect={acceptCandidate} />}
     {updateOpen && <UpdateDialog state={updateState} onCheck={() => checkUpdates(true)} onReload={() => window.location.reload()} onClose={closeUpdates} repositoryUrl={UPDATE_REPOSITORY_URL} branch={UPDATE_BRANCH} />}
   </div>;
 }

@@ -1,14 +1,21 @@
 import rawCatalog from './catalog.json' with { type: 'json' };
 import facts from './block-facts.json' with { type: 'json' };
+
 const catalog = rawCatalog.map(entry => entry.type === 'block' ? { ...entry, size: facts[entry.id]?.size ?? entry.size } : entry);
 
 export const gameCatalog = catalog;
 export const gameBlocks = catalog.filter((entry) => entry.type === 'block');
-export const buildableBlocks = gameBlocks.filter((entry) => entry.buildable);
+export const allBuildableBlocks = gameBlocks.filter((entry) => entry.buildable);
+// The editor's default palette is campaign-safe: sandbox/editor-only tools stay
+// in the catalog, but cannot accidentally get into a normal exported blueprint.
+export const buildableBlocks = gameBlocks.filter((entry) => entry.campaignBuildable ?? entry.buildable);
 export const materials = catalog.filter((entry) => entry.type === 'item');
+export const visibleMaterials = materials.filter((item) => !item.hidden);
 export const liquids = catalog.filter((entry) => entry.type === 'liquid');
 export const units = catalog.filter((entry) => entry.type === 'unit');
-export const blockById = new Map(buildableBlocks.map((block) => [block.id, block]));
+// Keep dimensions available even for imported sandbox/environment blocks.
+export const blockById = new Map(gameBlocks.map((block) => [block.id, block]));
+export const campaignBlockById = new Map(buildableBlocks.map((block) => [block.id, block]));
 export const itemById = new Map(materials.map((item) => [item.id, item]));
 export const objectByKey = new Map(catalog.map((entry) => [`${entry.type}:${entry.id}`, entry]));
 
@@ -24,11 +31,13 @@ export const categories = [
   { id: 'units', label: 'Юниты', icon: '⬟', hint: 'Фабрики и реконструкторы' },
   { id: 'logic', label: 'Логика', icon: '⌘', hint: 'Процессоры и память' },
   { id: 'payload', label: 'Грузы', icon: '◇', hint: 'Погрузка и платформы' },
-  { id: 'campaign', label: 'Кампания', icon: '✦', hint: 'Запуск и межпланетные блоки' },
+  { id: 'campaign', label: 'Кампания', icon: '✦', hint: 'Экспорт и межпланетные блоки' },
   { id: 'sandbox', label: 'Песочница', icon: '∞', hint: 'Тестовые блоки' },
   { id: 'surface', label: 'Поверхности', icon: '▧', hint: 'Покрытия и ландшафт' },
   { id: 'ore', label: 'Руды', icon: '◈', hint: 'Рудные залежи' },
   { id: 'boulder', label: 'Обломки', icon: '⬢', hint: 'Валуны и кристаллы' },
+  { id: 'item', label: 'Предметы', icon: '◈', hint: 'Материалы игры' },
+  { id: 'unit', label: 'Юниты', icon: '⬟', hint: 'Боевые и вспомогательные юниты' },
 ];
 
 export const categoryById = new Map(categories.map((category) => [category.id, category]));
@@ -68,7 +77,7 @@ export const directionMeta = {
   campaign: { label: 'Пусковая площадка', short: 'Кампания', icon: '✦', goal: 'Запуск груза', output: '1 межпланетный маршрут' },
 };
 
-export const productsByDirection = {
+const fixedProductsByDirection = {
   mining: [
     { id: 'copper', label: 'Медь', block: 'mechanical-drill', erekirBlock: 'plasma-bore' },
     { id: 'lead', label: 'Свинец', block: 'mechanical-drill', erekirBlock: 'plasma-bore' },
@@ -76,15 +85,6 @@ export const productsByDirection = {
     { id: 'thorium', label: 'Торий', block: 'laser-drill', erekirBlock: 'impact-drill' },
     { id: 'beryllium', label: 'Бериллий', block: 'mechanical-drill', erekirBlock: 'plasma-bore' },
     { id: 'tungsten', label: 'Вольфрам', block: 'blast-drill', erekirBlock: 'eruption-drill' },
-  ],
-  production: [
-    { id: 'silicon', label: 'Кремний', block: 'silicon-smelter', erekirBlock: 'silicon-arc-furnace' },
-    { id: 'carbide', label: 'Карбид', block: null, erekirBlock: 'carbide-crucible' },
-    { id: 'graphite', label: 'Графит', block: 'graphite-press', erekirBlock: null },
-    { id: 'metaglass', label: 'Метастекло', block: 'kiln', erekirBlock: null },
-    { id: 'plastanium', label: 'Пластаний', block: 'plastanium-compressor', erekirBlock: null },
-    { id: 'surge-alloy', label: 'Кинетический сплав', block: 'surge-smelter', erekirBlock: 'surge-crucible' },
-    { id: 'phase-fabric', label: 'Фазовая ткань', block: 'phase-weaver', erekirBlock: 'phase-synthesizer' },
   ],
   defense: [
     { id: 'frontline', label: 'Линия фронта', block: 'duo', erekirBlock: 'breach' },
@@ -108,14 +108,66 @@ export const productsByDirection = {
   ],
   logic: [
     { id: 'processor', label: 'Контроллер', block: 'micro-processor', erekirBlock: 'micro-processor' },
-    { id: 'display', label: 'Информационная панель', block: 'logic-display', erekirBlock: 'logic-display' },
-    { id: 'switch', label: 'Система переключателей', block: 'switch', erekirBlock: 'switch' },
+    { id: 'display', label: 'Информационная панель', block: 'logic-display', erekirBlock: 'large-logic-display' },
+    { id: 'switch', label: 'Система переключателей', block: 'switch', erekirBlock: 'message' },
   ],
   campaign: [
-    { id: 'launch', label: 'Пусковой узел', block: 'launch-pad', erekirBlock: 'launch-pad' },
-    { id: 'accelerator', label: 'Межпланетный запуск', block: 'interplanetary-accelerator', erekirBlock: 'interplanetary-accelerator' },
+    { id: 'launch', label: 'Экспортная площадка', block: 'advanced-launch-pad', erekirBlock: 'advanced-launch-pad' },
+    { id: 'accelerator', label: 'Межпланетный ускоритель', block: 'interplanetary-accelerator', erekirBlock: 'interplanetary-accelerator' },
   ],
 };
+
+export const productsByDirection = { ...fixedProductsByDirection, production: [] };
+const recipeFacts = facts;
+const stageRank = { early: 0, mid: 1, late: 2 };
+
+function recipeMachineCandidates(planet, goal) {
+  return buildableBlocks.flatMap((block) => {
+    if (block.planet !== 'both' && block.planet !== planet) return [];
+    const recipe = recipeFacts[block.id];
+    if (!recipe?.output || !recipe.craftTime || !recipe.output[goal]) return [];
+    return [{ block, recipe }];
+  });
+}
+
+function recipeRank({ block, recipe }, stage = 'late') {
+  const size = Math.max(1, block.size ?? 1);
+  const inputs = Object.keys(recipe.inputs ?? {}).length;
+  const liquids = Object.keys(recipe.liquids ?? {}).length;
+  const heat = recipe.heatRequirement ?? 0;
+  const outputRate = (recipe.output[Object.keys(recipe.output)[0]] ?? 1) * 60 / recipe.craftTime;
+  const stagePenalty = stageRank[block.stage] > (stageRank[stage] ?? 2) ? 18 : 0;
+  // Prefer small modules, fewer independent feeds, and recipes without liquid
+  // or heat dependencies. Throughput is a tie-breaker, not a reason to build a
+  // larger footprint when the user asked for a minimal module.
+  return size * size * 1.6 + inputs * 1.2 + liquids * 2.2 + (heat > 0 ? 3 : 0)
+    + (recipe.power ?? 0) / 240 - Math.min(20, outputRate) * 0.08 + stagePenalty;
+}
+
+export function getProductionMachine(planet, goal, stage = 'late') {
+  return recipeMachineCandidates(planet, goal)
+    .sort((a, b) => recipeRank(a, stage) - recipeRank(b, stage))[0]?.block.id ?? null;
+}
+
+export function getProductsForDirection(direction, planet = 'serpulo', stage = 'late') {
+  if (direction !== 'production') {
+    return (fixedProductsByDirection[direction] ?? []).filter((option) => {
+      const blockId = planet === 'erekir' ? option.erekirBlock : option.block;
+      const block = blockById.get(blockId);
+      return block?.campaignBuildable && (block.planet === 'both' || block.planet === planet);
+    });
+  }
+  const outputs = new Set();
+  for (const block of buildableBlocks) {
+    if (block.planet !== 'both' && block.planet !== planet) continue;
+    for (const id of Object.keys(recipeFacts[block.id]?.output ?? {})) outputs.add(id);
+  }
+  return [...outputs].map((id) => {
+    const item = itemById.get(id);
+    const block = getProductionMachine(planet, id, stage);
+    return block ? { id, label: item?.name ?? id, block, erekirBlock: planet === 'erekir' ? block : null } : null;
+  }).filter(Boolean).sort((a, b) => a.label.localeCompare(b.label, 'ru'));
+}
 
 export const directionLabels = Object.values(directionMeta);
 export const typeLabels = {

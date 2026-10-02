@@ -1,5 +1,6 @@
 import { zlibSync, unzlibSync } from 'fflate';
 import { blockById } from './catalog.js';
+import { GAME_VERSION } from './game-version.js';
 
 const MAGIC = [0x6d, 0x73, 0x63, 0x68]; // "msch"
 const VERSION = 1;
@@ -208,7 +209,7 @@ export function encodeSchematic(scheme) {
   const tags = {
     name: title,
     description: String(scheme.description ?? scheme.tags?.description ?? 'Собрано в Bee Schematic Lab').slice(0, 400),
-    labels: JSON.stringify(['Mindustry v146', 'Bee Schematic Lab']),
+    labels: JSON.stringify([`Mindustry ${GAME_VERSION}`, 'Bee Schematic Lab']),
   };
   const metadata = scheme.tags ?? {};
   const settings = scheme.settings ?? {};
@@ -221,6 +222,7 @@ export function encodeSchematic(scheme) {
   const transportItem = metadata.transportItem ?? settings.transportItem;
   const reserveThreshold = metadata.reserveThreshold ?? settings.reserveThreshold;
   const droneCapacity = metadata.droneCapacity ?? settings.droneCapacity;
+  const campaignLink = metadata.campaignLink ?? settings.campaignLink;
   tags.minimal = String(metadata.minimal ?? settings.minimal ?? false);
   if (planet) tags.planet = String(planet);
   if (direction) tags.direction = String(direction);
@@ -231,6 +233,7 @@ export function encodeSchematic(scheme) {
   if (transportItem) tags.transportItem = String(transportItem);
   if (reserveThreshold !== undefined) tags.reserveThreshold = String(reserveThreshold);
   if (droneCapacity !== undefined) tags.droneCapacity = String(droneCapacity);
+  if (campaignLink !== undefined) tags.campaignLink = String(campaignLink);
 
   const writer = new Writer();
   writer.short(scheme.width);
@@ -327,6 +330,7 @@ export function decodeSchematic(input) {
       ...(tags.transportItem ? { transportItem: tags.transportItem } : {}),
       ...(tags.reserveThreshold ? { reserveThreshold: Number(tags.reserveThreshold) || 40 } : {}),
       ...(tags.droneCapacity ? { droneCapacity: Number(tags.droneCapacity) || 50 } : {}),
+      ...(tags.campaignLink !== undefined ? { campaignLink: tags.campaignLink === 'true' } : {}),
     },
   };
 }
