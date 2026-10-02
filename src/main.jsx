@@ -10,6 +10,8 @@ import { appBuildInfo, checkForUpdates, formatCommit, UPDATE_BRANCH, UPDATE_REPO
 import UpdateDialog from './update-dialog.jsx';
 import { decodeSchematicFile, decodeSchematic, downloadSchematic, schematicToBase64 } from './schematic-io.js';
 import './styles.css';
+import sprites from './sprite-manifest.json';
+import { analyzeMechanics, blockFacts, productionMachines } from './mechanics.js';
 
 const iconPaths = {
   spark: <><path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z" /><path d="m19 14 .9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9L19 14Z" /><path d="m5 3 .6 1.4L7 5l-1.4.6L5 7l-.6-1.4L3 5l1.4-.6L5 3Z" /></>,
@@ -72,9 +74,38 @@ function markFor(entry) {
 function GameGlyph({ entry, size = 'small', className = '' }) {
   const category = entry?.category ?? entry?.type ?? 'block';
   const mark = markFor(entry);
+  const sprite = sprites[`${entry?.type ?? 'block'}:${entry?.id}`];
+  const [failed, setFailed] = useState(false);
+  useEffect(() => setFailed(false), [sprite?.file]);
   return <span className={`game-glyph glyph-${size} cat-${category} ${className}`} style={{ '--glyph-color': categoryColors[category] ?? categoryColors.item }} aria-hidden="true">
-    <span>{mark}</span>{entry?.size > 1 && size !== 'tiny' && <i>{entry.size}×</i>}
+    <span>{sprite && !failed && !sprite.invisible ? <img className="game-texture" src={sprite.file} alt="" loading="lazy" onError={() => setFailed(true)} /> : mark}</span>{entry?.size > 1 && size !== 'tiny' && <i>{entry.size}×</i>}
   </span>;
+}
+
+function CanvasTexture({ id, x, y, size, rotation, glyph }) {
+  const sprite = sprites[`block:${id}`];
+  const [failed, setFailed] = useState(false);
+  useEffect(() => setFailed(false), [id]);
+  if (!sprite || failed) return <text x={x + size / 2} y={y + size / 2} textAnchor="middle" className="block-mark" style={{ fontSize: '.45px' }}>{glyph}</text>;
+  const directional = blockFacts[id]?.rotate || /conveyor|duct|conduit/.test(id);
+  return <image className="canvas-texture" href={sprite.file} x={x} y={y} width={size} height={size} preserveAspectRatio="xMidYMid meet" transform={directional ? `rotate(${-rotation * 90} ${x + size / 2} ${y + size / 2})` : undefined} onError={() => setFailed(true)} />;
+}
+
+function MechanicsReport({ mechanics }) {
+  const name = id => gameCatalog.find(e => ['item', 'liquid'].includes(e.type) && e.id === id)?.name ?? id;
+  const fmt = n => n.toLocaleString('ru-RU', { maximumFractionDigits: 2 });
+  return <section className="inspector-section mechanics-report">
+    <div className="panel-section-heading"><span>МЕХАНИКИ / v146</span></div>
+    <p className="microcopy">Базовая скорость без ускорения. Выпуск зависит от непрерывной подачи и свободного выхода.</p>
+    {mechanics.requirements.map((r, i) => <div className="recipe-report" key={i}>
+      <b>{buildableBlocks.find(b => b.id === r.tile.id)?.name ?? r.tile.id}</b>
+      <p>Вход: {r.inputs.map(v => `${name(v.id)} ${fmt(v.rate)}/с`).join(' · ')}</p>
+      <p>Выход: {r.output.map(v => `${name(v.id)} ${fmt(v.rate)}/с`).join(' · ')}</p>
+      {Object.keys(r.liquids).length > 0 && <p>Жидкости: {Object.entries(r.liquids).map(([id, rate]) => `${name(id)} ${fmt(rate)}/с`).join(' · ')}</p>}
+      {r.heat > 0 && <p>Тепло: {r.heat} ед.</p>}
+    </div>)}
+    <ul>{mechanics.warnings.map(w => <li key={w}>{w}</li>)}</ul>
+  </section>;
 }
 
 function TinyTag({ children, tone = '' }) { return <span className={`tiny-tag ${tone}`}>{children}</span>; }
@@ -124,7 +155,8 @@ function Header({ view, setView, canUndo, canRedo, onUndo, onRedo, theme, setThe
 }
 
 function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCategory, setPaletteCategory, paletteSearch, setPaletteSearch, onSelectBlock, selectedBlock, activeTool, setView }) {
-  const productOptions = productsByDirection[settings.direction] ?? [];
+  const minimalModule = settings.minimal && settings.direction === 'production';
+  const productOptions = (productsByDirection[settings.direction] ?? []).filter(option => settings.direction !== 'production' || productionMachines[settings.planet]?.[option.id]);
   const product = productOptions.find((item) => item.id === settings.goal) ?? productOptions[0];
   const hasSupplySettings = ['production', 'defense', 'units', 'logistics'].includes(settings.direction);
   const selectedSupplyMode = supplyModes.find((mode) => mode.id === settings.supplyMode) ?? supplyModes[0];
@@ -155,7 +187,8 @@ function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCat
     const fallbackItem = planet === 'erekir' ? 'beryllium' : 'copper';
     const currentItem = materials.find((item) => item.id === current.transportItem && (item.planet === planet || item.planet === 'both'))?.id;
     const processorControl = planet === 'erekir' ? false : current.planet === 'erekir' ? true : current.processorControl;
-    return { ...current, planet, processorControl, droneUnit: planet === 'erekir' ? 'manifold' : 'mono', transportItem: currentItem ?? fallbackItem };
+    const goal = current.direction === 'production' && !productionMachines[planet]?.[current.goal] ? 'silicon' : current.goal;
+    return { ...current, planet, goal, processorControl, droneUnit: planet === 'erekir' ? 'manifold' : 'mono', transportItem: currentItem ?? fallbackItem };
   });
   const setSupplyMode = (supplyMode) => setSettings((current) => ({
     ...current,
@@ -179,7 +212,7 @@ function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCat
     <section className="setting-section compact-section"><label className="field-label" htmlFor="goal-select"><span>ЦЕЛЬ СХЕМЫ</span><small>ПРОДУКТ / ЗАДАЧА</small></label><div className="select-wrap">
       <select id="goal-select" value={product?.id ?? ''} onChange={(event) => patch('goal', event.target.value)}>{productOptions.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}</select><Icon name="chevron" size={13} />
     </div></section>
-    {hasSupplySettings && <>
+    {hasSupplySettings && !minimalModule && <>
       <section className="setting-section supply-section"><div className="field-label"><span>СНАБЖЕНИЕ И УПРАВЛЕНИЕ</span><small>ФАБРИКА / УЗЕЛ</small></div>
         <div className="supply-mode-grid" role="group" aria-label="Способ снабжения">
           {supplyModes.map((mode) => <button type="button" key={mode.id} title={isErekir ? erekirSupplyModes[mode.id]?.hint ?? mode.hint : mode.hint} className={`supply-mode-option ${settings.supplyMode === mode.id ? 'selected' : ''}`} onClick={() => setSupplyMode(mode.id)}><span>{mode.mark}</span><b>{isErekir ? erekirSupplyModes[mode.id]?.label ?? mode.label : mode.label}</b></button>)}
@@ -204,7 +237,8 @@ function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCat
         </>}
       </section>}
     </>}
-    <section className="setting-section compact-section"><div className="field-label"><span>РАЗМЕР СХЕМЫ</span><small>ДО 128 × 128</small></div><div className="size-options">
+    <section className="setting-section"><Toggle checked={settings.minimal} onChange={(value) => patch('minimal', value)} label="Минимальная схема" detail="Производство: одна фабрика, внешние входы. Остальные: обрезка пустых краёв." />{minimalModule && <p className="microcopy">Без ядра, склада, защиты и процессора. Сырьё, энергия, жидкости и тепло подключаются извне. Размер определяется рецептом, а не ползунком плотности.</p>}{minimalModule && <Toggle checked={settings.includePower} onChange={(value) => patch('includePower', value)} label="Узел внешнего питания" detail="Только соединение; генерация энергии вне модуля" />}</section>
+    {!minimalModule && <><section className="setting-section compact-section"><div className="field-label"><span>РАЗМЕР СХЕМЫ</span><small>ДО 128 × 128</small></div><div className="size-options">
       {Object.entries(canvasPresets).map(([id, preset]) => <button type="button" key={id} className={`size-option ${settings.footprint === id ? 'selected' : ''}`} onClick={() => patch('footprint', id)}><span className={`size-preview ${id}`}><i /></span><span>{preset.label}</span><small>{preset.note}</small></button>)}
     </div></section>
     <section className="setting-section compact-section"><div className="field-label"><span>ПЛОТНОСТЬ</span><small>{settings.compactness}%</small></div>
@@ -215,6 +249,7 @@ function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCat
       <Toggle checked={settings.includeDefense} onChange={(value) => patch('includeDefense', value)} label="Добавить защиту" detail="Турели у ключевых точек" />
       <Toggle checked={settings.includeStorage} onChange={(value) => patch('includeStorage', value)} label="Резервное хранилище" detail="Контейнер рядом с ядром" />
     </section>
+    </>}
     <button className="button button-primary generate-button" type="button" onClick={onGenerate}><Icon name="spark" size={17} /><span>Сгенерировать схему</span><kbd>↵</kbd></button>
     <div className={`generator-hint ${dirty ? 'dirty' : ''}`}><span className="hint-dot" />{dirty ? 'Параметры изменены — пересобери схему' : `Подобраны блоки для ${getPlanetLabel(settings.planet)}`}</div>
     <div className="sidebar-divider" />
@@ -245,7 +280,7 @@ function BlockCanvas({ scheme, selectedKey, setSelectedKey, tool, selectedBlock,
     if (!svg?.getScreenCTM) return null;
     const point = svg.createSVGPoint(); point.x = event.clientX; point.y = event.clientY;
     const transformed = point.matrixTransform(svg.getScreenCTM().inverse());
-    return { x: Math.floor(transformed.x), y: Math.floor(transformed.y) };
+    return { x: Math.floor(transformed.x), y: height - 1 - Math.floor(transformed.y) };
   };
   const handlePointer = (event) => {
     event.preventDefault?.();
@@ -259,7 +294,7 @@ function BlockCanvas({ scheme, selectedKey, setSelectedKey, tool, selectedBlock,
   const majorGridPath = useMemo(() => { let path = ''; for (let x = 0; x <= width; x += 4) path += `M${x} 0V${height} `; for (let y = 0; y <= height; y += 4) path += `M0 ${y}H${width} `; return path; }, [width, height]);
 
   return <div className="canvas-viewport" onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); const id = event.dataTransfer.getData('text/plain'); const point = makePoint(event); if (id && point) onDropBlock(point.x, point.y, id); }}>
-    <div className="canvas-blueprint" /><div className="coordinate-label coord-nw">0,0 <span>GRID / TILE</span></div><div className="coordinate-label coord-ne">{width} × {height} <span>MSCH</span></div>
+    <div className="canvas-blueprint" /><div className="coordinate-label coord-nw">0,{height - 1} <span>GRID / TILE</span></div><div className="coordinate-label coord-ne">{width} × {height} <span>MSCH</span></div>
     <svg ref={svgRef} className={`schematic-svg ${gridVisible ? '' : 'no-grid'} ${tool === 'place' ? 'placing' : ''} ${tool === 'erase' ? 'erasing' : ''}`} viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid meet" style={{ transform: `scale(${zoom})` }} role="img" aria-label={`Схема Mindustry ${width} на ${height}, ${scheme.tiles.length} построек`} onClick={handlePointer}>
       <defs><radialGradient id="canvas-vignette"><stop offset="0" stopColor="var(--canvas-vignette-center)" /><stop offset="1" stopColor="var(--canvas-vignette-edge)" /></radialGradient><filter id="selected-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="0.11" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter></defs>
       <rect width={width} height={height} className="canvas-base" rx="0.5" />
@@ -267,18 +302,14 @@ function BlockCanvas({ scheme, selectedKey, setSelectedKey, tool, selectedBlock,
       <ellipse cx={width / 2} cy={height / 2} rx={width * .47} ry={height * .45} fill="url(#canvas-vignette)" pointerEvents="none" />
       <path d={`M ${width / 2 - .28} ${height / 2} h .56 M ${width / 2} ${height / 2 - .28} v .56`} className="canvas-center-mark" pointerEvents="none" />
       {scheme.tiles.map((tile) => {
-        const key = `${tile.x}:${tile.y}`; const size = sizeFor(tile.id); const rect = blockRect(tile);
+        const key = `${tile.x}:${tile.y}`; const size = sizeFor(tile.id); const worldRect = blockRect(tile); const rect = { ...worldRect, startY: height - 1 - worldRect.endY, endY: height - 1 - worldRect.startY };
         const x = rect.startX + .08; const y = rect.startY + .08; const visualSize = Math.max(.78, size - .16);
         const selected = selectedKey === key; const tone = color(tile.id); const glyph = iconFor(tile.id); const label = nameFor(tile.id);
-        const fontSize = Math.min(.72, Math.max(.32, visualSize * .42));
-        return <g key={key} className={`canvas-block ${selected ? 'selected' : ''} ${size > 1 ? 'large-block' : ''}`} onClick={(event) => { event.stopPropagation(); handlePointer(event); }} onContextMenu={(event) => { event.preventDefault(); onErase(tile); }} style={{ '--block-color': tone }}>
+              return <g key={key} className={`canvas-block ${selected ? 'selected' : ''} ${size > 1 ? 'large-block' : ''}`} onClick={(event) => { event.stopPropagation(); handlePointer(event); }} onContextMenu={(event) => { event.preventDefault(); onErase(tile); }} style={{ '--block-color': tone }}>
           <title>{`${label} · ${tile.id} · ${size}×${size} · поворот ${tile.rotation ?? 0}`}</title>
-          <rect x={x} y={y} width={visualSize} height={visualSize} rx={size === 1 ? .14 : .25} className="block-shadow" />
-          <rect x={x} y={y} width={visualSize} height={visualSize} rx={size === 1 ? .14 : .25} className="block-face" />
-          <rect x={x + .08} y={y + .08} width={Math.max(.35, visualSize - .16)} height={Math.max(.35, visualSize - .16)} rx={size === 1 ? .1 : .19} className="block-inner" />
-          <path d={`M ${x + .16} ${y + visualSize - .17} L ${x + visualSize - .16} ${y + .17}`} className="block-bevel" />
-          <text x={rect.startX + size / 2} y={rect.startY + size / 2 + fontSize * .34} textAnchor="middle" className="block-mark" style={{ fontSize: `${fontSize}px` }}>{glyph}</text>
-          {tile.rotation > 0 && <path d={`M ${rect.startX + size / 2} ${rect.startY + .14} l -.12 .21 h .24 z`} className="block-direction" transform={`rotate(${tile.rotation * 90} ${rect.startX + size / 2} ${rect.startY + size / 2})`} />}
+          <rect x={x} y={y} width={visualSize} height={visualSize} rx=".08" className="block-shadow" />
+          <CanvasTexture id={tile.id} x={rect.startX} y={rect.startY} size={size} rotation={tile.rotation ?? 0} glyph={glyph} />
+          {(blockFacts[tile.id]?.rotate || /conveyor|duct|conduit/.test(tile.id)) && <path d={`M ${rect.startX + size - .08} ${rect.startY + size / 2} l -.24 -.12 v .24 z`} className="block-direction" transform={`rotate(${-tile.rotation * 90} ${rect.startX + size / 2} ${rect.startY + size / 2})`} />}
           {showNames && <text x={rect.startX + size / 2} y={rect.endY + .35} textAnchor="middle" className="block-label">{label.length > 17 ? `${label.slice(0, 15)}…` : label}</text>}
           {selected && <rect x={x - .07} y={y - .07} width={visualSize + .14} height={visualSize + .14} rx={size === 1 ? .18 : .29} className="block-selection" />}
         </g>;
@@ -294,28 +325,12 @@ function calculateAnalytics(scheme) {
   for (const tile of scheme.tiles) counts.set(tile.id, (counts.get(tile.id) ?? 0) + 1);
   const sortedBlocks = [...counts.entries()].sort((a, b) => b[1] - a[1]);
   const materialTotals = new Map();
-  const costs = {
-    'core-shard': { copper: 100, lead: 100 }, 'core-foundation': { copper: 300, lead: 300, silicon: 100 },
-    'core-nucleus': { copper: 800, lead: 800, silicon: 400, thorium: 300 }, 'core-bastion': { beryllium: 400 },
-    'core-citadel': { beryllium: 800, tungsten: 600 }, 'core-acropolis': { beryllium: 1200, tungsten: 900, carbide: 500 },
-    conveyor: { copper: 1, lead: 1 }, 'titanium-conveyor': { titanium: 1, lead: 1 }, 'mechanical-drill': { copper: 12, lead: 6 },
-    'pneumatic-drill': { copper: 18, lead: 10, graphite: 8 }, 'laser-drill': { titanium: 35, silicon: 25, graphite: 20 },
-    'plasma-bore': { beryllium: 30 }, 'large-plasma-bore': { beryllium: 70, tungsten: 40 },
-    'silicon-smelter': { copper: 25, lead: 10, graphite: 5 }, 'graphite-press': { copper: 20, lead: 15 },
-    'solar-panel': { copper: 20, lead: 15 }, 'large-solar-panel': { silicon: 30, metaglass: 20, lead: 40 },
-    'power-node': { copper: 10, lead: 5 }, 'power-node-large': { copper: 20, lead: 10, titanium: 5 },
-    'copper-wall': { copper: 6 }, 'titanium-wall': { titanium: 6 }, 'beryllium-wall': { beryllium: 6 },
-    duo: { copper: 35, graphite: 5 }, breach: { beryllium: 40 }, router: { copper: 3 },
-    'container': { copper: 40, lead: 30 }, vault: { titanium: 100, thorium: 50 },
-  };
-  for (const [id, count] of sortedBlocks) {
-    const recipe = costs[id] ?? { copper: 2, lead: 1 };
-    for (const [material, amount] of Object.entries(recipe)) materialTotals.set(material, (materialTotals.get(material) ?? 0) + amount * count);
-  }
+  const mechanics = analyzeMechanics(scheme);
+  for (const [id, amount] of mechanics.costs) materialTotals.set(id, amount);
   const resources = [...materialTotals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([id, amount]) => ({ ...itemById.get(id), id, amount }));
   const categoryCount = new Set(scheme.tiles.map((tile) => buildableBlocks.find((block) => block.id === tile.id)?.category).filter(Boolean)).size;
   const generators = scheme.tiles.filter((tile) => /generator|reactor|solar-panel|condenser|power-source/.test(tile.id)).length;
-  return { counts, sortedBlocks, resources, unique: counts.size, total: scheme.tiles.length, categoryCount, generators };
+  return { mechanics, counts, sortedBlocks, resources, unique: counts.size, total: scheme.tiles.length, categoryCount, generators };
 }
 
 function Inspector({ scheme, analytics, selectedTile, onRotate, onRemove, onSave, savedSchemes, onLoadSaved, onDeleteSaved, onExport, onCopy, onCopyLogic, name, setName }) {
@@ -341,7 +356,7 @@ function Inspector({ scheme, analytics, selectedTile, onRotate, onRemove, onSave
   }[scheme.settings?.direction] ?? [0, 'блоков'];
 
   return <aside className="right-sidebar panel-scroll">
-    <div className="inspector-header"><div><div className="section-kicker"><span className="kicker-line" /> СХЕМА / ОБЗОР</div><h2>Параметры</h2></div><span className="ready-badge"><i /> READY</span></div>
+    <div className="inspector-header"><div><div className="section-kicker"><span className="kicker-line" /> СХЕМА / ОБЗОР</div><h2>Параметры</h2></div><span className="ready-badge"><i /> ПРОВЕРИТЬ</span></div>
     <div className="inspector-tabs"><button type="button" className={tab === 'summary' ? 'active' : ''} onClick={() => setTab('summary')}>Сводка</button><button type="button" className={tab === 'selection' ? 'active' : ''} onClick={() => setTab('selection')}>Блок{selectedTile ? <i className="tab-dot" /> : ''}</button></div>
     {tab === 'selection' && selectedTile ? <div className="selection-details">
       <div className="selected-block-hero"><GameGlyph entry={selectedBlock ?? { category: 'sandbox' }} size="large" /><div><span className="field-label">ВЫБРАННЫЙ ОБЪЕКТ</span><h3>{selectedBlock?.name ?? selectedTile.id}</h3><code>{selectedTile.id}</code></div></div>
@@ -356,14 +371,15 @@ function Inspector({ scheme, analytics, selectedTile, onRotate, onRemove, onSave
         <div className="identity-progress"><span style={{ width: `${Math.min(100, 20 + analytics.unique * 2.6)}%` }} /></div><div className="identity-foot"><span>СЛОЁВ СОБРАНО</span><b>{analytics.categoryCount} / 8</b></div>
       </section>
       <div className="stats-grid"><StatCard label="Постройки" value={analytics.total} note="на сетке" icon="box" /><StatCard label="Типы блоков" value={analytics.unique} note="уникальных" icon="layers" /></div>
-      <section className="inspector-section production-summary"><div className="panel-section-heading"><span>ЦЕЛЬ СХЕМЫ</span><i className="live-pill"><b /> ACTIVE</i></div>
+      <section className="inspector-section production-summary"><div className="panel-section-heading"><span>ЦЕЛЬ СХЕМЫ</span><i className="live-pill"><b /> ПЛАН</i></div>
         <div className="production-row"><span className="production-icon" style={{ '--production-color': categoryColors[scheme.settings?.direction === 'power' ? 'power' : scheme.settings?.direction === 'defense' ? 'turret' : scheme.settings?.direction === 'mining' ? 'mining' : 'production'] }}>{direction.icon}</span><div className="production-text"><b>{product?.label ?? direction.goal}</b><small>{direction.label}</small></div><div className="production-rate"><b>{outputMetric[0]}</b><small>{outputMetric[1]}</small></div></div>
         <div className="production-bar"><i style={{ width: `${Math.max(22, Math.min(100, analytics.total * 2.2))}%` }} /></div><div className="production-foot"><span><i className="green-dot" /> Структура собрана</span><span>{scheme.width}×{scheme.height} тайлов</span></div>
       </section>
       <section className="inspector-section resource-section"><div className="panel-section-heading"><span>ОЦЕНКА МАТЕРИАЛОВ</span><button className="mini-icon-button" type="button" title="Оценка по размещённым блокам"><Icon name="info" size={13} /></button></div>
         <div className="resource-list">{analytics.resources.map((resource) => <div className="resource-row" key={resource.id}><GameGlyph entry={resource} size="tiny" /><span>{resource.name}</span><b>{resource.amount.toLocaleString('ru-RU')}</b><i className="resource-bar"><span style={{ width: `${Math.max(18, Math.min(100, resource.amount / (analytics.resources[0]?.amount || 1) * 100))}%` }} /></i></div>)}</div>
-        <p className="microcopy">Приблизительная смета · уточни требования в игре</p>
+        <p className="microcopy">Требования строительства v146 · топ-5 ресурсов{analytics.mechanics.unknownCosts > 0 && ` · нет данных для ${analytics.mechanics.unknownCosts} блоков`}</p>
       </section>
+      <MechanicsReport mechanics={analytics.mechanics} />
       {showErekirSupplyGuide && <section className="inspector-section logic-program-section cargo-route-guide">
         <div className="panel-section-heading"><span>ЭРЕКИР / ГРУЗОВОЙ МАРШРУТ</span><i className="logic-live-pill"><b /> MANIFOLD</i></div>
         {['core', 'hybrid'].includes(logicSettings.supplyMode) && <p className="logic-link-hint">Эрекир не позволяет выгружать ресурсы прямо из ядра. Наполни усиленный контейнер предметом <b>@{getTransportItem(logicSettings)}</b>; канальный разгрузчик в схеме забирает его из контейнера.</p>}
@@ -578,7 +594,10 @@ function App() {
   useEffect(() => () => window.clearTimeout(toastTimer.current), []);
   const settingsDirty = useMemo(() => {
     const lastSettings = scheme.settings ?? {};
-    return ['direction', 'stage', 'planet', 'goal', 'footprint', 'compactness', 'includePower', 'includeDefense', 'includeStorage', 'supplyMode', 'processorControl', 'droneUnit', 'transportItem', 'reserveThreshold', 'droneCapacity'].some((key) => settings[key] !== lastSettings[key]);
+    return ['minimal', 'direction', 'stage', 'planet', 'goal', 'footprint', 'compactness', 'includePower', 'includeDefense', 'includeStorage', 'supplyMode', 'processorControl', 'droneUnit', 'transportItem', 'reserveThreshold', 'droneCapacity'].some((key) => {
+      if (settings.minimal && settings.direction === 'production' && ['supplyMode', 'processorControl', 'footprint', 'compactness', 'includeDefense', 'includeStorage'].includes(key)) return false;
+      return settings[key] !== lastSettings[key];
+    });
   }, [settings, scheme.settings]);
   const commitScheme = (nextScheme, resetHistory = false) => {
     setScheme(nextScheme);

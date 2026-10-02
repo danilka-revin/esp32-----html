@@ -1,3 +1,4 @@
+import { footprint, minimalProduction, trimLayout } from './mechanics.js';
 import { blockById, productsByDirection } from './catalog.js';
 import { getTransportItem } from './logic.js';
 
@@ -15,6 +16,7 @@ export const supplyModes = [
 ];
 
 export const initialSettings = {
+  minimal: true,
   direction: 'production',
   stage: 'mid',
   planet: 'serpulo',
@@ -45,12 +47,7 @@ const coreFor = (planet, stage) => {
 
 const clamp = (number, min, max) => Math.max(min, Math.min(max, number));
 const tileKey = (x, y) => `${x}:${y}`;
-const rectFor = (tile) => {
-  const size = blockById.get(tile.id)?.size ?? 1;
-  const startX = tile.x - Math.floor(size / 2);
-  const startY = tile.y - Math.floor(size / 2);
-  return { startX, startY, endX: startX + size - 1, endY: startY + size - 1, size };
-};
+const rectFor = footprint;
 
 export function blockRect(tile) {
   return rectFor(tile);
@@ -65,8 +62,8 @@ export function tileAtCell(tiles, x, y) {
 
 export function blockFits(tiles, id, x, y, width, height, ignoredTile = null) {
   const size = blockById.get(id)?.size ?? 1;
-  const left = x - Math.floor(size / 2);
-  const top = y - Math.floor(size / 2);
+  const left = x - Math.floor((size - 1) / 2);
+  const top = y - Math.floor((size - 1) / 2);
   const right = left + size - 1;
   const bottom = top + size - 1;
   if (left < 0 || top < 0 || right >= width || bottom >= height) return false;
@@ -95,13 +92,14 @@ function chooseDrill(settings, goal) {
     return selectBlock(late ? 'impact-drill' : mid ? 'large-plasma-bore' : 'plasma-bore', 'plasma-bore');
   }
   if (goal?.id === 'titanium') return selectBlock('pneumatic-drill', 'mechanical-drill');
-  if (goal?.id === 'thorium') return selectBlock(late ? 'laser-drill' : 'pneumatic-drill', 'mechanical-drill');
+  if (goal?.id === 'thorium') return selectBlock('laser-drill');
   return selectBlock(late ? 'laser-drill' : mid ? 'pneumatic-drill' : 'mechanical-drill', 'mechanical-drill');
 }
 
 function chooseProcessor(settings, goal) {
   if (!goal) return selectBlock('silicon-smelter', 'kiln');
   const base = settings.planet === 'erekir' ? goal.erekirBlock : goal.block;
+  if (settings.direction === 'production' && !base) return null;
   const stageFallbacks = {
     copper: ['mechanical-drill'], lead: ['mechanical-drill'], titanium: ['pneumatic-drill'],
     thorium: ['laser-drill', 'impact-drill'], beryllium: ['plasma-bore'], tungsten: ['eruption-drill', 'impact-drill'],
@@ -121,6 +119,10 @@ function chooseProcessor(settings, goal) {
 
 export function generateLayout(input = {}) {
   const settings = { ...initialSettings, ...input };
+  if (settings.minimal && settings.direction === 'production') {
+    const module = minimalProduction(settings);
+    if (module) return module;
+  }
   if (!supplyModes.some((mode) => mode.id === settings.supplyMode)) settings.supplyMode = 'core';
   settings.transportItem = getTransportItem(settings);
   if (settings.planet === 'erekir') {
@@ -166,9 +168,10 @@ export function generateLayout(input = {}) {
     const tile = { id, x, y, rotation: ((rotation % 4) + 4) % 4, config };
     if (!blockFits(current(), id, x, y, width, height)) {
       if (!force) return false;
-      eraseOverlaps(tile);
       const { startX, startY, endX, endY } = rectFor(tile);
       if (startX < 0 || startY < 0 || endX >= width || endY >= height) return false;
+      if (current().some(existing => existing.id.startsWith('core-') && overlaps(existing, tile))) return false;
+      eraseOverlaps(tile);
     }
     tilesByCell.set(tileKey(x, y), tile);
     return true;
@@ -241,9 +244,15 @@ export function generateLayout(input = {}) {
       const buffer = addNearestFree(bufferId, Math.max(2, coreBusEnd - 2), Math.max(2, cy - 4));
       if (!buffer) return { x: coreBusEnd - 1, y: cy };
       const bounds = rectFor({ id: bufferId, ...buffer });
-      const unloaderX = buffer.x;
-      const unloaderY = bounds.endY + 1;
-      if (add('duct-unloader', unloaderX, unloaderY, 2, transportItemConfig)) return { x: unloaderX, y: unloaderY + 1 };
+      const edges = [
+        [buffer.x, bounds.endY + 1, 1, 0, 1],
+        [buffer.x, bounds.startY - 1, 3, 0, -1],
+        [bounds.startX - 1, buffer.y, 2, -1, 0],
+        [bounds.endX + 1, buffer.y, 0, 1, 0],
+      ];
+      for (const [x, y, rotation, dx, dy] of edges) {
+        if (add('duct-unloader', x, y, rotation, transportItemConfig)) return { x: x + dx, y: y + dy };
+      }
       return { x: coreBusEnd - 1, y: cy };
     }
     add('unloader', coreBusEnd, coreY, 0, transportItemConfig);
@@ -490,7 +499,7 @@ export function generateLayout(input = {}) {
   const supplyLabel = supplyModes.find((mode) => mode.id === settings.supplyMode)?.label ?? 'От ядра';
   const supplyDescription = ['production', 'defense', 'units', 'logistics'].includes(settings.direction) ? ` · снабжение: ${supplyLabel.toLowerCase()}` : '';
 
-  return {
+  const result = {
     width,
     height,
     tiles,
@@ -502,6 +511,7 @@ export function generateLayout(input = {}) {
       planet: settings.planet,
       direction: settings.direction,
       goal: target?.id ?? settings.goal,
+      minimal: String(Boolean(settings.minimal)),
       supplyMode: settings.supplyMode,
       processorControl: String(Boolean(settings.processorControl)),
       droneUnit: settings.droneUnit,
@@ -511,4 +521,5 @@ export function generateLayout(input = {}) {
     },
     settings: { ...settings, goal: target?.id ?? settings.goal, variant: variation },
   };
+  return settings.minimal ? trimLayout(result) : result;
 }

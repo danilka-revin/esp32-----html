@@ -221,6 +221,7 @@ export function encodeSchematic(scheme) {
   const transportItem = metadata.transportItem ?? settings.transportItem;
   const reserveThreshold = metadata.reserveThreshold ?? settings.reserveThreshold;
   const droneCapacity = metadata.droneCapacity ?? settings.droneCapacity;
+  tags.minimal = String(metadata.minimal ?? settings.minimal ?? false);
   if (planet) tags.planet = String(planet);
   if (direction) tags.direction = String(direction);
   if (goal) tags.goal = String(goal);
@@ -316,6 +317,7 @@ export function decodeSchematic(input) {
     description: tags.description || 'Импортировано из файла .msch',
     tags,
     settings: {
+      minimal: tags.minimal === 'true',
       planet: tags.planet === 'erekir' ? 'erekir' : 'serpulo',
       ...(tags.direction ? { direction: tags.direction } : {}),
       ...(tags.goal ? { goal: tags.goal } : {}),

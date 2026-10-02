@@ -1,0 +1,3940 @@
+{
+  "block:air": {
+    "file": "/mindustry/block-air.png",
+    "layers": [],
+    "invisible": true,
+    "fallback": false
+  },
+  "block:spawn": {
+    "file": "/mindustry/block-spawn.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/spawn.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:cliff": {
+    "file": "/mindustry/block-cliff.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/cliff.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:deep-water": {
+    "file": "/mindustry/block-deep-water.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/deep-water.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:shallow-water": {
+    "file": "/mindustry/block-shallow-water.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/shallow-water.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:tainted-water": {
+    "file": "/mindustry/block-tainted-water.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/tainted-water.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:deep-tainted-water": {
+    "file": "/mindustry/block-deep-tainted-water.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/deep-tainted-water.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:tar": {
+    "file": "/mindustry/block-tar.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/tar.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:molten-slag": {
+    "file": "/mindustry/block-molten-slag.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/molten-slag.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:pooled-cryofluid": {
+    "file": "/mindustry/block-pooled-cryofluid.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/pooled-cryofluid.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:stone": {
+    "file": "/mindustry/block-stone.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/stone1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:crater-stone": {
+    "file": "/mindustry/block-crater-stone.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/crater-stone1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:char": {
+    "file": "/mindustry/block-char.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/char1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:sand-floor": {
+    "file": "/mindustry/block-sand-floor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/sand-floor1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:darksand": {
+    "file": "/mindustry/block-darksand.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/darksand1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:dirt": {
+    "file": "/mindustry/block-dirt.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/dirt1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:mud": {
+    "file": "/mindustry/block-mud.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/mud1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ice": {
+    "file": "/mindustry/block-ice.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/ice1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:snow": {
+    "file": "/mindustry/block-snow.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/snow1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:darksand-tainted-water": {
+    "file": "/mindustry/block-darksand-tainted-water.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/darksand-tainted-water.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:space": {
+    "file": "/mindustry/block-space.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/space.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:empty": {
+    "file": "/mindustry/block-empty.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/empty.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:dacite": {
+    "file": "/mindustry/block-dacite.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/dacite1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:rhyolite": {
+    "file": "/mindustry/block-rhyolite.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/rhyolite1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:rhyolite-crater": {
+    "file": "/mindustry/block-rhyolite-crater.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/rhyolite-crater1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:rough-rhyolite": {
+    "file": "/mindustry/block-rough-rhyolite.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/rough-rhyolite1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:regolith": {
+    "file": "/mindustry/block-regolith.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/regolith1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:yellow-stone": {
+    "file": "/mindustry/block-yellow-stone.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/yellow-stone1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:red-ice": {
+    "file": "/mindustry/block-red-ice.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/red-ice1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:red-stone": {
+    "file": "/mindustry/block-red-stone.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/red-stone1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:dense-red-stone": {
+    "file": "/mindustry/block-dense-red-stone.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/dense-red-stone1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:arkycite-floor": {
+    "file": "/mindustry/block-arkycite-floor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/arkycite-floor.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:arkyic-stone": {
+    "file": "/mindustry/block-arkyic-stone.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/arkyic-stone1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:redmat": {
+    "file": "/mindustry/block-redmat.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/redmat1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:bluemat": {
+    "file": "/mindustry/block-bluemat.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/bluemat1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:stone-wall": {
+    "file": "/mindustry/block-stone-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/stone-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:dirt-wall": {
+    "file": "/mindustry/block-dirt-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/dirt-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:spore-wall": {
+    "file": "/mindustry/block-spore-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/spore-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ice-wall": {
+    "file": "/mindustry/block-ice-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/ice-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:dacite-wall": {
+    "file": "/mindustry/block-dacite-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/dacite-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:spore-pine": {
+    "file": "/mindustry/block-spore-pine.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/spore-pine.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:snow-pine": {
+    "file": "/mindustry/block-snow-pine.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/snow-pine.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:pine": {
+    "file": "/mindustry/block-pine.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/pine.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:shrubs": {
+    "file": "/mindustry/block-shrubs.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/shrubs1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:white-tree": {
+    "file": "/mindustry/block-white-tree.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/white-tree.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:white-tree-dead": {
+    "file": "/mindustry/block-white-tree-dead.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/white-tree-dead.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:spore-cluster": {
+    "file": "/mindustry/block-spore-cluster.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/spore-cluster1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:redweed": {
+    "file": "/mindustry/block-redweed.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/redweed1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:pur-bush": {
+    "file": "/mindustry/block-pur-bush.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/pur-bush.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:yellowcoral": {
+    "file": "/mindustry/block-yellowcoral.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/yellowcoral.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:rhyolite-vent": {
+    "file": "/mindustry/block-rhyolite-vent.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/rhyolite-vent1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:carbon-vent": {
+    "file": "/mindustry/block-carbon-vent.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/carbon-vent1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:arkyic-vent": {
+    "file": "/mindustry/block-arkyic-vent.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/arkyic-vent1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:yellow-stone-vent": {
+    "file": "/mindustry/block-yellow-stone-vent.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/yellow-stone-vent1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:red-stone-vent": {
+    "file": "/mindustry/block-red-stone-vent.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/red-stone-vent1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:crystalline-vent": {
+    "file": "/mindustry/block-crystalline-vent.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/crystalline-vent1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:regolith-wall": {
+    "file": "/mindustry/block-regolith-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/regolith-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:yellow-stone-wall": {
+    "file": "/mindustry/block-yellow-stone-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/yellow-stone-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:rhyolite-wall": {
+    "file": "/mindustry/block-rhyolite-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/rhyolite-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:carbon-wall": {
+    "file": "/mindustry/block-carbon-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/carbon-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:red-ice-wall": {
+    "file": "/mindustry/block-red-ice-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/red-ice-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ferric-stone-wall": {
+    "file": "/mindustry/block-ferric-stone-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/ferric-stone-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:beryllic-stone-wall": {
+    "file": "/mindustry/block-beryllic-stone-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/beryllic-stone-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:arkyic-wall": {
+    "file": "/mindustry/block-arkyic-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/arkyic-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:crystalline-stone-wall": {
+    "file": "/mindustry/block-crystalline-stone-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/crystalline-stone-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:red-stone-wall": {
+    "file": "/mindustry/block-red-stone-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/red-stone-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:red-diamond-wall": {
+    "file": "/mindustry/block-red-diamond-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/red-diamond-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ferric-stone": {
+    "file": "/mindustry/block-ferric-stone.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/ferric-stone1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ferric-craters": {
+    "file": "/mindustry/block-ferric-craters.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/ferric-craters1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:carbon-stone": {
+    "file": "/mindustry/block-carbon-stone.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/carbon-stone1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:beryllic-stone": {
+    "file": "/mindustry/block-beryllic-stone.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/beryllic-stone1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:crystalline-stone": {
+    "file": "/mindustry/block-crystalline-stone.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/crystalline-stone1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:crystal-floor": {
+    "file": "/mindustry/block-crystal-floor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/crystal-floor1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:yellow-stone-plates": {
+    "file": "/mindustry/block-yellow-stone-plates.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/yellow-stone-plates1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ice-snow": {
+    "file": "/mindustry/block-ice-snow.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/ice-snow1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:sand-water": {
+    "file": "/mindustry/block-sand-water.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/sand-water.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:darksand-water": {
+    "file": "/mindustry/block-darksand-water.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/darksand-water.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:dune-wall": {
+    "file": "/mindustry/block-dune-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/dune-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:sand-wall": {
+    "file": "/mindustry/block-sand-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/sand-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:moss": {
+    "file": "/mindustry/block-moss.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/moss1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:spore-moss": {
+    "file": "/mindustry/block-spore-moss.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/spore-moss1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:shale": {
+    "file": "/mindustry/block-shale.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/shale1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:shale-wall": {
+    "file": "/mindustry/block-shale-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/shale-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:grass": {
+    "file": "/mindustry/block-grass.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/grass1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:salt": {
+    "file": "/mindustry/block-salt.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/salt.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:core-zone": {
+    "file": "/mindustry/block-core-zone.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/core-zone.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:shale-boulder": {
+    "file": "/mindustry/block-shale-boulder.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/shale-boulder1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:sand-boulder": {
+    "file": "/mindustry/block-sand-boulder.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/sand-boulder1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:dacite-boulder": {
+    "file": "/mindustry/block-dacite-boulder.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/dacite-boulder1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:boulder": {
+    "file": "/mindustry/block-boulder.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/boulder1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:snow-boulder": {
+    "file": "/mindustry/block-snow-boulder.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/snow-boulder1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:basalt-boulder": {
+    "file": "/mindustry/block-basalt-boulder.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/basalt-boulder1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:carbon-boulder": {
+    "file": "/mindustry/block-carbon-boulder.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/carbon-boulder1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ferric-boulder": {
+    "file": "/mindustry/block-ferric-boulder.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/ferric-boulder1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:beryllic-boulder": {
+    "file": "/mindustry/block-beryllic-boulder.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/beryllic-boulder1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:yellow-stone-boulder": {
+    "file": "/mindustry/block-yellow-stone-boulder.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/yellow-stone-boulder1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:arkyic-boulder": {
+    "file": "/mindustry/block-arkyic-boulder.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/arkyic-boulder1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:crystal-cluster": {
+    "file": "/mindustry/block-crystal-cluster.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/crystal-cluster1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:vibrant-crystal-cluster": {
+    "file": "/mindustry/block-vibrant-crystal-cluster.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/vibrant-crystal-cluster1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:crystal-blocks": {
+    "file": "/mindustry/block-crystal-blocks.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/crystal-blocks1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:crystal-orbs": {
+    "file": "/mindustry/block-crystal-orbs.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/crystal-orbs1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:crystalline-boulder": {
+    "file": "/mindustry/block-crystalline-boulder.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/crystalline-boulder1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:red-ice-boulder": {
+    "file": "/mindustry/block-red-ice-boulder.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/red-ice-boulder1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:rhyolite-boulder": {
+    "file": "/mindustry/block-rhyolite-boulder.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/rhyolite-boulder1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:red-stone-boulder": {
+    "file": "/mindustry/block-red-stone-boulder.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/props/red-stone-boulder1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:metal-floor": {
+    "file": "/mindustry/block-metal-floor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/metal-floor.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:metal-floor-damaged": {
+    "file": "/mindustry/block-metal-floor-damaged.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/metal-floor-damaged1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:metal-floor-2": {
+    "file": "/mindustry/block-metal-floor-2.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/metal-floor-2.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:metal-floor-3": {
+    "file": "/mindustry/block-metal-floor-3.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/metal-floor-3.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:metal-floor-4": {
+    "file": "/mindustry/block-metal-floor-4.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/metal-floor-4.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:metal-floor-5": {
+    "file": "/mindustry/block-metal-floor-5.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/metal-floor-5.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:basalt": {
+    "file": "/mindustry/block-basalt.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/basalt1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:magmarock": {
+    "file": "/mindustry/block-magmarock.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/magmarock1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:hotrock": {
+    "file": "/mindustry/block-hotrock.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/hotrock1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:snow-wall": {
+    "file": "/mindustry/block-snow-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/snow-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:salt-wall": {
+    "file": "/mindustry/block-salt-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/salt-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:dark-panel-1": {
+    "file": "/mindustry/block-dark-panel-1.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/dark-panel-1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:dark-panel-2": {
+    "file": "/mindustry/block-dark-panel-2.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/dark-panel-2.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:dark-panel-3": {
+    "file": "/mindustry/block-dark-panel-3.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/dark-panel-3.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:dark-panel-4": {
+    "file": "/mindustry/block-dark-panel-4.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/dark-panel-4.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:dark-panel-5": {
+    "file": "/mindustry/block-dark-panel-5.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/dark-panel-5.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:dark-panel-6": {
+    "file": "/mindustry/block-dark-panel-6.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/dark-panel-6.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:dark-metal": {
+    "file": "/mindustry/block-dark-metal.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/dark-metal1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:pebbles": {
+    "file": "/mindustry/block-pebbles.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/pebbles1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:tendrils": {
+    "file": "/mindustry/block-tendrils.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/tendrils1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ore-copper": {
+    "file": "/mindustry/block-ore-copper.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/ore-copper1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ore-lead": {
+    "file": "/mindustry/block-ore-lead.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/ore-lead1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ore-scrap": {
+    "file": "/mindustry/block-ore-scrap.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/ore-scrap1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ore-coal": {
+    "file": "/mindustry/block-ore-coal.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/ore-coal1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ore-titanium": {
+    "file": "/mindustry/block-ore-titanium.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/ore-titanium1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ore-thorium": {
+    "file": "/mindustry/block-ore-thorium.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/ore-thorium1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ore-beryllium": {
+    "file": "/mindustry/block-ore-beryllium.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/ore-beryllium1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ore-tungsten": {
+    "file": "/mindustry/block-ore-tungsten.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/ore-tungsten1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ore-crystal-thorium": {
+    "file": "/mindustry/block-ore-crystal-thorium.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/ore-crystal-thorium1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ore-wall-thorium": {
+    "file": "/mindustry/block-ore-wall-thorium.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/ore-wall-thorium1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ore-wall-beryllium": {
+    "file": "/mindustry/block-ore-wall-beryllium.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/ore-wall-beryllium1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:graphitic-wall": {
+    "file": "/mindustry/block-graphitic-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/graphitic-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ore-wall-tungsten": {
+    "file": "/mindustry/block-ore-wall-tungsten.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/ore-wall-tungsten1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:silicon-smelter": {
+    "file": "/mindustry/block-silicon-smelter.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/silicon-smelter.png",
+      "core/assets-raw/sprites/blocks/production/silicon-smelter-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:silicon-crucible": {
+    "file": "/mindustry/block-silicon-crucible.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/silicon-crucible.png",
+      "core/assets-raw/sprites/blocks/production/silicon-crucible-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:kiln": {
+    "file": "/mindustry/block-kiln.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/kiln.png",
+      "core/assets-raw/sprites/blocks/production/kiln-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:graphite-press": {
+    "file": "/mindustry/block-graphite-press.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/graphite-press.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:plastanium-compressor": {
+    "file": "/mindustry/block-plastanium-compressor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/plastanium-compressor.png",
+      "core/assets-raw/sprites/blocks/production/plastanium-compressor-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:multi-press": {
+    "file": "/mindustry/block-multi-press.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/multi-press.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:phase-weaver": {
+    "file": "/mindustry/block-phase-weaver.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/phase-weaver-bottom.png",
+      "core/assets-raw/sprites/blocks/production/phase-weaver.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:surge-smelter": {
+    "file": "/mindustry/block-surge-smelter.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/surge-smelter.png",
+      "core/assets-raw/sprites/blocks/production/surge-smelter-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:pyratite-mixer": {
+    "file": "/mindustry/block-pyratite-mixer.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/pyratite-mixer.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:blast-mixer": {
+    "file": "/mindustry/block-blast-mixer.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/blast-mixer.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:cryofluid-mixer": {
+    "file": "/mindustry/block-cryofluid-mixer.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/cryofluid-mixer-bottom.png",
+      "core/assets-raw/sprites/blocks/production/cryofluid-mixer.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:melter": {
+    "file": "/mindustry/block-melter.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/melter-bottom.png",
+      "core/assets-raw/sprites/blocks/production/melter.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:separator": {
+    "file": "/mindustry/block-separator.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/separator-bottom.png",
+      "core/assets-raw/sprites/blocks/production/separator.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:disassembler": {
+    "file": "/mindustry/block-disassembler.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/disassembler-bottom.png",
+      "core/assets-raw/sprites/blocks/production/disassembler.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:spore-press": {
+    "file": "/mindustry/block-spore-press.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/spore-press-bottom.png",
+      "core/assets-raw/sprites/blocks/production/spore-press.png",
+      "core/assets-raw/sprites/blocks/production/spore-press-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:pulverizer": {
+    "file": "/mindustry/block-pulverizer.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/pulverizer.png",
+      "core/assets-raw/sprites/blocks/production/pulverizer-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:incinerator": {
+    "file": "/mindustry/block-incinerator.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/incinerator.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:coal-centrifuge": {
+    "file": "/mindustry/block-coal-centrifuge.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/coal-centrifuge.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:silicon-arc-furnace": {
+    "file": "/mindustry/block-silicon-arc-furnace.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/silicon-arc-furnace-bottom.png",
+      "core/assets-raw/sprites/blocks/production/silicon-arc-furnace.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:electrolyzer": {
+    "file": "/mindustry/block-electrolyzer.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/electrolyzer-bottom.png",
+      "core/assets-raw/sprites/blocks/production/electrolyzer.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:oxidation-chamber": {
+    "file": "/mindustry/block-oxidation-chamber.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/oxidation-chamber-bottom.png",
+      "core/assets-raw/sprites/blocks/production/oxidation-chamber.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:atmospheric-concentrator": {
+    "file": "/mindustry/block-atmospheric-concentrator.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/atmospheric-concentrator-bottom.png",
+      "core/assets-raw/sprites/blocks/production/atmospheric-concentrator.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:electric-heater": {
+    "file": "/mindustry/block-electric-heater.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/electric-heater.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:slag-heater": {
+    "file": "/mindustry/block-slag-heater.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/slag-heater-bottom.png",
+      "core/assets-raw/sprites/blocks/production/slag-heater.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:phase-heater": {
+    "file": "/mindustry/block-phase-heater.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/phase-heater.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:heat-redirector": {
+    "file": "/mindustry/block-heat-redirector.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/heat-redirector.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:heat-router": {
+    "file": "/mindustry/block-heat-router.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/heat-router.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:slag-incinerator": {
+    "file": "/mindustry/block-slag-incinerator.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/slag-incinerator.png",
+      "core/assets-raw/sprites/blocks/production/slag-incinerator-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:carbide-crucible": {
+    "file": "/mindustry/block-carbide-crucible.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/carbide-crucible-bottom.png",
+      "core/assets-raw/sprites/blocks/production/carbide-crucible.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:slag-centrifuge": {
+    "file": "/mindustry/block-slag-centrifuge.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/slag-centrifuge-bottom.png",
+      "core/assets-raw/sprites/blocks/production/slag-centrifuge.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:surge-crucible": {
+    "file": "/mindustry/block-surge-crucible.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/surge-crucible-bottom.png",
+      "core/assets-raw/sprites/blocks/production/surge-crucible.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:cyanogen-synthesizer": {
+    "file": "/mindustry/block-cyanogen-synthesizer.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/cyanogen-synthesizer-bottom.png",
+      "core/assets-raw/sprites/blocks/production/cyanogen-synthesizer.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:phase-synthesizer": {
+    "file": "/mindustry/block-phase-synthesizer.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/phase-synthesizer-bottom.png",
+      "core/assets-raw/sprites/blocks/production/phase-synthesizer.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:heat-reactor": {
+    "file": "/mindustry/block-heat-reactor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/heat-reactor.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:power-source": {
+    "file": "/mindustry/block-power-source.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/power-source.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:power-void": {
+    "file": "/mindustry/block-power-void.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/power-void.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:item-source": {
+    "file": "/mindustry/block-item-source.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/sandbox/item-source.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:item-void": {
+    "file": "/mindustry/block-item-void.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/sandbox/item-void.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:liquid-source": {
+    "file": "/mindustry/block-liquid-source.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/sandbox/liquid-source.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:liquid-void": {
+    "file": "/mindustry/block-liquid-void.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/sandbox/liquid-void.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:payload-source": {
+    "file": "/mindustry/block-payload-source.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/payload/payload-source.png",
+      "core/assets-raw/sprites/blocks/payload/payload-source-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:payload-void": {
+    "file": "/mindustry/block-payload-void.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/payload/payload-void.png",
+      "core/assets-raw/sprites/blocks/payload/payload-void-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:illuminator": {
+    "file": "/mindustry/block-illuminator.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/illuminator.png",
+      "core/assets-raw/sprites/blocks/power/illuminator-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:heat-source": {
+    "file": "/mindustry/block-heat-source.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/sandbox/heat-source.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:copper-wall": {
+    "file": "/mindustry/block-copper-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/copper-wall.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:copper-wall-large": {
+    "file": "/mindustry/block-copper-wall-large.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/copper-wall-large.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:titanium-wall": {
+    "file": "/mindustry/block-titanium-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/titanium-wall.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:titanium-wall-large": {
+    "file": "/mindustry/block-titanium-wall-large.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/titanium-wall-large.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:plastanium-wall": {
+    "file": "/mindustry/block-plastanium-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/plastanium-wall.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:plastanium-wall-large": {
+    "file": "/mindustry/block-plastanium-wall-large.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/plastanium-wall-large.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:thorium-wall": {
+    "file": "/mindustry/block-thorium-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/thorium-wall.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:thorium-wall-large": {
+    "file": "/mindustry/block-thorium-wall-large.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/thorium-wall-large.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:door": {
+    "file": "/mindustry/block-door.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/door.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:door-large": {
+    "file": "/mindustry/block-door-large.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/door-large.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:phase-wall": {
+    "file": "/mindustry/block-phase-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/phase-wall.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:phase-wall-large": {
+    "file": "/mindustry/block-phase-wall-large.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/phase-wall-large.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:surge-wall": {
+    "file": "/mindustry/block-surge-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/surge-wall.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:surge-wall-large": {
+    "file": "/mindustry/block-surge-wall-large.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/surge-wall-large.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:beryllium-wall": {
+    "file": "/mindustry/block-beryllium-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/beryllium-wall.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:beryllium-wall-large": {
+    "file": "/mindustry/block-beryllium-wall-large.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/beryllium-wall-large.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:tungsten-wall": {
+    "file": "/mindustry/block-tungsten-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/tungsten-wall.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:tungsten-wall-large": {
+    "file": "/mindustry/block-tungsten-wall-large.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/tungsten-wall-large.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:blast-door": {
+    "file": "/mindustry/block-blast-door.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/blast-door.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:reinforced-surge-wall": {
+    "file": "/mindustry/block-reinforced-surge-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/reinforced-surge-wall.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:reinforced-surge-wall-large": {
+    "file": "/mindustry/block-reinforced-surge-wall-large.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/reinforced-surge-wall-large.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:carbide-wall": {
+    "file": "/mindustry/block-carbide-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/carbide-wall.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:carbide-wall-large": {
+    "file": "/mindustry/block-carbide-wall-large.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/carbide-wall-large.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:shielded-wall": {
+    "file": "/mindustry/block-shielded-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/shielded-wall.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:mender": {
+    "file": "/mindustry/block-mender.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/defense/mender.png",
+      "core/assets-raw/sprites/blocks/defense/mender-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:mend-projector": {
+    "file": "/mindustry/block-mend-projector.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/defense/mend-projector.png",
+      "core/assets-raw/sprites/blocks/defense/mend-projector-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:overdrive-projector": {
+    "file": "/mindustry/block-overdrive-projector.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/defense/overdrive-projector.png",
+      "core/assets-raw/sprites/blocks/defense/overdrive-projector-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:overdrive-dome": {
+    "file": "/mindustry/block-overdrive-dome.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/defense/overdrive-dome.png",
+      "core/assets-raw/sprites/blocks/defense/overdrive-dome-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:force-projector": {
+    "file": "/mindustry/block-force-projector.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/defense/force-projector.png",
+      "core/assets-raw/sprites/blocks/defense/force-projector-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:shock-mine": {
+    "file": "/mindustry/block-shock-mine.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/defense/shock-mine.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:scrap-wall": {
+    "file": "/mindustry/block-scrap-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/scrap-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:scrap-wall-large": {
+    "file": "/mindustry/block-scrap-wall-large.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/scrap-wall-large1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:scrap-wall-huge": {
+    "file": "/mindustry/block-scrap-wall-huge.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/scrap-wall-huge1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:scrap-wall-gigantic": {
+    "file": "/mindustry/block-scrap-wall-gigantic.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/scrap-wall-gigantic.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:thruster": {
+    "file": "/mindustry/block-thruster.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/thruster.png",
+      "core/assets-raw/sprites/blocks/walls/thruster-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:radar": {
+    "file": "/mindustry/block-radar.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/defense/radar.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:build-tower": {
+    "file": "/mindustry/block-build-tower.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/defense/build-tower.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:regen-projector": {
+    "file": "/mindustry/block-regen-projector.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/defense/regen-projector-bottom.png",
+      "core/assets-raw/sprites/blocks/defense/regen-projector.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:barrier-projector": {
+    "file": "/mindustry/block-barrier-projector.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/defense/barrier-projector.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:shockwave-tower": {
+    "file": "/mindustry/block-shockwave-tower.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/defense/shockwave-tower.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:shield-projector": {
+    "file": "/mindustry/block-shield-projector.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/defense/shield-projector.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:large-shield-projector": {
+    "file": "/mindustry/block-large-shield-projector.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/defense/large-shield-projector.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:shield-breaker": {
+    "file": "/mindustry/block-shield-breaker.png",
+    "layers": [],
+    "invisible": false,
+    "fallback": true
+  },
+  "block:conveyor": {
+    "file": "/mindustry/block-conveyor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/distribution/conveyors/conveyor-0-0.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:titanium-conveyor": {
+    "file": "/mindustry/block-titanium-conveyor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/distribution/conveyors/titanium-conveyor-0-0.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:plastanium-conveyor": {
+    "file": "/mindustry/block-plastanium-conveyor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/distribution/stack-conveyors/plastanium-conveyor.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:armored-conveyor": {
+    "file": "/mindustry/block-armored-conveyor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/distribution/conveyors/armored-conveyor-0-0.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:distributor": {
+    "file": "/mindustry/block-distributor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/distribution/distributor.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:junction": {
+    "file": "/mindustry/block-junction.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/distribution/junction.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:bridge-conveyor": {
+    "file": "/mindustry/block-bridge-conveyor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/distribution/bridge-conveyor.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:phase-conveyor": {
+    "file": "/mindustry/block-phase-conveyor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/distribution/phase-conveyor.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:sorter": {
+    "file": "/mindustry/block-sorter.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/distribution/sorter.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:inverted-sorter": {
+    "file": "/mindustry/block-inverted-sorter.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/distribution/inverted-sorter.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:router": {
+    "file": "/mindustry/block-router.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/distribution/router.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:overflow-gate": {
+    "file": "/mindustry/block-overflow-gate.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/distribution/overflow-gate.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:underflow-gate": {
+    "file": "/mindustry/block-underflow-gate.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/distribution/underflow-gate.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:mass-driver": {
+    "file": "/mindustry/block-mass-driver.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/distribution/mass-driver.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:duct": {
+    "file": "/mindustry/block-duct.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/distribution/ducts/duct-bottom-0.png",
+      "core/assets-raw/sprites/blocks/distribution/ducts/duct-top-0.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:armored-duct": {
+    "file": "/mindustry/block-armored-duct.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/distribution/ducts/duct-bottom-0.png",
+      "core/assets-raw/sprites/blocks/distribution/ducts/armored-duct-top-0.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:duct-router": {
+    "file": "/mindustry/block-duct-router.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/distribution/ducts/duct-router.png",
+      "core/assets-raw/sprites/blocks/distribution/ducts/duct-router-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:overflow-duct": {
+    "file": "/mindustry/block-overflow-duct.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/distribution/ducts/overflow-duct.png",
+      "core/assets-raw/sprites/blocks/distribution/ducts/overflow-duct-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:underflow-duct": {
+    "file": "/mindustry/block-underflow-duct.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/distribution/ducts/underflow-duct.png",
+      "core/assets-raw/sprites/blocks/distribution/ducts/underflow-duct-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:duct-bridge": {
+    "file": "/mindustry/block-duct-bridge.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/distribution/ducts/duct-bridge.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:duct-unloader": {
+    "file": "/mindustry/block-duct-unloader.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/distribution/ducts/duct-unloader.png",
+      "core/assets-raw/sprites/blocks/distribution/ducts/duct-unloader-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:surge-conveyor": {
+    "file": "/mindustry/block-surge-conveyor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/distribution/stack-conveyors/surge-conveyor.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:surge-router": {
+    "file": "/mindustry/block-surge-router.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/distribution/ducts/surge-router.png",
+      "core/assets-raw/sprites/blocks/distribution/ducts/surge-router-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:unit-cargo-loader": {
+    "file": "/mindustry/block-unit-cargo-loader.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/units/unit-cargo-loader.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:unit-cargo-unload-point": {
+    "file": "/mindustry/block-unit-cargo-unload-point.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/units/unit-cargo-unload-point.png",
+      "core/assets-raw/sprites/blocks/units/unit-cargo-unload-point-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:mechanical-pump": {
+    "file": "/mindustry/block-mechanical-pump.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/liquid/mechanical-pump.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:rotary-pump": {
+    "file": "/mindustry/block-rotary-pump.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/liquid/rotary-pump.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:impulse-pump": {
+    "file": "/mindustry/block-impulse-pump.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/liquid/impulse-pump.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:conduit": {
+    "file": "/mindustry/block-conduit.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/liquid/conduits/conduit-bottom-0.png",
+      "core/assets-raw/sprites/blocks/liquid/conduits/conduit-top-0.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:pulse-conduit": {
+    "file": "/mindustry/block-pulse-conduit.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/liquid/conduits/conduit-bottom-0.png",
+      "core/assets-raw/sprites/blocks/liquid/conduits/pulse-conduit-top-0.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:plated-conduit": {
+    "file": "/mindustry/block-plated-conduit.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/liquid/conduits/conduit-bottom-0.png",
+      "core/assets-raw/sprites/blocks/liquid/conduits/plated-conduit-top-0.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:liquid-router": {
+    "file": "/mindustry/block-liquid-router.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/liquid/liquid-router-bottom.png",
+      "core/assets-raw/sprites/blocks/liquid/liquid-router.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:liquid-container": {
+    "file": "/mindustry/block-liquid-container.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/liquid/liquid-container-bottom.png",
+      "core/assets-raw/sprites/blocks/liquid/liquid-container.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:liquid-tank": {
+    "file": "/mindustry/block-liquid-tank.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/liquid/liquid-tank-bottom.png",
+      "core/assets-raw/sprites/blocks/liquid/liquid-tank.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:liquid-junction": {
+    "file": "/mindustry/block-liquid-junction.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/liquid/liquid-junction.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:bridge-conduit": {
+    "file": "/mindustry/block-bridge-conduit.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/liquid/bridge-conduit.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:phase-conduit": {
+    "file": "/mindustry/block-phase-conduit.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/liquid/phase-conduit.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:reinforced-pump": {
+    "file": "/mindustry/block-reinforced-pump.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/liquid/reinforced-pump.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:reinforced-conduit": {
+    "file": "/mindustry/block-reinforced-conduit.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/liquid/conduits/conduit-bottom-0.png",
+      "core/assets-raw/sprites/blocks/liquid/conduits/reinforced-conduit-top-0.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:reinforced-liquid-junction": {
+    "file": "/mindustry/block-reinforced-liquid-junction.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/liquid/reinforced-liquid-junction.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:reinforced-bridge-conduit": {
+    "file": "/mindustry/block-reinforced-bridge-conduit.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/liquid/reinforced-bridge-conduit-bottom.png",
+      "core/assets-raw/sprites/blocks/liquid/reinforced-bridge-conduit.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:reinforced-liquid-router": {
+    "file": "/mindustry/block-reinforced-liquid-router.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/liquid/reinforced-liquid-router-bottom.png",
+      "core/assets-raw/sprites/blocks/liquid/reinforced-liquid-router.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:reinforced-liquid-container": {
+    "file": "/mindustry/block-reinforced-liquid-container.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/liquid/reinforced-liquid-container-bottom.png",
+      "core/assets-raw/sprites/blocks/liquid/reinforced-liquid-container.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:reinforced-liquid-tank": {
+    "file": "/mindustry/block-reinforced-liquid-tank.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/liquid/reinforced-liquid-tank-bottom.png",
+      "core/assets-raw/sprites/blocks/liquid/reinforced-liquid-tank.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:combustion-generator": {
+    "file": "/mindustry/block-combustion-generator.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/combustion-generator.png",
+      "core/assets-raw/sprites/blocks/power/combustion-generator-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:thermal-generator": {
+    "file": "/mindustry/block-thermal-generator.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/thermal-generator.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:steam-generator": {
+    "file": "/mindustry/block-steam-generator.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/steam-generator.png",
+      "core/assets-raw/sprites/blocks/power/steam-generator-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:differential-generator": {
+    "file": "/mindustry/block-differential-generator.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/differential-generator.png",
+      "core/assets-raw/sprites/blocks/power/differential-generator-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:rtg-generator": {
+    "file": "/mindustry/block-rtg-generator.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/rtg-generator.png",
+      "core/assets-raw/sprites/blocks/power/rtg-generator-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:solar-panel": {
+    "file": "/mindustry/block-solar-panel.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/solar-panel.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:solar-panel-large": {
+    "file": "/mindustry/block-solar-panel-large.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/solar-panel-large.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:thorium-reactor": {
+    "file": "/mindustry/block-thorium-reactor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/thorium-reactor.png",
+      "core/assets-raw/sprites/blocks/power/thorium-reactor-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:impact-reactor": {
+    "file": "/mindustry/block-impact-reactor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/impact-reactor-bottom.png",
+      "core/assets-raw/sprites/blocks/power/impact-reactor.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:battery": {
+    "file": "/mindustry/block-battery.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/battery.png",
+      "core/assets-raw/sprites/blocks/power/battery-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:battery-large": {
+    "file": "/mindustry/block-battery-large.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/battery-large.png",
+      "core/assets-raw/sprites/blocks/power/battery-large-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:power-node": {
+    "file": "/mindustry/block-power-node.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/power-node.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:power-node-large": {
+    "file": "/mindustry/block-power-node-large.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/power-node-large.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:surge-tower": {
+    "file": "/mindustry/block-surge-tower.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/surge-tower.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:diode": {
+    "file": "/mindustry/block-diode.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/diode.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:turbine-condenser": {
+    "file": "/mindustry/block-turbine-condenser.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/turbine-condenser.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:vent-condenser": {
+    "file": "/mindustry/block-vent-condenser.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/vent-condenser-bottom.png",
+      "core/assets-raw/sprites/blocks/production/vent-condenser.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:chemical-combustion-chamber": {
+    "file": "/mindustry/block-chemical-combustion-chamber.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/chemical-combustion-chamber-bottom.png",
+      "core/assets-raw/sprites/blocks/power/chemical-combustion-chamber.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:pyrolysis-generator": {
+    "file": "/mindustry/block-pyrolysis-generator.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/pyrolysis-generator-bottom.png",
+      "core/assets-raw/sprites/blocks/power/pyrolysis-generator.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:flux-reactor": {
+    "file": "/mindustry/block-flux-reactor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/flux-reactor-bottom.png",
+      "core/assets-raw/sprites/blocks/power/flux-reactor.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:neoplasia-reactor": {
+    "file": "/mindustry/block-neoplasia-reactor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/neoplasia-reactor-bottom.png",
+      "core/assets-raw/sprites/blocks/power/neoplasia-reactor.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:beam-node": {
+    "file": "/mindustry/block-beam-node.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/beam-node.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:beam-tower": {
+    "file": "/mindustry/block-beam-tower.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/beam-tower.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:beam-link": {
+    "file": "/mindustry/block-beam-link.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/power/beam-link.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:mechanical-drill": {
+    "file": "/mindustry/block-mechanical-drill.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/drills/mechanical-drill.png",
+      "core/assets-raw/sprites/blocks/drills/mechanical-drill-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:pneumatic-drill": {
+    "file": "/mindustry/block-pneumatic-drill.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/drills/pneumatic-drill.png",
+      "core/assets-raw/sprites/blocks/drills/pneumatic-drill-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:laser-drill": {
+    "file": "/mindustry/block-laser-drill.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/drills/laser-drill.png",
+      "core/assets-raw/sprites/blocks/drills/laser-drill-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:blast-drill": {
+    "file": "/mindustry/block-blast-drill.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/drills/blast-drill.png",
+      "core/assets-raw/sprites/blocks/drills/blast-drill-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:water-extractor": {
+    "file": "/mindustry/block-water-extractor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/drills/water-extractor.png",
+      "core/assets-raw/sprites/blocks/drills/water-extractor-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:oil-extractor": {
+    "file": "/mindustry/block-oil-extractor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/drills/oil-extractor.png",
+      "core/assets-raw/sprites/blocks/drills/oil-extractor-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:cultivator": {
+    "file": "/mindustry/block-cultivator.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/cultivator-bottom.png",
+      "core/assets-raw/sprites/blocks/production/cultivator.png",
+      "core/assets-raw/sprites/blocks/production/cultivator-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:cliff-crusher": {
+    "file": "/mindustry/block-cliff-crusher.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/drills/cliff-crusher.png",
+      "core/assets-raw/sprites/blocks/drills/cliff-crusher-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:plasma-bore": {
+    "file": "/mindustry/block-plasma-bore.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/drills/plasma-bore.png",
+      "core/assets-raw/sprites/blocks/drills/plasma-bore-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:large-plasma-bore": {
+    "file": "/mindustry/block-large-plasma-bore.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/drills/large-plasma-bore.png",
+      "core/assets-raw/sprites/blocks/drills/large-plasma-bore-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:impact-drill": {
+    "file": "/mindustry/block-impact-drill.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/drills/impact-drill.png",
+      "core/assets-raw/sprites/blocks/drills/impact-drill-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:eruption-drill": {
+    "file": "/mindustry/block-eruption-drill.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/drills/eruption-drill.png",
+      "core/assets-raw/sprites/blocks/drills/eruption-drill-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:core-shard": {
+    "file": "/mindustry/block-core-shard.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/storage/core-shard.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:core-foundation": {
+    "file": "/mindustry/block-core-foundation.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/storage/core-foundation.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:core-nucleus": {
+    "file": "/mindustry/block-core-nucleus.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/storage/core-nucleus.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:vault": {
+    "file": "/mindustry/block-vault.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/storage/vault.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:container": {
+    "file": "/mindustry/block-container.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/storage/container.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:unloader": {
+    "file": "/mindustry/block-unloader.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/storage/unloader.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:core-bastion": {
+    "file": "/mindustry/block-core-bastion.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/storage/core-bastion.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:core-citadel": {
+    "file": "/mindustry/block-core-citadel.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/storage/core-citadel.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:core-acropolis": {
+    "file": "/mindustry/block-core-acropolis.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/storage/core-acropolis.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:reinforced-container": {
+    "file": "/mindustry/block-reinforced-container.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/storage/reinforced-container.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:reinforced-vault": {
+    "file": "/mindustry/block-reinforced-vault.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/storage/reinforced-vault.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:duo": {
+    "file": "/mindustry/block-duo.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-1.png",
+      "core/assets-raw/sprites/blocks/turrets/duo/duo-preview.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:scatter": {
+    "file": "/mindustry/block-scatter.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-2.png",
+      "core/assets-raw/sprites/blocks/turrets/scatter/scatter-preview.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:scorch": {
+    "file": "/mindustry/block-scorch.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-1.png",
+      "core/assets-raw/sprites/blocks/turrets/scorch.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:hail": {
+    "file": "/mindustry/block-hail.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-1.png",
+      "core/assets-raw/sprites/blocks/turrets/hail.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:arc": {
+    "file": "/mindustry/block-arc.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-1.png",
+      "core/assets-raw/sprites/blocks/turrets/arc.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:wave": {
+    "file": "/mindustry/block-wave.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-2.png",
+      "core/assets-raw/sprites/blocks/turrets/wave.png",
+      "core/assets-raw/sprites/blocks/turrets/wave-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:lancer": {
+    "file": "/mindustry/block-lancer.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-2.png",
+      "core/assets-raw/sprites/blocks/turrets/lancer.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:swarmer": {
+    "file": "/mindustry/block-swarmer.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-2.png",
+      "core/assets-raw/sprites/blocks/turrets/swarmer.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:salvo": {
+    "file": "/mindustry/block-salvo.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-2.png",
+      "core/assets-raw/sprites/blocks/turrets/salvo/salvo-preview.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:fuse": {
+    "file": "/mindustry/block-fuse.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-3.png",
+      "core/assets-raw/sprites/blocks/turrets/fuse.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ripple": {
+    "file": "/mindustry/block-ripple.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-3.png",
+      "core/assets-raw/sprites/blocks/turrets/ripple.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:cyclone": {
+    "file": "/mindustry/block-cyclone.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-3.png",
+      "core/assets-raw/sprites/blocks/turrets/cyclone/cyclone-preview.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:foreshadow": {
+    "file": "/mindustry/block-foreshadow.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-4.png",
+      "core/assets-raw/sprites/blocks/turrets/foreshadow.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:spectre": {
+    "file": "/mindustry/block-spectre.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-4.png",
+      "core/assets-raw/sprites/blocks/turrets/spectre.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:meltdown": {
+    "file": "/mindustry/block-meltdown.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-4.png",
+      "core/assets-raw/sprites/blocks/turrets/meltdown.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:segment": {
+    "file": "/mindustry/block-segment.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-2.png",
+      "core/assets-raw/sprites/blocks/defense/segment.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:parallax": {
+    "file": "/mindustry/block-parallax.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-2.png",
+      "core/assets-raw/sprites/blocks/defense/parallax.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:tsunami": {
+    "file": "/mindustry/block-tsunami.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-3.png",
+      "core/assets-raw/sprites/blocks/turrets/tsunami.png",
+      "core/assets-raw/sprites/blocks/turrets/tsunami-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:breach": {
+    "file": "/mindustry/block-breach.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-3.png",
+      "core/assets-raw/sprites/blocks/turrets/breach.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:diffuse": {
+    "file": "/mindustry/block-diffuse.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-3.png",
+      "core/assets-raw/sprites/blocks/turrets/diffuse/diffuse-preview.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:sublimate": {
+    "file": "/mindustry/block-sublimate.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-3.png",
+      "core/assets-raw/sprites/blocks/turrets/sublimate/sublimate-preview.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:titan": {
+    "file": "/mindustry/block-titan.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-4.png",
+      "core/assets-raw/sprites/blocks/turrets/titan/titan-preview.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:disperse": {
+    "file": "/mindustry/block-disperse.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-4.png",
+      "core/assets-raw/sprites/blocks/turrets/disperse/disperse-preview.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:afflict": {
+    "file": "/mindustry/block-afflict.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-4.png",
+      "core/assets-raw/sprites/blocks/turrets/afflict/afflict-preview.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:lustre": {
+    "file": "/mindustry/block-lustre.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-4.png",
+      "core/assets-raw/sprites/blocks/turrets/lustre/lustre-preview.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:scathe": {
+    "file": "/mindustry/block-scathe.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-4.png",
+      "core/assets-raw/sprites/blocks/turrets/scathe/scathe-preview.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:smite": {
+    "file": "/mindustry/block-smite.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/smite/smite-preview.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:malign": {
+    "file": "/mindustry/block-malign.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/malign/malign-preview.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ground-factory": {
+    "file": "/mindustry/block-ground-factory.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/units/ground-factory.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:air-factory": {
+    "file": "/mindustry/block-air-factory.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/units/air-factory.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:naval-factory": {
+    "file": "/mindustry/block-naval-factory.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/units/naval-factory.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:additive-reconstructor": {
+    "file": "/mindustry/block-additive-reconstructor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/units/additive-reconstructor.png",
+      "core/assets-raw/sprites/blocks/units/additive-reconstructor-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:multiplicative-reconstructor": {
+    "file": "/mindustry/block-multiplicative-reconstructor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/units/multiplicative-reconstructor.png",
+      "core/assets-raw/sprites/blocks/units/multiplicative-reconstructor-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:exponential-reconstructor": {
+    "file": "/mindustry/block-exponential-reconstructor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/units/exponential-reconstructor.png",
+      "core/assets-raw/sprites/blocks/units/exponential-reconstructor-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:tetrative-reconstructor": {
+    "file": "/mindustry/block-tetrative-reconstructor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/units/tetrative-reconstructor.png",
+      "core/assets-raw/sprites/blocks/units/tetrative-reconstructor-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:repair-point": {
+    "file": "/mindustry/block-repair-point.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/units/repair-point.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:repair-turret": {
+    "file": "/mindustry/block-repair-turret.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/units/repair-turret.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:tank-fabricator": {
+    "file": "/mindustry/block-tank-fabricator.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/units/tank-fabricator.png",
+      "core/assets-raw/sprites/blocks/units/tank-fabricator-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ship-fabricator": {
+    "file": "/mindustry/block-ship-fabricator.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/units/ship-fabricator.png",
+      "core/assets-raw/sprites/blocks/units/ship-fabricator-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:mech-fabricator": {
+    "file": "/mindustry/block-mech-fabricator.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/units/mech-fabricator.png",
+      "core/assets-raw/sprites/blocks/units/mech-fabricator-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:tank-refabricator": {
+    "file": "/mindustry/block-tank-refabricator.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/units/tank-refabricator.png",
+      "core/assets-raw/sprites/blocks/units/tank-refabricator-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ship-refabricator": {
+    "file": "/mindustry/block-ship-refabricator.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/units/ship-refabricator.png",
+      "core/assets-raw/sprites/blocks/units/ship-refabricator-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:mech-refabricator": {
+    "file": "/mindustry/block-mech-refabricator.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/units/mech-refabricator.png",
+      "core/assets-raw/sprites/blocks/units/mech-refabricator-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:prime-refabricator": {
+    "file": "/mindustry/block-prime-refabricator.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/units/prime-refabricator.png",
+      "core/assets-raw/sprites/blocks/units/prime-refabricator-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:tank-assembler": {
+    "file": "/mindustry/block-tank-assembler.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/units/tank-assembler.png",
+      "core/assets-raw/sprites/blocks/units/tank-assembler-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ship-assembler": {
+    "file": "/mindustry/block-ship-assembler.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/units/ship-assembler.png",
+      "core/assets-raw/sprites/blocks/units/ship-assembler-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:mech-assembler": {
+    "file": "/mindustry/block-mech-assembler.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/units/mech-assembler.png",
+      "core/assets-raw/sprites/blocks/units/mech-assembler-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:basic-assembler-module": {
+    "file": "/mindustry/block-basic-assembler-module.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/units/basic-assembler-module.png",
+      "core/assets-raw/sprites/blocks/units/basic-assembler-module-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:unit-repair-tower": {
+    "file": "/mindustry/block-unit-repair-tower.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/units/unit-repair-tower.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:payload-conveyor": {
+    "file": "/mindustry/block-payload-conveyor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/payload/payload-conveyor.png",
+      "core/assets-raw/sprites/blocks/payload/payload-conveyor-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:payload-router": {
+    "file": "/mindustry/block-payload-router.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/payload/payload-router.png",
+      "core/assets-raw/sprites/blocks/payload/payload-router-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:reinforced-payload-conveyor": {
+    "file": "/mindustry/block-reinforced-payload-conveyor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/payload/reinforced-payload-conveyor.png",
+      "core/assets-raw/sprites/blocks/payload/reinforced-payload-conveyor-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:reinforced-payload-router": {
+    "file": "/mindustry/block-reinforced-payload-router.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/payload/reinforced-payload-router.png",
+      "core/assets-raw/sprites/blocks/payload/reinforced-payload-router-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:payload-mass-driver": {
+    "file": "/mindustry/block-payload-mass-driver.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/payload/payload-mass-driver.png",
+      "core/assets-raw/sprites/blocks/payload/payload-mass-driver-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:large-payload-mass-driver": {
+    "file": "/mindustry/block-large-payload-mass-driver.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/payload/large-payload-mass-driver.png",
+      "core/assets-raw/sprites/blocks/payload/large-payload-mass-driver-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:small-deconstructor": {
+    "file": "/mindustry/block-small-deconstructor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/payload/small-deconstructor.png",
+      "core/assets-raw/sprites/blocks/payload/small-deconstructor-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:deconstructor": {
+    "file": "/mindustry/block-deconstructor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/payload/deconstructor.png",
+      "core/assets-raw/sprites/blocks/payload/deconstructor-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:constructor": {
+    "file": "/mindustry/block-constructor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/payload/constructor.png",
+      "core/assets-raw/sprites/blocks/payload/constructor-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:large-constructor": {
+    "file": "/mindustry/block-large-constructor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/payload/large-constructor.png",
+      "core/assets-raw/sprites/blocks/payload/large-constructor-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:payload-loader": {
+    "file": "/mindustry/block-payload-loader.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/payload/payload-loader.png",
+      "core/assets-raw/sprites/blocks/payload/payload-loader-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:payload-unloader": {
+    "file": "/mindustry/block-payload-unloader.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/payload/payload-unloader.png",
+      "core/assets-raw/sprites/blocks/payload/payload-unloader-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:message": {
+    "file": "/mindustry/block-message.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/logic/message.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:switch": {
+    "file": "/mindustry/block-switch.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/logic/switch.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:micro-processor": {
+    "file": "/mindustry/block-micro-processor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/logic/micro-processor.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:logic-processor": {
+    "file": "/mindustry/block-logic-processor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/logic/logic-processor.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:hyper-processor": {
+    "file": "/mindustry/block-hyper-processor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/logic/hyper-processor.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:large-logic-display": {
+    "file": "/mindustry/block-large-logic-display.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/logic/large-logic-display.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:logic-display": {
+    "file": "/mindustry/block-logic-display.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/logic/logic-display.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:memory-cell": {
+    "file": "/mindustry/block-memory-cell.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/logic/memory-cell.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:memory-bank": {
+    "file": "/mindustry/block-memory-bank.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/logic/memory-bank.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:canvas": {
+    "file": "/mindustry/block-canvas.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/logic/canvas.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:reinforced-message": {
+    "file": "/mindustry/block-reinforced-message.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/logic/reinforced-message.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:world-processor": {
+    "file": "/mindustry/block-world-processor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/logic/world-processor.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:world-cell": {
+    "file": "/mindustry/block-world-cell.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/logic/world-cell.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:world-message": {
+    "file": "/mindustry/block-world-message.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/logic/world-message.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:launch-pad": {
+    "file": "/mindustry/block-launch-pad.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/campaign/launch-pad.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:interplanetary-accelerator": {
+    "file": "/mindustry/block-interplanetary-accelerator.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/campaign/interplanetary-accelerator.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "item:scrap": {
+    "file": "/mindustry/item-scrap.png",
+    "layers": [
+      "core/assets-raw/sprites/items/item-scrap.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "item:copper": {
+    "file": "/mindustry/item-copper.png",
+    "layers": [
+      "core/assets-raw/sprites/items/item-copper.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "item:lead": {
+    "file": "/mindustry/item-lead.png",
+    "layers": [
+      "core/assets-raw/sprites/items/item-lead.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "item:graphite": {
+    "file": "/mindustry/item-graphite.png",
+    "layers": [
+      "core/assets-raw/sprites/items/item-graphite.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "item:coal": {
+    "file": "/mindustry/item-coal.png",
+    "layers": [
+      "core/assets-raw/sprites/items/item-coal.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "item:titanium": {
+    "file": "/mindustry/item-titanium.png",
+    "layers": [
+      "core/assets-raw/sprites/items/item-titanium.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "item:thorium": {
+    "file": "/mindustry/item-thorium.png",
+    "layers": [
+      "core/assets-raw/sprites/items/item-thorium.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "item:silicon": {
+    "file": "/mindustry/item-silicon.png",
+    "layers": [
+      "core/assets-raw/sprites/items/item-silicon.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "item:plastanium": {
+    "file": "/mindustry/item-plastanium.png",
+    "layers": [
+      "core/assets-raw/sprites/items/item-plastanium.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "item:phase-fabric": {
+    "file": "/mindustry/item-phase-fabric.png",
+    "layers": [
+      "core/assets-raw/sprites/items/item-phase-fabric.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "item:surge-alloy": {
+    "file": "/mindustry/item-surge-alloy.png",
+    "layers": [
+      "core/assets-raw/sprites/items/item-surge-alloy.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "item:spore-pod": {
+    "file": "/mindustry/item-spore-pod.png",
+    "layers": [
+      "core/assets-raw/sprites/items/item-spore-pod.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "item:sand": {
+    "file": "/mindustry/item-sand.png",
+    "layers": [
+      "core/assets-raw/sprites/items/item-sand.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "item:blast-compound": {
+    "file": "/mindustry/item-blast-compound.png",
+    "layers": [
+      "core/assets-raw/sprites/items/item-blast-compound.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "item:pyratite": {
+    "file": "/mindustry/item-pyratite.png",
+    "layers": [
+      "core/assets-raw/sprites/items/item-pyratite.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "item:metaglass": {
+    "file": "/mindustry/item-metaglass.png",
+    "layers": [
+      "core/assets-raw/sprites/items/item-metaglass.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "item:beryllium": {
+    "file": "/mindustry/item-beryllium.png",
+    "layers": [
+      "core/assets-raw/sprites/items/item-beryllium.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "item:tungsten": {
+    "file": "/mindustry/item-tungsten.png",
+    "layers": [
+      "core/assets-raw/sprites/items/item-tungsten.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "item:oxide": {
+    "file": "/mindustry/item-oxide.png",
+    "layers": [
+      "core/assets-raw/sprites/items/item-oxide.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "item:carbide": {
+    "file": "/mindustry/item-carbide.png",
+    "layers": [
+      "core/assets-raw/sprites/items/item-carbide.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "item:fissile-matter": {
+    "file": "/mindustry/item-fissile-matter.png",
+    "layers": [
+      "core/assets-raw/sprites/items/item-fissile-matter.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "item:dormant-cyst": {
+    "file": "/mindustry/item-dormant-cyst.png",
+    "layers": [
+      "core/assets-raw/sprites/items/item-dormant-cyst.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "liquid:water": {
+    "file": "/mindustry/liquid-water.png",
+    "layers": [
+      "core/assets-raw/sprites/items/liquid-water.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "liquid:slag": {
+    "file": "/mindustry/liquid-slag.png",
+    "layers": [
+      "core/assets-raw/sprites/items/liquid-slag.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "liquid:oil": {
+    "file": "/mindustry/liquid-oil.png",
+    "layers": [
+      "core/assets-raw/sprites/items/liquid-oil.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "liquid:cryofluid": {
+    "file": "/mindustry/liquid-cryofluid.png",
+    "layers": [
+      "core/assets-raw/sprites/items/liquid-cryofluid.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "liquid:arkycite": {
+    "file": "/mindustry/liquid-arkycite.png",
+    "layers": [
+      "core/assets-raw/sprites/items/liquid-arkycite.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "liquid:gallium": {
+    "file": "/mindustry/liquid-gallium.png",
+    "layers": [
+      "core/assets-raw/sprites/items/liquid-gallium.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "liquid:neoplasm": {
+    "file": "/mindustry/liquid-neoplasm.png",
+    "layers": [
+      "core/assets-raw/sprites/items/liquid-neoplasm.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "liquid:ozone": {
+    "file": "/mindustry/liquid-ozone.png",
+    "layers": [
+      "core/assets-raw/sprites/items/liquid-ozone.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "liquid:hydrogen": {
+    "file": "/mindustry/liquid-hydrogen.png",
+    "layers": [
+      "core/assets-raw/sprites/items/liquid-hydrogen.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "liquid:nitrogen": {
+    "file": "/mindustry/liquid-nitrogen.png",
+    "layers": [
+      "core/assets-raw/sprites/items/liquid-nitrogen.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "liquid:cyanogen": {
+    "file": "/mindustry/liquid-cyanogen.png",
+    "layers": [
+      "core/assets-raw/sprites/items/liquid-cyanogen.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:mace": {
+    "file": "/mindustry/unit-mace.png",
+    "layers": [
+      "core/assets-raw/sprites/units/mace.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:dagger": {
+    "file": "/mindustry/unit-dagger.png",
+    "layers": [
+      "core/assets-raw/sprites/units/dagger.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:crawler": {
+    "file": "/mindustry/unit-crawler.png",
+    "layers": [
+      "core/assets-raw/sprites/units/crawler.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:fortress": {
+    "file": "/mindustry/unit-fortress.png",
+    "layers": [
+      "core/assets-raw/sprites/units/fortress.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:scepter": {
+    "file": "/mindustry/unit-scepter.png",
+    "layers": [
+      "core/assets-raw/sprites/units/scepter.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:reign": {
+    "file": "/mindustry/unit-reign.png",
+    "layers": [
+      "core/assets-raw/sprites/units/reign.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:vela": {
+    "file": "/mindustry/unit-vela.png",
+    "layers": [
+      "core/assets-raw/sprites/units/vela.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:nova": {
+    "file": "/mindustry/unit-nova.png",
+    "layers": [
+      "core/assets-raw/sprites/units/nova.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:pulsar": {
+    "file": "/mindustry/unit-pulsar.png",
+    "layers": [
+      "core/assets-raw/sprites/units/pulsar.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:quasar": {
+    "file": "/mindustry/unit-quasar.png",
+    "layers": [
+      "core/assets-raw/sprites/units/quasar.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:corvus": {
+    "file": "/mindustry/unit-corvus.png",
+    "layers": [
+      "core/assets-raw/sprites/units/corvus.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:atrax": {
+    "file": "/mindustry/unit-atrax.png",
+    "layers": [
+      "core/assets-raw/sprites/units/atrax.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:spiroct": {
+    "file": "/mindustry/unit-spiroct.png",
+    "layers": [
+      "core/assets-raw/sprites/units/spiroct.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:arkyid": {
+    "file": "/mindustry/unit-arkyid.png",
+    "layers": [
+      "core/assets-raw/sprites/units/arkyid.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:toxopid": {
+    "file": "/mindustry/unit-toxopid.png",
+    "layers": [
+      "core/assets-raw/sprites/units/toxopid.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:elude": {
+    "file": "/mindustry/unit-elude.png",
+    "layers": [
+      "core/assets-raw/sprites/units/elude.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:flare": {
+    "file": "/mindustry/unit-flare.png",
+    "layers": [
+      "core/assets-raw/sprites/units/flare.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:eclipse": {
+    "file": "/mindustry/unit-eclipse.png",
+    "layers": [
+      "core/assets-raw/sprites/units/eclipse.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:horizon": {
+    "file": "/mindustry/unit-horizon.png",
+    "layers": [
+      "core/assets-raw/sprites/units/horizon.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:zenith": {
+    "file": "/mindustry/unit-zenith.png",
+    "layers": [
+      "core/assets-raw/sprites/units/zenith.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:antumbra": {
+    "file": "/mindustry/unit-antumbra.png",
+    "layers": [
+      "core/assets-raw/sprites/units/antumbra.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:mono": {
+    "file": "/mindustry/unit-mono.png",
+    "layers": [
+      "core/assets-raw/sprites/units/mono.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:poly": {
+    "file": "/mindustry/unit-poly.png",
+    "layers": [
+      "core/assets-raw/sprites/units/poly.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:mega": {
+    "file": "/mindustry/unit-mega.png",
+    "layers": [
+      "core/assets-raw/sprites/units/mega.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:quad": {
+    "file": "/mindustry/unit-quad.png",
+    "layers": [
+      "core/assets-raw/sprites/units/quad.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:oct": {
+    "file": "/mindustry/unit-oct.png",
+    "layers": [
+      "core/assets-raw/sprites/units/oct.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:alpha": {
+    "file": "/mindustry/unit-alpha.png",
+    "layers": [
+      "core/assets-raw/sprites/units/alpha.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:beta": {
+    "file": "/mindustry/unit-beta.png",
+    "layers": [
+      "core/assets-raw/sprites/units/beta.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:gamma": {
+    "file": "/mindustry/unit-gamma.png",
+    "layers": [
+      "core/assets-raw/sprites/units/gamma.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:risso": {
+    "file": "/mindustry/unit-risso.png",
+    "layers": [
+      "core/assets-raw/sprites/units/risso.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:minke": {
+    "file": "/mindustry/unit-minke.png",
+    "layers": [
+      "core/assets-raw/sprites/units/minke.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:bryde": {
+    "file": "/mindustry/unit-bryde.png",
+    "layers": [
+      "core/assets-raw/sprites/units/bryde.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:sei": {
+    "file": "/mindustry/unit-sei.png",
+    "layers": [
+      "core/assets-raw/sprites/units/sei.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:omura": {
+    "file": "/mindustry/unit-omura.png",
+    "layers": [
+      "core/assets-raw/sprites/units/omura.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:retusa": {
+    "file": "/mindustry/unit-retusa.png",
+    "layers": [
+      "core/assets-raw/sprites/units/retusa.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:oxynoe": {
+    "file": "/mindustry/unit-oxynoe.png",
+    "layers": [
+      "core/assets-raw/sprites/units/oxynoe.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:cyerce": {
+    "file": "/mindustry/unit-cyerce.png",
+    "layers": [
+      "core/assets-raw/sprites/units/cyerce.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:aegires": {
+    "file": "/mindustry/unit-aegires.png",
+    "layers": [
+      "core/assets-raw/sprites/units/aegires.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:navanax": {
+    "file": "/mindustry/unit-navanax.png",
+    "layers": [
+      "core/assets-raw/sprites/units/navanax.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:block": {
+    "file": "/mindustry/unit-block.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/turrets/bases/block-1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:manifold": {
+    "file": "/mindustry/unit-manifold.png",
+    "layers": [
+      "core/assets-raw/sprites/units/manifold.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:assembly-drone": {
+    "file": "/mindustry/unit-assembly-drone.png",
+    "layers": [
+      "core/assets-raw/sprites/units/assembly-drone.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:stell": {
+    "file": "/mindustry/unit-stell.png",
+    "layers": [
+      "core/assets-raw/sprites/units/stell.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:locus": {
+    "file": "/mindustry/unit-locus.png",
+    "layers": [
+      "core/assets-raw/sprites/units/locus.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:precept": {
+    "file": "/mindustry/unit-precept.png",
+    "layers": [
+      "core/assets-raw/sprites/units/precept.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:vanquish": {
+    "file": "/mindustry/unit-vanquish.png",
+    "layers": [
+      "core/assets-raw/sprites/units/vanquish.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:conquer": {
+    "file": "/mindustry/unit-conquer.png",
+    "layers": [
+      "core/assets-raw/sprites/units/conquer.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:missile": {
+    "file": "/mindustry/unit-missile.png",
+    "layers": [
+      "core/assets-raw/sprites/effects/missile.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:latum": {
+    "file": "/mindustry/unit-latum.png",
+    "layers": [
+      "core/assets-raw/sprites/units/neoplasm/latum-segment0.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:renale": {
+    "file": "/mindustry/unit-renale.png",
+    "layers": [
+      "core/assets-raw/sprites/units/neoplasm/renale-segment0.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  }
+}
