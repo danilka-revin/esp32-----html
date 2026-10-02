@@ -4,7 +4,7 @@ import { buildableBlocks, gameCatalog, gameBlocks, liquids, materials, units } f
 import { blockRect, canvasPresets, generateLayout, initialSettings } from '../src/generator.js';
 import { decodeSchematic, encodeSchematic } from '../src/schematic-io.js';
 import { buildLogicProgram, getLogicLinkInstructions, needsLogicProgram } from '../src/logic.js';
-import { checkForUpdates, compareBuilds } from '../src/update-checker.js';
+import { checkForUpdates, compareBuilds, sourceArchiveUrl } from '../src/update-checker.js';
 
 const directions = ['mining', 'production', 'defense', 'power', 'logistics', 'units', 'logic', 'campaign'];
 const planets = ['serpulo', 'erekir'];
@@ -117,6 +117,12 @@ test('MLOG snippets configure reserve control and unit-based factory supply', ()
   assert.equal(needsLogicProgram({ direction: 'mining', supplyMode: 'core', processorControl: false }), false);
   assert.equal(buildLogicProgram({ ...droneSettings, planet: 'erekir' }), '');
   assert.equal(needsLogicProgram({ ...droneSettings, planet: 'erekir' }), false);
+});
+
+test('update archives point to the selected GitHub revision', () => {
+  const sha = 'b'.repeat(40);
+  assert.equal(sourceArchiveUrl(sha), `https://codeload.github.com/danilka-revin/esp32-----html/zip/${sha}`);
+  assert.equal(sourceArchiveUrl(''), 'https://codeload.github.com/danilka-revin/esp32-----html/zip/main');
 });
 
 test('update checker separates a deployed web build from source-only GitHub commits', async () => {

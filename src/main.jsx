@@ -96,7 +96,7 @@ function MechanicsReport({ mechanics }) {
   const fmt = n => n.toLocaleString('ru-RU', { maximumFractionDigits: 2 });
   return <section className="inspector-section mechanics-report">
     <div className="panel-section-heading"><span>МЕХАНИКИ / v146</span></div>
-    <p className="microcopy">Базовая скорость без ускорения. Выпуск зависит от непрерывной подачи и свободного выхода.</p>
+    <p className="microcopy">Базовая скорость · без ускорения.</p>
     {mechanics.requirements.map((r, i) => <div className="recipe-report" key={i}>
       <b>{buildableBlocks.find(b => b.id === r.tile.id)?.name ?? r.tile.id}</b>
       <p>Вход: {r.inputs.map(v => `${name(v.id)} ${fmt(v.rate)}/с`).join(' · ')}</p>
@@ -111,8 +111,8 @@ function MechanicsReport({ mechanics }) {
 function TinyTag({ children, tone = '' }) { return <span className={`tiny-tag ${tone}`}>{children}</span>; }
 
 function Toggle({ checked, onChange, label, detail }) {
-  return <button className={`toggle-row ${checked ? 'checked' : ''}`} type="button" onClick={() => onChange(!checked)} aria-pressed={checked}>
-    <span className="toggle-copy"><b>{label}</b>{detail && <small>{detail}</small>}</span><span className="switch"><i /></span>
+  return <button className={`toggle-row ${checked ? 'checked' : ''}`} type="button" onClick={() => onChange(!checked)} aria-pressed={checked} title={detail}>
+    <span className="toggle-copy"><b>{label}</b>{detail && <small className="visually-hidden">{detail}</small>}</span><span className="switch"><i /></span>
   </button>;
 }
 
@@ -124,13 +124,13 @@ function Toast({ toast, onClose }) {
   </div>;
 }
 
-function StatCard({ label, value, note, icon }) {
-  return <div className="stat-card"><span className="stat-icon"><Icon name={icon} size={15} /></span><span className="stat-copy"><small>{label}</small><b>{value}</b>{note && <em>{note}</em>}</span></div>;
+function StatCard({ label, value, icon }) {
+  return <div className="stat-card"><span className="stat-icon"><Icon name={icon} size={15} /></span><span className="stat-copy"><small>{label}</small><b>{value}</b></span></div>;
 }
 
 function Header({ view, setView, canUndo, canRedo, onUndo, onRedo, theme, setTheme, onImport, onExport, onCopy, onPaste, onSave, savedCount, catalogCount, onOpenUpdates, updateState, updateAttention }) {
   return <header className="toolbar">
-    <button className="brand" type="button" onClick={() => setView('editor')} aria-label="На главную"><span className="brandmark"><img src="/logo.png" alt="" /></span><span className="brandtext"><b>BEE <em>SCHEM</em></b><small>MINDUSTRY SCHEMATIC LAB</small></span></button>
+    <button className="brand" type="button" onClick={() => setView('editor')} aria-label="На главную"><span className="brandmark"><img src="/logo.png" alt="" /></span><span className="brandtext"><b>BEE <em>SCHEM</em></b></span></button>
     <nav className="top-nav" aria-label="Разделы приложения">
       <button className={`nav-tab ${view === 'editor' ? 'active' : ''}`} type="button" onClick={() => setView('editor')}><Icon name="grid" size={15} /><span>Редактор</span></button>
       <button className={`nav-tab ${view === 'catalog' ? 'active' : ''}`} type="button" onClick={() => setView('catalog')}><Icon name="layers" size={15} /><span>Каталог</span><i>{catalogCount}</i></button>
@@ -159,7 +159,6 @@ function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCat
   const productOptions = (productsByDirection[settings.direction] ?? []).filter(option => settings.direction !== 'production' || productionMachines[settings.planet]?.[option.id]);
   const product = productOptions.find((item) => item.id === settings.goal) ?? productOptions[0];
   const hasSupplySettings = ['production', 'defense', 'units', 'logistics'].includes(settings.direction);
-  const selectedSupplyMode = supplyModes.find((mode) => mode.id === settings.supplyMode) ?? supplyModes[0];
   const isErekir = settings.planet === 'erekir';
   const isDroneMode = ['drones', 'hybrid'].includes(settings.supplyMode);
   const showTransportSettings = isErekir
@@ -171,7 +170,6 @@ function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCat
     drones: { label: 'Грузовой дрон', hint: `Unit Cargo Loader создаёт Manifold автоматически. Подай @${getTransportItem(settings)} в загрузчик; точка выгрузки настроена на тот же предмет.` },
     hybrid: { label: 'Гибрид', hint: `Линия от складского буфера плюс Manifold. Наполни контейнер ресурсом @${getTransportItem(settings)} и подай его в загрузчик.` },
   };
-  const supplyModeHint = isErekir ? (erekirSupplyModes[settings.supplyMode]?.hint ?? selectedSupplyMode.hint) : selectedSupplyMode.hint;
   const transportOptions = materials.filter((item) => item.planet === settings.planet || item.planet === 'both');
   const droneUnitOptions = settings.planet === 'erekir'
     ? [{ id: 'manifold', label: 'Manifold · грузовой дрон' }]
@@ -197,37 +195,35 @@ function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCat
   }));
 
   return <aside className="left-sidebar panel-scroll">
-    <div className="section-kicker"><span className="kicker-line" /> КОНСТРУКТОР <span className="kicker-dot" /></div>
-    <div className="sidebar-title-row"><div><h1>Автогенератор</h1><p>Собери схему под свою задачу</p></div><span className="generator-spark"><Icon name="spark" size={18} /></span></div>
-    <section className="setting-section"><div className="field-label"><span>НАПРАВЛЕНИЕ</span><small>01 / 04</small></div><div className="direction-grid">
+    <div className="sidebar-title-row"><div><h1>Генератор</h1></div><span className="generator-spark"><Icon name="spark" size={18} /></span></div>
+    <section className="setting-section"><div className="field-label"><span>НАПРАВЛЕНИЕ</span></div><div className="direction-grid">
       {Object.entries(directionMeta).map(([id, direction]) => <button className={`direction-option ${settings.direction === id ? 'selected' : ''}`} type="button" key={id} onClick={() => setDirection(id)}><span className="direction-icon">{direction.icon}</span><span>{direction.short}</span></button>)}
     </div></section>
-    <section className="setting-section compact-section"><div className="field-label"><span>ЭТАП ИГРЫ</span><small>ТЕХНОЛОГИИ</small></div><div className="stage-segment">
+    <section className="setting-section compact-section"><div className="field-label"><span>ЭТАП ИГРЫ</span></div><div className="stage-segment">
       {Object.entries(stageMeta).map(([id, stage]) => <button type="button" key={id} className={`stage-choice ${settings.stage === id ? `active ${stage.color}` : ''}`} onClick={() => patch('stage', id)}><i>{stage.number}</i><span>{stage.label}</span></button>)}
-    </div><div className="stage-note"><span className={`stage-pip ${stageMeta[settings.stage]?.color}`} />{stageMeta[settings.stage]?.resourceLine}</div></section>
-    <section className="setting-section compact-section"><div className="field-label"><span>ПЛАНЕТА</span><small>КОНТЕНТ v146</small></div><div className="planet-switch">
+    </div></section>
+    <section className="setting-section compact-section"><div className="field-label"><span>ПЛАНЕТА</span></div><div className="planet-switch">
       <button type="button" className={settings.planet === 'serpulo' ? 'selected' : ''} onClick={() => setPlanet('serpulo')}><span className="planet-orb serpulo" />Серпуло</button>
       <button type="button" className={settings.planet === 'erekir' ? 'selected' : ''} onClick={() => setPlanet('erekir')}><span className="planet-orb erekir" />Эрекир</button>
     </div></section>
-    <section className="setting-section compact-section"><label className="field-label" htmlFor="goal-select"><span>ЦЕЛЬ СХЕМЫ</span><small>ПРОДУКТ / ЗАДАЧА</small></label><div className="select-wrap">
+    <section className="setting-section compact-section"><label className="field-label" htmlFor="goal-select"><span>ЦЕЛЬ</span></label><div className="select-wrap">
       <select id="goal-select" value={product?.id ?? ''} onChange={(event) => patch('goal', event.target.value)}>{productOptions.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}</select><Icon name="chevron" size={13} />
     </div></section>
     {hasSupplySettings && !minimalModule && <>
-      <section className="setting-section supply-section"><div className="field-label"><span>СНАБЖЕНИЕ И УПРАВЛЕНИЕ</span><small>ФАБРИКА / УЗЕЛ</small></div>
+      <section className="setting-section supply-section"><div className="field-label"><span>СНАБЖЕНИЕ</span></div>
         <div className="supply-mode-grid" role="group" aria-label="Способ снабжения">
           {supplyModes.map((mode) => <button type="button" key={mode.id} title={isErekir ? erekirSupplyModes[mode.id]?.hint ?? mode.hint : mode.hint} className={`supply-mode-option ${settings.supplyMode === mode.id ? 'selected' : ''}`} onClick={() => setSupplyMode(mode.id)}><span>{mode.mark}</span><b>{isErekir ? erekirSupplyModes[mode.id]?.label ?? mode.label : mode.label}</b></button>)}
         </div>
-        <p className="supply-mode-hint">{supplyModeHint}</p>
       </section>
       {showTransportSettings && <section className="setting-section compact-section logic-settings-section">
-        <label className="field-label" htmlFor="transport-item-select"><span>{isErekir ? (isDroneMode ? 'ФИЛЬТР ПРЕДМЕТА' : 'ПРЕДМЕТ ДЛЯ РАЗГРУЗКИ') : isDroneMode ? 'ГРУЗ ДЛЯ ДОСТАВКИ' : 'РЕСУРС ДЛЯ КОНТРОЛЯ'}</span><small>{isErekir ? 'ЭРЕКИР / ФИЛЬТР' : 'MLOG / @ITEM'}</small></label>
+        <label className="field-label" htmlFor="transport-item-select"><span>{isErekir ? (isDroneMode ? 'ФИЛЬТР ПРЕДМЕТА' : 'ПРЕДМЕТ ДЛЯ РАЗГРУЗКИ') : isDroneMode ? 'ГРУЗ ДЛЯ ДОСТАВКИ' : 'РЕСУРС ДЛЯ КОНТРОЛЯ'}</span></label>
         <div className="select-wrap"><select id="transport-item-select" value={getTransportItem(settings)} onChange={(event) => patch('transportItem', event.target.value)}>{transportOptions.map((item) => <option key={item.id} value={item.id}>{item.name} · @{item.id}</option>)}</select><Icon name="chevron" size={13} /></div>
-        {isErekir ? <p className="microcopy">{isDroneMode ? 'Manifold работает автоматически, без MLOG. Загрузчик должен получать этот предмет; точка выгрузки сохраняет фильтр в .msch.' : 'Наполни усиленный контейнер выбранным предметом: ядро Эрекира нельзя напрямую разгрузить.'}</p> : isDroneMode ? <>
-          <label className="field-label sub-field-label" htmlFor="drone-unit-select"><span>ТИП ЮНИТА</span><small>СЕРПУЛО</small></label>
+        {isErekir ? <p className="microcopy">{isDroneMode ? 'Manifold работает без MLOG; фильтр сохранится в .msch.' : 'Нужен буфер: ядро Эрекира нельзя разгрузить напрямую.'}</p> : isDroneMode ? <>
+          <label className="field-label sub-field-label" htmlFor="drone-unit-select"><span>ТИП ЮНИТА</span></label>
           <div className="select-wrap"><select id="drone-unit-select" value={settings.droneUnit} onChange={(event) => patch('droneUnit', event.target.value)}>{droneUnitOptions.map((unit) => <option key={unit.id} value={unit.id}>{unit.label}</option>)}</select><Icon name="chevron" size={13} /></div>
           <div className="range-heading"><span>ГРУЗ ЗА РЕЙС</span><b>{settings.droneCapacity ?? 50}</b></div>
           <input className="range-input" style={{ '--range-progress': `${(((settings.droneCapacity ?? 50) - 10) / 140) * 100}%` }} type="range" min="10" max="150" step="10" value={settings.droneCapacity ?? 50} onChange={(event) => patch('droneCapacity', Number(event.target.value))} />
-          <p className="microcopy">Нужен доступный юнит выбранного типа. Для MLOG свяжи целевую фабрику с процессором.</p>
+          <p className="microcopy">Для MLOG свяжи фабрику с процессором.</p>
         </> : <>
           <Toggle checked={settings.processorControl} onChange={(value) => patch('processorControl', value)} label="Контроль запасов MLOG" detail="Включать фабрику при достаточном запасе в ядре" />
           {settings.processorControl && <>
@@ -237,7 +233,7 @@ function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCat
         </>}
       </section>}
     </>}
-    <section className="setting-section"><Toggle checked={settings.minimal} onChange={(value) => patch('minimal', value)} label="Минимальная схема" detail="Производство: одна фабрика, внешние входы. Остальные: обрезка пустых краёв." />{minimalModule && <p className="microcopy">Без ядра, склада, защиты и процессора. Сырьё, энергия, жидкости и тепло подключаются извне. Размер определяется рецептом, а не ползунком плотности.</p>}{minimalModule && <Toggle checked={settings.includePower} onChange={(value) => patch('includePower', value)} label="Узел внешнего питания" detail="Только соединение; генерация энергии вне модуля" />}</section>
+    <section className="setting-section"><Toggle checked={settings.minimal} onChange={(value) => patch('minimal', value)} label="Минимальная схема" detail="Одна фабрика без вспомогательных блоков." />{minimalModule && <p className="microcopy">Подключи сырьё, энергию и жидкости снаружи.</p>}{minimalModule && <Toggle checked={settings.includePower} onChange={(value) => patch('includePower', value)} label="Узел внешнего питания" detail="Только соединение; генерация энергии вне модуля" />}</section>
     {!minimalModule && <><section className="setting-section compact-section"><div className="field-label"><span>РАЗМЕР СХЕМЫ</span><small>ДО 128 × 128</small></div><div className="size-options">
       {Object.entries(canvasPresets).map(([id, preset]) => <button type="button" key={id} className={`size-option ${settings.footprint === id ? 'selected' : ''}`} onClick={() => patch('footprint', id)}><span className={`size-preview ${id}`}><i /></span><span>{preset.label}</span><small>{preset.note}</small></button>)}
     </div></section>
@@ -251,9 +247,9 @@ function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCat
     </section>
     </>}
     <button className="button button-primary generate-button" type="button" onClick={onGenerate}><Icon name="spark" size={17} /><span>Сгенерировать схему</span><kbd>↵</kbd></button>
-    <div className={`generator-hint ${dirty ? 'dirty' : ''}`}><span className="hint-dot" />{dirty ? 'Параметры изменены — пересобери схему' : `Подобраны блоки для ${getPlanetLabel(settings.planet)}`}</div>
+    {dirty && <div className="generator-hint dirty"><span className="hint-dot" />Параметры изменены</div>}
     <div className="sidebar-divider" />
-    <div className="palette-heading"><div><div className="field-label"><span>БЫСТРАЯ ПАЛИТРА</span><small>{filteredPalette.length} / {buildableBlocks.length}</small></div><p>Перетащи блок на сетку</p></div><button className="link-button" type="button" onClick={() => setView('catalog')}>Весь каталог <Icon name="external" size={12} /></button></div>
+    <div className="palette-heading"><div><div className="field-label"><span>ПАЛИТРА</span><small>{filteredPalette.length} / {buildableBlocks.length}</small></div></div><button className="link-button" type="button" onClick={() => setView('catalog')}>Каталог <Icon name="external" size={12} /></button></div>
     <div className="palette-controls"><div className="search-field palette-search"><Icon name="search" size={14} /><input value={paletteSearch} onChange={(event) => setPaletteSearch(event.target.value)} placeholder="Найти блок..." aria-label="Найти блок" /></div>
       <div className="select-wrap palette-select-wrap"><select value={paletteCategory} onChange={(event) => setPaletteCategory(event.target.value)} aria-label="Категория блоков"><option value="all">Все категории</option>{categories.filter((category) => buildableBlocks.some((block) => block.category === category.id)).map((category) => <option key={category.id} value={category.id}>{category.label}</option>)}</select><Icon name="chevron" size={12} /></div>
     </div>
@@ -264,7 +260,6 @@ function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCat
       {filteredPalette.length > 72 && <button className="palette-more" type="button" onClick={() => setView('catalog')}>Ещё {filteredPalette.length - 72} блока в каталоге <Icon name="chevron" size={13} /></button>}
       {!filteredPalette.length && <div className="empty-palette">Ничего не найдено. Попробуй другой запрос.</div>}
     </div>
-    <div className="sidebar-credit"><span className="credit-bee">✦</span><span>Каталог Mindustry v146</span><span className="credit-sep">·</span><span>ванильный контент</span></div>
   </aside>;
 }
 
@@ -315,7 +310,7 @@ function BlockCanvas({ scheme, selectedKey, setSelectedKey, tool, selectedBlock,
         </g>;
       })}
     </svg>
-    <div className="canvas-legend"><span className="legend-pulse" />{tool === 'place' && selectedBlock ? `Кликни, чтобы поставить: ${buildableBlocks.find((block) => block.id === selectedBlock)?.name ?? selectedBlock}` : tool === 'erase' ? 'Клик по блоку — удалить' : 'Клик по блоку — свойства · правый клик — удалить'}</div>
+    <div className="canvas-legend"><span className="legend-pulse" />{tool === 'place' && selectedBlock ? `Поставить: ${buildableBlocks.find((block) => block.id === selectedBlock)?.name ?? selectedBlock}` : tool === 'erase' ? 'Клик — удалить' : 'Клик — выбрать · правый клик — удалить'}</div>
     <div className="canvas-coordinates">X {Math.floor(width / 2)} <i /> Y {Math.floor(height / 2)}</div>
   </div>;
 }
@@ -328,9 +323,8 @@ function calculateAnalytics(scheme) {
   const mechanics = analyzeMechanics(scheme);
   for (const [id, amount] of mechanics.costs) materialTotals.set(id, amount);
   const resources = [...materialTotals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([id, amount]) => ({ ...itemById.get(id), id, amount }));
-  const categoryCount = new Set(scheme.tiles.map((tile) => buildableBlocks.find((block) => block.id === tile.id)?.category).filter(Boolean)).size;
   const generators = scheme.tiles.filter((tile) => /generator|reactor|solar-panel|condenser|power-source/.test(tile.id)).length;
-  return { mechanics, counts, sortedBlocks, resources, unique: counts.size, total: scheme.tiles.length, categoryCount, generators };
+  return { mechanics, counts, sortedBlocks, resources, unique: counts.size, total: scheme.tiles.length, generators };
 }
 
 function Inspector({ scheme, analytics, selectedTile, onRotate, onRemove, onSave, savedSchemes, onLoadSaved, onDeleteSaved, onExport, onCopy, onCopyLogic, name, setName }) {
@@ -356,7 +350,7 @@ function Inspector({ scheme, analytics, selectedTile, onRotate, onRemove, onSave
   }[scheme.settings?.direction] ?? [0, 'блоков'];
 
   return <aside className="right-sidebar panel-scroll">
-    <div className="inspector-header"><div><div className="section-kicker"><span className="kicker-line" /> СХЕМА / ОБЗОР</div><h2>Параметры</h2></div><span className="ready-badge"><i /> ПРОВЕРИТЬ</span></div>
+    <div className="inspector-header"><h2>Схема</h2></div>
     <div className="inspector-tabs"><button type="button" className={tab === 'summary' ? 'active' : ''} onClick={() => setTab('summary')}>Сводка</button><button type="button" className={tab === 'selection' ? 'active' : ''} onClick={() => setTab('selection')}>Блок{selectedTile ? <i className="tab-dot" /> : ''}</button></div>
     {tab === 'selection' && selectedTile ? <div className="selection-details">
       <div className="selected-block-hero"><GameGlyph entry={selectedBlock ?? { category: 'sandbox' }} size="large" /><div><span className="field-label">ВЫБРАННЫЙ ОБЪЕКТ</span><h3>{selectedBlock?.name ?? selectedTile.id}</h3><code>{selectedTile.id}</code></div></div>
@@ -365,19 +359,18 @@ function Inspector({ scheme, analytics, selectedTile, onRotate, onRemove, onSave
       <div className="rotation-row"><span>Направление блока</span><button className="button button-outline" type="button" onClick={onRotate}><Icon name="rotate" size={14} /> Повернуть</button></div>
       <button className="button button-danger-soft full-width" type="button" onClick={() => onRemove(selectedTile)}><Icon name="trash" size={14} /> Удалить блок</button>
     </div> : <>
-      <section className="scheme-identity-card"><div className="identity-top"><span className="identity-overline">ТЕКУЩАЯ СХЕМА</span><span className="tiny-tag gold">{stage.number} · {stage.label.toUpperCase()}</span></div>
+      <section className="scheme-identity-card"><div className="identity-top"><span className="tiny-tag gold">{stage.number} · {stage.label.toUpperCase()}</span></div>
         <input className="scheme-name-input" value={name} onChange={(event) => setName(event.target.value)} aria-label="Название схемы" />
         <div className="identity-meta"><span><i className="meta-world-dot" />{world}</span><span>{direction.short}</span></div>
-        <div className="identity-progress"><span style={{ width: `${Math.min(100, 20 + analytics.unique * 2.6)}%` }} /></div><div className="identity-foot"><span>СЛОЁВ СОБРАНО</span><b>{analytics.categoryCount} / 8</b></div>
       </section>
-      <div className="stats-grid"><StatCard label="Постройки" value={analytics.total} note="на сетке" icon="box" /><StatCard label="Типы блоков" value={analytics.unique} note="уникальных" icon="layers" /></div>
-      <section className="inspector-section production-summary"><div className="panel-section-heading"><span>ЦЕЛЬ СХЕМЫ</span><i className="live-pill"><b /> ПЛАН</i></div>
-        <div className="production-row"><span className="production-icon" style={{ '--production-color': categoryColors[scheme.settings?.direction === 'power' ? 'power' : scheme.settings?.direction === 'defense' ? 'turret' : scheme.settings?.direction === 'mining' ? 'mining' : 'production'] }}>{direction.icon}</span><div className="production-text"><b>{product?.label ?? direction.goal}</b><small>{direction.label}</small></div><div className="production-rate"><b>{outputMetric[0]}</b><small>{outputMetric[1]}</small></div></div>
-        <div className="production-bar"><i style={{ width: `${Math.max(22, Math.min(100, analytics.total * 2.2))}%` }} /></div><div className="production-foot"><span><i className="green-dot" /> Структура собрана</span><span>{scheme.width}×{scheme.height} тайлов</span></div>
+      <div className="stats-grid"><StatCard label="Постройки" value={analytics.total} icon="box" /><StatCard label="Типы" value={analytics.unique} icon="layers" /></div>
+      <section className="inspector-section production-summary"><div className="panel-section-heading"><span>ЦЕЛЬ</span></div>
+        <div className="production-row"><span className="production-icon" style={{ '--production-color': categoryColors[scheme.settings?.direction === 'power' ? 'power' : scheme.settings?.direction === 'defense' ? 'turret' : scheme.settings?.direction === 'mining' ? 'mining' : 'production'] }}>{direction.icon}</span><div className="production-text"><b>{product?.label ?? direction.goal}</b></div><div className="production-rate"><b>{outputMetric[0]}</b><small>{outputMetric[1]}</small></div></div>
+        <div className="production-bar"><i style={{ width: `${Math.max(22, Math.min(100, analytics.total * 2.2))}%` }} /></div><div className="production-foot"><span>{scheme.width}×{scheme.height}</span></div>
       </section>
       <section className="inspector-section resource-section"><div className="panel-section-heading"><span>ОЦЕНКА МАТЕРИАЛОВ</span><button className="mini-icon-button" type="button" title="Оценка по размещённым блокам"><Icon name="info" size={13} /></button></div>
         <div className="resource-list">{analytics.resources.map((resource) => <div className="resource-row" key={resource.id}><GameGlyph entry={resource} size="tiny" /><span>{resource.name}</span><b>{resource.amount.toLocaleString('ru-RU')}</b><i className="resource-bar"><span style={{ width: `${Math.max(18, Math.min(100, resource.amount / (analytics.resources[0]?.amount || 1) * 100))}%` }} /></i></div>)}</div>
-        <p className="microcopy">Требования строительства v146 · топ-5 ресурсов{analytics.mechanics.unknownCosts > 0 && ` · нет данных для ${analytics.mechanics.unknownCosts} блоков`}</p>
+        <p className="microcopy">Топ-5 ресурсов{analytics.mechanics.unknownCosts > 0 && ` · нет данных: ${analytics.mechanics.unknownCosts}`}</p>
       </section>
       <MechanicsReport mechanics={analytics.mechanics} />
       {showErekirSupplyGuide && <section className="inspector-section logic-program-section cargo-route-guide">
@@ -398,11 +391,10 @@ function Inspector({ scheme, analytics, selectedTile, onRotate, onRemove, onSave
         {analytics.sortedBlocks.length === 0 && <span className="microcopy">На сетке пока нет блоков.</span>}
       </div></section>
       <section className="saved-schemes-section"><div className="panel-section-heading"><span>МОИ СХЕМЫ</span><button className="mini-icon-button" type="button" title="Сохранить текущую схему" onClick={onSave}><Icon name="plus" size={14} /></button></div>
-        {savedSchemes.length === 0 ? <div className="saved-empty"><Icon name="bookmark" size={14} /><span>Сохрани сборку, чтобы быстро вернуться к ней.</span></div> : savedSchemes.slice(0, 3).map((saved) => <div className="saved-scheme-row" key={saved.key}><button type="button" className="saved-load" onClick={() => onLoadSaved(saved)}><span className="saved-scheme-thumb"><Icon name="grid" size={13} /></span><span><b>{saved.name}</b><small>{saved.width}×{saved.height} · {saved.tiles.length} блоков</small></span></button><button className="icon-button saved-delete" type="button" title="Удалить из сохранённых" onClick={() => onDeleteSaved(saved.key)}><Icon name="close" size={13} /></button></div>)}
+        {savedSchemes.length === 0 ? <div className="saved-empty"><Icon name="bookmark" size={14} /><span>Нет сохранённых схем.</span></div> : savedSchemes.slice(0, 3).map((saved) => <div className="saved-scheme-row" key={saved.key}><button type="button" className="saved-load" onClick={() => onLoadSaved(saved)}><span className="saved-scheme-thumb"><Icon name="grid" size={13} /></span><span><b>{saved.name}</b><small>{saved.width}×{saved.height} · {saved.tiles.length} блоков</small></span></button><button className="icon-button saved-delete" type="button" title="Удалить из сохранённых" onClick={() => onDeleteSaved(saved.key)}><Icon name="close" size={13} /></button></div>)}
       </section>
-      <div className="inspector-actions"><button className="button button-outline full-width" type="button" onClick={onCopy}><Icon name="copy" size={14} /> Копировать код схемы</button><button className="button button-primary full-width" type="button" onClick={onExport}><Icon name="download" size={14} /> Скачать .msch</button></div>
+      <div className="inspector-actions"><button className="button button-outline full-width" type="button" onClick={onCopy}><Icon name="copy" size={14} /> Копировать код</button><button className="button button-primary full-width" type="button" onClick={onExport}><Icon name="download" size={14} /> Скачать .msch</button></div>
     </>}
-    <div className="inspector-footer"><span className="footer-hex">⬡</span> Bee Schematic Lab <i /> Mindustry v146</div>
   </aside>;
 }
 
@@ -428,8 +420,8 @@ function EditorPage({ settings, setSettings, setView, dirty, onGenerate, scheme,
   return <main className="workspace-grid">
     <GeneratorSidebar settings={settings} setSettings={setSettings} onGenerate={onGenerate} dirty={dirty} paletteCategory={paletteCategory} setPaletteCategory={setPaletteCategory} paletteSearch={paletteSearch} setPaletteSearch={setPaletteSearch} onSelectBlock={(id) => { setSelectedBlock(id); setActiveTool('place'); }} selectedBlock={selectedBlock} activeTool={activeTool} setView={setView} />
     <section className="editor-column">
-      <div className="editor-heading"><div className="editor-breadcrumb"><span>WORKSPACE</span><b>/</b><span>SCHEMATIC EDITOR</span><TinyTag tone="green">AUTOGENERATED</TinyTag></div>
-        <div className="editor-title-line"><div className="editor-title-copy"><input value={name} onChange={(event) => setName(event.target.value)} aria-label="Название схемы" /><span className="editor-desc">{scheme.description || 'Визуальная схема Mindustry'}</span></div><div className="editor-title-actions"><span className="tiny-tag muted">{getPlanetLabel(settings.planet)}</span><button className="icon-button" type="button" title="Вставить код схемы" onClick={onPaste}><Icon name="copy" size={15} /></button><button className="icon-button" type="button" title="Сохранить схему в браузере" onClick={onSave}><Icon name="bookmark" size={15} /></button></div></div>
+      <div className="editor-heading">
+        <div className="editor-title-line"><div className="editor-title-copy"><input value={name} onChange={(event) => setName(event.target.value)} aria-label="Название схемы" /></div><div className="editor-title-actions"><span className="tiny-tag muted">{getPlanetLabel(settings.planet)}</span><button className="icon-button" type="button" title="Вставить код схемы" onClick={onPaste}><Icon name="copy" size={15} /></button><button className="icon-button" type="button" title="Сохранить схему в браузере" onClick={onSave}><Icon name="bookmark" size={15} /></button></div></div>
       </div>
       <div className="editor-window"><div className="editor-toolbar"><div className="editor-tool-group">
         <button className={`tool-square ${activeTool === 'select' ? 'active' : ''}`} type="button" title="Выбор · V" onClick={() => setActiveTool('select')}><Icon name="cursor" size={15} /></button>
@@ -442,9 +434,8 @@ function EditorPage({ settings, setSettings, setView, dirty, onGenerate, scheme,
         <button className="tool-square zoom-button" type="button" title="Уменьшить" onClick={() => moveZoom(-.1)}><Icon name="zoomOut" size={15} /></button><span className="zoom-level">{Math.round(zoom * 100)}%</span><button className="tool-square zoom-button" type="button" title="Увеличить" onClick={() => moveZoom(.1)}><Icon name="zoomIn" size={15} /></button><span className="tool-separator" /><button className="tool-square" type="button" title="Экспортировать схему" onClick={onExport}><Icon name="download" size={15} /></button>
       </div></div>
       <div className="canvas-stage"><BlockCanvas scheme={scheme} selectedKey={selectedTileKey} setSelectedKey={setSelectedTileKey} tool={activeTool} selectedBlock={selectedBlock} onPlace={placeBlock} onErase={eraseTile} onSelect={(tile) => setSelectedTileKey(`${tile.x}:${tile.y}`)} gridVisible={gridVisible} showNames={showNames} zoom={zoom} svgRef={svgRef} onDropBlock={(x, y, id) => { setSelectedBlock(id); placeBlock(x, y, id); }} /></div>
-      <div className="editor-statusbar"><div className="status-left"><span className="status-live"><i /> LIVE</span><span><b>{analytics.total}</b> блоков</span><i className="status-separator" /><span>{analytics.unique} типа</span><i className="status-separator" /><span>{scheme.tiles.length ? 'Ванильная схема' : 'Пустая сетка'}</span></div><div className="status-right"><span><Icon name="cursor" size={12} /> {activeTool === 'place' ? 'РАЗМЕЩЕНИЕ' : activeTool === 'erase' ? 'УДАЛЕНИЕ' : 'ВЫБОР'}</span><span className="status-autosave"><i /> локально</span></div></div>
+      <div className="editor-statusbar"><div className="status-left"><span><b>{analytics.total}</b> блоков</span><i className="status-separator" /><span>{analytics.unique} типов</span></div><div className="status-right"><span><Icon name="cursor" size={12} /> {activeTool === 'place' ? 'РАЗМЕСТИТЬ' : activeTool === 'erase' ? 'УДАЛИТЬ' : 'ВЫБРАТЬ'}</span></div></div>
       </div>
-      <div className="editor-footnote"><span className="footnote-asterisk">✳</span><span>Схема экспортируется в настоящий формат <b>Mindustry .msch</b>. Настройки блоков можно изменить уже в игре.</span><button type="button" onClick={onPaste}>Импортировать по коду <Icon name="chevron" size={12} /></button></div>
     </section>
     <Inspector scheme={activeScheme} analytics={analytics} selectedTile={selectedTile} onRotate={rotateTile} onRemove={eraseTile} onSave={onSave} savedSchemes={savedSchemes} onLoadSaved={onLoadSaved} onDeleteSaved={onDeleteSaved} onExport={onExport} onCopy={onCopy} onCopyLogic={onCopyLogic} name={name} setName={setName} />
   </main>;
@@ -486,10 +477,7 @@ function CatalogPage({ onBack, onUseBlock, selectedObject, setSelectedObject }) 
   const activeTypeLabel = active?.type === 'block' ? (active.buildable ? 'Постройка' : 'Объект окружения') : typeLabels[active?.type] ?? 'Игровой объект';
 
   return <main className="catalog-page">
-    <div className="catalog-titlebar"><div><div className="section-kicker"><span className="kicker-line" /> VANILLA DATABASE / MINDUSTRY 146</div><h1>Каталог объектов</h1><p>Все блоки, поверхности, предметы, жидкости и юниты из ванильной игры.</p></div><button className="button button-outline" type="button" onClick={onBack}><Icon name="chevronLeft" size={15} /> Назад в редактор</button></div>
-    <div className="catalog-stat-strip"><div className="catalog-stat-main"><span className="catalog-stat-spark"><Icon name="layers" size={17} /></span><span><b>{gameCatalog.length} объектов</b><small>полная ванильная база v146</small></span></div>
-      <div className="catalog-stat"><b>{buildableBlocks.length}</b><small>построек</small></div><div className="catalog-stat"><b>{gameBlocks.length - buildableBlocks.length}</b><small>поверхностей и руд</small></div><div className="catalog-stat"><b>{materials.length}</b><small>предметов</small></div><div className="catalog-stat"><b>{visibleCountByTab.unit}</b><small>юнитов</small></div><div className="catalog-stat"><b>{visibleCountByTab.liquid}</b><small>жидкостей</small></div>
-    </div>
+    <div className="catalog-titlebar"><h1>Каталог</h1><button className="button button-outline" type="button" onClick={onBack}><Icon name="chevronLeft" size={15} /> Редактор</button></div>
     <div className="catalog-tabs">{tabs.map((tab) => <button type="button" key={tab.id} className={catalogType === tab.id ? 'active' : ''} onClick={() => { setCatalogType(tab.id); setCatalogCategory('all'); setSelectedObject(null); }}><span>{tab.label}</span><i>{tab.count}</i></button>)}</div>
     <div className="catalog-content-grid"><section className="catalog-main-panel">
       <div className="catalog-controls"><div className="search-field catalog-search"><Icon name="search" size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Название или внутренний ID..." aria-label="Поиск объектов" /><kbd>/</kbd></div>
@@ -497,12 +485,12 @@ function CatalogPage({ onBack, onUseBlock, selectedObject, setSelectedObject }) 
         <div className="select-wrap planet-filter"><select value={planetFilter} onChange={(event) => setPlanetFilter(event.target.value)} aria-label="Планета"><option value="all">Все планеты</option><option value="serpulo">Серпуло</option><option value="erekir">Эрекир</option></select><Icon name="chevron" size={12} /></div>
         <button className="sort-button" type="button" title="Сортировать по ID" onClick={() => setSortBy(sortBy === 'name' ? 'id' : 'name')}><Icon name="sliders" size={14} />{sortBy === 'name' ? 'А–Я' : 'ID'}</button>
       </div>
-      <div className="catalog-results-head"><span>РЕЗУЛЬТАТЫ ПОИСКА</span><b>{filtered.length.toLocaleString('ru-RU')} объектов</b><span className="catalog-results-line" /></div>
+      <div className="catalog-results-head"><b>{filtered.length.toLocaleString('ru-RU')} объектов</b><span className="catalog-results-line" /></div>
       <div className="catalog-grid">{filtered.map((entry) => <button type="button" key={`${entry.type}:${entry.id}`} className={`catalog-card ${selectedObject?.id === entry.id && selectedObject?.type === entry.type ? 'active' : ''}`} onClick={() => setSelectedObject(entry)} title={`${entry.name} · ${entry.id}`}>
         <GameGlyph entry={entry} size="medium" /><span className="catalog-card-copy"><b>{entry.name}</b><code>{entry.id}</code><small>{entry.type === 'block' ? entry.buildable ? 'Постройка' : entry.category === 'ore' ? 'Руда' : 'Окружение' : typeLabels[entry.type]}</small></span><span className={`catalog-planet-dot ${entry.planet}`} title={getPlanetLabel(entry.planet)} />
       </button>)}
         {filtered.length === 0 && <div className="catalog-empty"><span className="empty-search-icon"><Icon name="search" size={22} /></span><b>Ничего не найдено</b><small>Измени запрос или сбрось фильтры.</small><button type="button" onClick={() => { setQuery(''); setCatalogCategory('all'); setPlanetFilter('all'); }}>Сбросить фильтры</button></div>}
-      </div><div className="catalog-grid-footer"><span>Показано {filtered.length.toLocaleString('ru-RU')} из {visibleCountByTab[catalogType].toLocaleString('ru-RU')}</span><span>Справочник: Mindustry v146 · vanilla</span></div>
+      </div>
     </section>
     <aside className="catalog-detail-panel"><div className="catalog-detail-head"><span className="field-label">ОБЪЕКТ / ПРОСМОТР</span><span className="catalog-detail-counter">{active ? `${String(filtered.findIndex((entry) => entry.id === active.id && entry.type === active.type) + 1).padStart(2, '0')}` : '—'} <i>/ {String(filtered.length).padStart(2, '0')}</i></span></div>
       {active ? <><div className="catalog-detail-art"><div className="detail-art-grid" /><div className="detail-art-glow" /><GameGlyph entry={active} size="hero" /></div>
@@ -511,10 +499,9 @@ function CatalogPage({ onBack, onUseBlock, selectedObject, setSelectedObject }) 
         <div className="detail-meta-grid"><div><small>ТИП</small><b>{activeCategory?.label ?? typeLabels[active.type] ?? 'Объект'}</b></div><div><small>ПЛАНЕТА</small><b>{getPlanetLabel(active.planet)}</b></div>
           <div><small>ИГРОВОЙ ЭТАП</small><b>{active.type === 'block' ? getStageLabel(active.stage) : active.type === 'unit' ? 'Технологическая ветка' : 'Ресурс'}</b></div><div><small>РАЗМЕР</small><b>{active.type === 'block' ? `${active.size} × ${active.size} тайл.` : '—'}</b></div></div>
         {active.buildable ? <button className="button button-primary full-width place-catalog-button" type="button" onClick={() => onUseBlock(active)}><Icon name="plus" size={15} /> Выбрать для редактора</button> : <div className="nonbuildable-note"><Icon name="info" size={14} />{active.type === 'block' ? 'Это элемент карты, его нельзя поместить в схему.' : 'Ресурс или юнит. В схеме отображаются связанные с ним постройки.'}</div>}
-        <div className="catalog-detail-foot"><span className="detail-color-dot" style={{ background: categoryColors[active.category] ?? categoryColors.item }} />Ванильное содержимое <span>·</span> Mindustry 146</div>
-      </> : <div className="catalog-select-empty"><GameGlyph entry={{ category: 'storage' }} size="large" /><b>Выбери объект</b><small>Нажми на карточку в каталоге, чтобы посмотреть свойства.</small></div>}
+      </> : <div className="catalog-select-empty"><GameGlyph entry={{ category: 'storage' }} size="large" /><b>Выбери объект</b></div>}
     </aside></div>
-    <div className="catalog-attribution"><span>Bee Schematic Lab</span><i /> Данные содержимого сверены с ванильным каталогом Mindustry v146. Игра и её товарные знаки принадлежат их правообладателям.</div>
+    <div className="catalog-attribution">Данные каталога: Mindustry v146.</div>
   </main>;
 }
 
@@ -570,8 +557,8 @@ function App() {
       setUpdateState(next);
       if (result.available && result.targetId && result.targetId !== updateSeenRef.current) {
         notify(result.status === 'deployed-update'
-          ? `Доступна новая веб-сборка · ${formatCommit(result.deployedCommit)}. Открой «Обновления».`
-          : `На GitHub есть новый коммит · ${formatCommit(result.latestSha)}. Ожидается публикация сайта.`);
+          ? `Обновление сайта · ${formatCommit(result.deployedCommit)}.`
+          : `Доступен ZIP обновления · ${formatCommit(result.latestSha)}.`);
       }
     } catch (error) {
       setUpdateState({ status: 'unavailable', available: false, checking: false, error: error.message || 'Не удалось проверить обновления.' });
