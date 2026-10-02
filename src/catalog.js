@@ -1,4 +1,6 @@
-import catalog from './catalog.json' with { type: 'json' };
+import rawCatalog from './catalog.json' with { type: 'json' };
+import facts from './block-facts.json' with { type: 'json' };
+const catalog = rawCatalog.map(entry => entry.type === 'block' ? { ...entry, size: facts[entry.id]?.size ?? entry.size } : entry);
 
 export const gameCatalog = catalog;
 export const gameBlocks = catalog.filter((entry) => entry.type === 'block');
@@ -77,9 +79,10 @@ export const productsByDirection = {
   ],
   production: [
     { id: 'silicon', label: 'Кремний', block: 'silicon-smelter', erekirBlock: 'silicon-arc-furnace' },
-    { id: 'graphite', label: 'Графит', block: 'graphite-press', erekirBlock: 'oxidation-chamber' },
-    { id: 'metaglass', label: 'Метастекло', block: 'kiln', erekirBlock: 'atmospheric-concentrator' },
-    { id: 'plastanium', label: 'Пластаний', block: 'plastanium-compressor', erekirBlock: 'carbide-crucible' },
+    { id: 'carbide', label: 'Карбид', block: null, erekirBlock: 'carbide-crucible' },
+    { id: 'graphite', label: 'Графит', block: 'graphite-press', erekirBlock: null },
+    { id: 'metaglass', label: 'Метастекло', block: 'kiln', erekirBlock: null },
+    { id: 'plastanium', label: 'Пластаний', block: 'plastanium-compressor', erekirBlock: null },
     { id: 'surge-alloy', label: 'Кинетический сплав', block: 'surge-smelter', erekirBlock: 'surge-crucible' },
     { id: 'phase-fabric', label: 'Фазовая ткань', block: 'phase-weaver', erekirBlock: 'phase-synthesizer' },
   ],

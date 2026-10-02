@@ -667,3 +667,14 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   .modal-footer > div { width: 100%; justify-content: flex-end; }
   .toast { right: 10px; bottom: 10px; }
 }
+
+/* Static upstream v146 textures, kept crisp at every editor zoom level. */
+.game-glyph > span { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+.game-texture { display: block; width: 90%; height: 90%; object-fit: contain; image-rendering: pixelated; }
+.canvas-texture { image-rendering: pixelated; pointer-events: none; }
+.canvas-block .block-direction { fill: #ffe58b; stroke: #25232c; stroke-width: .025; }
+.mechanics-report { font-size: 11px; line-height: 1.55; }
+.mechanics-report ul { padding-left: 16px; color: var(--text-secondary); }
+.mechanics-report li { margin: 8px 0; }
+.recipe-report { border: 1px solid var(--border); padding: 9px; border-radius: 6px; margin: 8px 0; }
+.recipe-report p { margin: 4px 0; }

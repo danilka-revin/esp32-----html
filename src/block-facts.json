@@ -1,0 +1,2965 @@
+{
+  "air": {
+    "rotate": false
+  },
+  "spawn": {
+    "rotate": false
+  },
+  "cliff": {
+    "rotate": false
+  },
+  "deep-water": {
+    "rotate": false
+  },
+  "shallow-water": {
+    "rotate": false
+  },
+  "tainted-water": {
+    "rotate": false
+  },
+  "deep-tainted-water": {
+    "rotate": false
+  },
+  "darksand-tainted-water": {
+    "rotate": false
+  },
+  "sand-water": {
+    "rotate": false
+  },
+  "darksand-water": {
+    "rotate": false
+  },
+  "tar": {
+    "rotate": false
+  },
+  "pooled-cryofluid": {
+    "rotate": false
+  },
+  "molten-slag": {
+    "rotate": false
+  },
+  "space": {
+    "rotate": false
+  },
+  "empty": {
+    "rotate": false
+  },
+  "stone": {
+    "rotate": false
+  },
+  "crater-stone": {
+    "rotate": false
+  },
+  "char": {
+    "rotate": false
+  },
+  "basalt": {
+    "rotate": false
+  },
+  "hotrock": {
+    "rotate": false
+  },
+  "magmarock": {
+    "rotate": false
+  },
+  "sand-floor": {
+    "rotate": false
+  },
+  "darksand": {
+    "rotate": false
+  },
+  "dirt": {
+    "rotate": false
+  },
+  "mud": {
+    "rotate": false
+  },
+  "dacite": {
+    "rotate": false
+  },
+  "rhyolite": {
+    "rotate": false
+  },
+  "rhyolite-crater": {
+    "rotate": false
+  },
+  "rough-rhyolite": {
+    "rotate": false
+  },
+  "regolith": {
+    "rotate": false
+  },
+  "yellow-stone": {
+    "rotate": false
+  },
+  "carbon-stone": {
+    "rotate": false
+  },
+  "ferric-stone": {
+    "rotate": false
+  },
+  "ferric-craters": {
+    "rotate": false
+  },
+  "beryllic-stone": {
+    "rotate": false
+  },
+  "crystalline-stone": {
+    "rotate": false
+  },
+  "crystal-floor": {
+    "rotate": false
+  },
+  "yellow-stone-plates": {
+    "rotate": false
+  },
+  "red-stone": {
+    "rotate": false
+  },
+  "dense-red-stone": {
+    "rotate": false
+  },
+  "red-ice": {
+    "rotate": false
+  },
+  "arkycite-floor": {
+    "rotate": false
+  },
+  "arkyic-stone": {
+    "rotate": false
+  },
+  "rhyolite-vent": {
+    "rotate": false
+  },
+  "carbon-vent": {
+    "rotate": false
+  },
+  "arkyic-vent": {
+    "rotate": false
+  },
+  "yellow-stone-vent": {
+    "rotate": false
+  },
+  "red-stone-vent": {
+    "rotate": false
+  },
+  "crystalline-vent": {
+    "rotate": false
+  },
+  "redmat": {
+    "rotate": false
+  },
+  "bluemat": {
+    "rotate": false
+  },
+  "grass": {
+    "rotate": false
+  },
+  "salt": {
+    "rotate": false
+  },
+  "snow": {
+    "rotate": false
+  },
+  "ice": {
+    "rotate": false
+  },
+  "ice-snow": {
+    "rotate": false
+  },
+  "shale": {
+    "rotate": false
+  },
+  "moss": {
+    "rotate": false
+  },
+  "core-zone": {
+    "rotate": false
+  },
+  "spore-moss": {
+    "rotate": false
+  },
+  "stone-wall": {
+    "rotate": false
+  },
+  "spore-wall": {
+    "rotate": false
+  },
+  "dirt-wall": {
+    "rotate": false
+  },
+  "dacite-wall": {
+    "rotate": false
+  },
+  "ice-wall": {
+    "rotate": false
+  },
+  "snow-wall": {
+    "rotate": false
+  },
+  "dune-wall": {
+    "rotate": false
+  },
+  "regolith-wall": {
+    "rotate": false
+  },
+  "yellow-stone-wall": {
+    "rotate": false
+  },
+  "rhyolite-wall": {
+    "rotate": false
+  },
+  "carbon-wall": {
+    "rotate": false
+  },
+  "ferric-stone-wall": {
+    "rotate": false
+  },
+  "beryllic-stone-wall": {
+    "rotate": false
+  },
+  "arkyic-wall": {
+    "rotate": false
+  },
+  "crystalline-stone-wall": {
+    "rotate": false
+  },
+  "red-ice-wall": {
+    "rotate": false
+  },
+  "red-stone-wall": {
+    "rotate": false
+  },
+  "red-diamond-wall": {
+    "rotate": false
+  },
+  "sand-wall": {
+    "rotate": false
+  },
+  "salt-wall": {
+    "rotate": false
+  },
+  "shrubs": {
+    "rotate": false
+  },
+  "shale-wall": {
+    "rotate": false
+  },
+  "spore-pine": {
+    "rotate": false
+  },
+  "snow-pine": {
+    "rotate": false
+  },
+  "pine": {
+    "rotate": false
+  },
+  "white-tree-dead": {
+    "rotate": false
+  },
+  "white-tree": {
+    "rotate": false
+  },
+  "spore-cluster": {
+    "rotate": false
+  },
+  "redweed": {
+    "rotate": false
+  },
+  "pur-bush": {
+    "rotate": false
+  },
+  "yellowcoral": {
+    "rotate": false
+  },
+  "boulder": {
+    "rotate": false
+  },
+  "snow-boulder": {
+    "rotate": false
+  },
+  "shale-boulder": {
+    "rotate": false
+  },
+  "sand-boulder": {
+    "rotate": false
+  },
+  "dacite-boulder": {
+    "rotate": false
+  },
+  "basalt-boulder": {
+    "rotate": false
+  },
+  "carbon-boulder": {
+    "rotate": false
+  },
+  "ferric-boulder": {
+    "rotate": false
+  },
+  "beryllic-boulder": {
+    "rotate": false
+  },
+  "yellow-stone-boulder": {
+    "rotate": false
+  },
+  "arkyic-boulder": {
+    "rotate": false
+  },
+  "crystal-cluster": {
+    "rotate": false
+  },
+  "vibrant-crystal-cluster": {
+    "rotate": false
+  },
+  "crystal-blocks": {
+    "rotate": false
+  },
+  "crystal-orbs": {
+    "rotate": false
+  },
+  "crystalline-boulder": {
+    "rotate": false
+  },
+  "red-ice-boulder": {
+    "rotate": false
+  },
+  "rhyolite-boulder": {
+    "rotate": false
+  },
+  "red-stone-boulder": {
+    "rotate": false
+  },
+  "metal-floor": {
+    "rotate": false
+  },
+  "metal-floor-damaged": {
+    "rotate": false
+  },
+  "metal-floor-2": {
+    "rotate": false
+  },
+  "metal-floor-3": {
+    "rotate": false
+  },
+  "metal-floor-4": {
+    "rotate": false
+  },
+  "metal-floor-5": {
+    "rotate": false
+  },
+  "dark-panel-1": {
+    "rotate": false
+  },
+  "dark-panel-2": {
+    "rotate": false
+  },
+  "dark-panel-3": {
+    "rotate": false
+  },
+  "dark-panel-4": {
+    "rotate": false
+  },
+  "dark-panel-5": {
+    "rotate": false
+  },
+  "dark-panel-6": {
+    "rotate": false
+  },
+  "dark-metal": {
+    "rotate": false
+  },
+  "pebbles": {
+    "rotate": false
+  },
+  "tendrils": {
+    "rotate": false
+  },
+  "ore-crystal-thorium": {
+    "rotate": false
+  },
+  "ore-wall-thorium": {
+    "rotate": false
+  },
+  "ore-wall-beryllium": {
+    "rotate": false
+  },
+  "graphitic-wall": {
+    "rotate": false
+  },
+  "ore-wall-tungsten": {
+    "rotate": false
+  },
+  "graphite-press": {
+    "cost": {
+      "copper": 75,
+      "lead": 30
+    },
+    "size": 2,
+    "craftTime": 90,
+    "rotate": false,
+    "inputs": {
+      "coal": 2
+    },
+    "output": {
+      "graphite": 1
+    }
+  },
+  "multi-press": {
+    "cost": {
+      "titanium": 100,
+      "silicon": 25,
+      "lead": 100,
+      "graphite": 50
+    },
+    "size": 3,
+    "craftTime": 30,
+    "rotate": false,
+    "power": 108.0,
+    "inputs": {
+      "coal": 3
+    },
+    "liquids": {
+      "water": 6.0
+    },
+    "output": {
+      "graphite": 2
+    }
+  },
+  "silicon-smelter": {
+    "cost": {
+      "copper": 30,
+      "lead": 25
+    },
+    "size": 2,
+    "craftTime": 40,
+    "rotate": false,
+    "power": 30.0,
+    "inputs": {
+      "coal": 1,
+      "sand": 2
+    },
+    "output": {
+      "silicon": 1
+    }
+  },
+  "silicon-crucible": {
+    "cost": {
+      "titanium": 120,
+      "metaglass": 80,
+      "plastanium": 35,
+      "silicon": 60
+    },
+    "size": 3,
+    "craftTime": 90,
+    "rotate": false,
+    "power": 240,
+    "inputs": {
+      "coal": 4,
+      "sand": 6,
+      "pyratite": 1
+    },
+    "output": {
+      "silicon": 8
+    }
+  },
+  "kiln": {
+    "cost": {
+      "copper": 60,
+      "graphite": 30,
+      "lead": 30
+    },
+    "size": 2,
+    "craftTime": 30,
+    "rotate": false,
+    "power": 36.0,
+    "inputs": {
+      "lead": 1,
+      "sand": 1
+    },
+    "output": {
+      "metaglass": 1
+    }
+  },
+  "plastanium-compressor": {
+    "cost": {
+      "silicon": 80,
+      "lead": 115,
+      "graphite": 60,
+      "titanium": 80
+    },
+    "size": 2,
+    "craftTime": 60,
+    "rotate": false,
+    "power": 180,
+    "inputs": {
+      "titanium": 2
+    },
+    "liquids": {
+      "oil": 15.0
+    },
+    "output": {
+      "plastanium": 1
+    }
+  },
+  "phase-weaver": {
+    "cost": {
+      "silicon": 130,
+      "lead": 120,
+      "thorium": 75
+    },
+    "size": 2,
+    "craftTime": 120,
+    "rotate": false,
+    "power": 300,
+    "inputs": {
+      "thorium": 4,
+      "sand": 10
+    },
+    "output": {
+      "phase-fabric": 1
+    }
+  },
+  "surge-smelter": {
+    "cost": {
+      "silicon": 80,
+      "lead": 80,
+      "thorium": 70
+    },
+    "size": 3,
+    "craftTime": 75,
+    "rotate": false,
+    "power": 240,
+    "inputs": {
+      "copper": 3,
+      "lead": 4,
+      "titanium": 2,
+      "silicon": 3
+    },
+    "output": {
+      "surge-alloy": 1
+    }
+  },
+  "cryofluid-mixer": {
+    "cost": {
+      "lead": 65,
+      "silicon": 40,
+      "titanium": 60
+    },
+    "size": 2,
+    "craftTime": 120,
+    "rotate": false,
+    "power": 60,
+    "liquids": {
+      "water": 12.0
+    }
+  },
+  "pyratite-mixer": {
+    "cost": {
+      "copper": 50,
+      "lead": 25
+    },
+    "size": 2,
+    "rotate": false,
+    "power": 12.0,
+    "inputs": {
+      "coal": 1,
+      "lead": 2,
+      "sand": 2
+    },
+    "output": {
+      "pyratite": 1
+    }
+  },
+  "blast-mixer": {
+    "cost": {
+      "lead": 30,
+      "titanium": 20
+    },
+    "size": 2,
+    "rotate": false,
+    "power": 24.0,
+    "inputs": {
+      "pyratite": 1,
+      "spore-pod": 1
+    },
+    "output": {
+      "blast-compound": 1
+    }
+  },
+  "melter": {
+    "cost": {
+      "copper": 30,
+      "lead": 35,
+      "graphite": 45
+    },
+    "craftTime": 10,
+    "rotate": false,
+    "power": 60,
+    "inputs": {
+      "scrap": 1
+    }
+  },
+  "separator": {
+    "cost": {
+      "copper": 30,
+      "titanium": 25
+    },
+    "size": 2,
+    "craftTime": 35,
+    "rotate": false,
+    "power": 66.0,
+    "liquids": {
+      "slag": 4.0
+    }
+  },
+  "disassembler": {
+    "cost": {
+      "plastanium": 40,
+      "titanium": 100,
+      "silicon": 150,
+      "thorium": 80
+    },
+    "size": 3,
+    "craftTime": 15,
+    "rotate": false,
+    "power": 240,
+    "liquids": {
+      "slag": 7.199999999999999
+    }
+  },
+  "spore-press": {
+    "cost": {
+      "lead": 35,
+      "silicon": 30
+    },
+    "size": 2,
+    "craftTime": 20,
+    "rotate": false,
+    "power": 42.0,
+    "inputs": {
+      "spore-pod": 1
+    }
+  },
+  "pulverizer": {
+    "cost": {
+      "copper": 30,
+      "lead": 25
+    },
+    "craftTime": 40,
+    "rotate": false,
+    "power": 30.0,
+    "inputs": {
+      "scrap": 1
+    },
+    "output": {
+      "sand": 1
+    }
+  },
+  "coal-centrifuge": {
+    "cost": {
+      "titanium": 20,
+      "graphite": 40,
+      "lead": 30
+    },
+    "size": 2,
+    "craftTime": 30,
+    "rotate": false,
+    "power": 42.0,
+    "liquids": {
+      "oil": 6.0
+    },
+    "output": {
+      "coal": 1
+    }
+  },
+  "incinerator": {
+    "cost": {
+      "graphite": 5,
+      "lead": 15
+    },
+    "rotate": false,
+    "power": 30.0
+  },
+  "silicon-arc-furnace": {
+    "cost": {
+      "beryllium": 70,
+      "graphite": 80
+    },
+    "size": 3,
+    "craftTime": 50,
+    "rotate": false,
+    "power": 360,
+    "inputs": {
+      "graphite": 1,
+      "sand": 4
+    },
+    "output": {
+      "silicon": 4
+    }
+  },
+  "electrolyzer": {
+    "cost": {
+      "silicon": 50,
+      "graphite": 40,
+      "beryllium": 130,
+      "tungsten": 80
+    },
+    "size": 3,
+    "craftTime": 10,
+    "rotate": true,
+    "power": 60,
+    "liquids": {
+      "water": 10.0
+    }
+  },
+  "atmospheric-concentrator": {
+    "cost": {
+      "oxide": 60,
+      "beryllium": 180,
+      "silicon": 150
+    },
+    "size": 3,
+    "heatRequirement": 6,
+    "rotate": false,
+    "power": 120
+  },
+  "oxidation-chamber": {
+    "cost": {
+      "tungsten": 120,
+      "graphite": 80,
+      "silicon": 100,
+      "beryllium": 120
+    },
+    "size": 3,
+    "craftTime": 120,
+    "rotate": false,
+    "power": 30.0,
+    "liquids": {
+      "ozone": 2.0
+    },
+    "output": {
+      "oxide": 1
+    }
+  },
+  "electric-heater": {
+    "cost": {
+      "tungsten": 30,
+      "oxide": 30
+    },
+    "size": 2,
+    "rotate": false,
+    "power": 100.0
+  },
+  "slag-heater": {
+    "cost": {
+      "tungsten": 50,
+      "oxide": 20,
+      "beryllium": 20
+    },
+    "size": 3,
+    "rotate": false,
+    "liquids": {
+      "slag": 40.0
+    }
+  },
+  "phase-heater": {
+    "cost": {
+      "oxide": 30,
+      "carbide": 30,
+      "beryllium": 30
+    },
+    "size": 2,
+    "craftTime": 480,
+    "rotate": false
+  },
+  "heat-redirector": {
+    "cost": {
+      "tungsten": 10,
+      "graphite": 10
+    },
+    "size": 3,
+    "rotate": false
+  },
+  "heat-router": {
+    "cost": {
+      "tungsten": 15,
+      "graphite": 10
+    },
+    "size": 3,
+    "rotate": false
+  },
+  "slag-incinerator": {
+    "cost": {
+      "tungsten": 15
+    },
+    "size": 1,
+    "rotate": false,
+    "liquids": {
+      "slag": 2.0
+    }
+  },
+  "carbide-crucible": {
+    "cost": {
+      "tungsten": 110,
+      "thorium": 150,
+      "oxide": 60
+    },
+    "size": 3,
+    "craftTime": 135.0,
+    "heatRequirement": 10,
+    "rotate": false,
+    "power": 120,
+    "inputs": {
+      "tungsten": 2,
+      "graphite": 3
+    },
+    "output": {
+      "carbide": 1
+    }
+  },
+  "slag-centrifuge": {
+    "cost": {
+      "carbide": 70,
+      "graphite": 60,
+      "silicon": 40,
+      "oxide": 40
+    },
+    "size": 3,
+    "craftTime": 120,
+    "rotate": false,
+    "power": 2.0,
+    "inputs": {
+      "sand": 1
+    },
+    "liquids": {
+      "slag": 40.0
+    },
+    "output": {
+      "scrap": 1
+    }
+  },
+  "surge-crucible": {
+    "cost": {
+      "silicon": 100,
+      "graphite": 80,
+      "tungsten": 80,
+      "oxide": 80
+    },
+    "size": 3,
+    "craftTime": 180,
+    "heatRequirement": 10,
+    "rotate": false,
+    "power": 120,
+    "inputs": {
+      "silicon": 3
+    },
+    "liquids": {
+      "slag": 40.0
+    },
+    "output": {
+      "surge-alloy": 1
+    }
+  },
+  "cyanogen-synthesizer": {
+    "cost": {
+      "carbide": 50,
+      "silicon": 80,
+      "beryllium": 90
+    },
+    "size": 3,
+    "heatRequirement": 5,
+    "rotate": false,
+    "power": 120,
+    "liquids": {
+      "arkycite": 40.0
+    }
+  },
+  "phase-synthesizer": {
+    "cost": {
+      "carbide": 90,
+      "silicon": 100,
+      "thorium": 100,
+      "tungsten": 200
+    },
+    "size": 3,
+    "craftTime": 120,
+    "heatRequirement": 8,
+    "rotate": false,
+    "power": 480,
+    "inputs": {
+      "thorium": 2,
+      "sand": 6
+    },
+    "liquids": {
+      "ozone": 2.0
+    },
+    "output": {
+      "phase-fabric": 1
+    }
+  },
+  "heat-reactor": {
+    "cost": {
+      "oxide": 70,
+      "graphite": 20,
+      "carbide": 10,
+      "thorium": 80
+    },
+    "size": 3,
+    "craftTime": 600,
+    "rotate": false,
+    "inputs": {
+      "thorium": 3
+    },
+    "liquids": {
+      "nitrogen": 1.0
+    },
+    "output": {
+      "fissile-matter": 1
+    }
+  },
+  "copper-wall": {
+    "cost": {
+      "copper": 6
+    },
+    "rotate": false
+  },
+  "copper-wall-large": {
+    "size": 2,
+    "rotate": false
+  },
+  "titanium-wall": {
+    "cost": {
+      "titanium": 6
+    },
+    "rotate": false
+  },
+  "titanium-wall-large": {
+    "size": 2,
+    "rotate": false
+  },
+  "plastanium-wall": {
+    "cost": {
+      "plastanium": 5,
+      "metaglass": 2
+    },
+    "rotate": false
+  },
+  "plastanium-wall-large": {
+    "size": 2,
+    "rotate": false
+  },
+  "thorium-wall": {
+    "cost": {
+      "thorium": 6
+    },
+    "rotate": false
+  },
+  "thorium-wall-large": {
+    "size": 2,
+    "rotate": false
+  },
+  "phase-wall": {
+    "cost": {
+      "phase-fabric": 6
+    },
+    "rotate": false
+  },
+  "phase-wall-large": {
+    "size": 2,
+    "rotate": false
+  },
+  "surge-wall": {
+    "cost": {
+      "surge-alloy": 6
+    },
+    "rotate": false
+  },
+  "surge-wall-large": {
+    "size": 2,
+    "rotate": false
+  },
+  "door": {
+    "cost": {
+      "titanium": 6,
+      "silicon": 4
+    },
+    "rotate": false
+  },
+  "door-large": {
+    "size": 2,
+    "rotate": false
+  },
+  "scrap-wall": {
+    "cost": {
+      "scrap": 6
+    },
+    "rotate": false
+  },
+  "scrap-wall-large": {
+    "size": 2,
+    "rotate": false
+  },
+  "scrap-wall-huge": {
+    "size": 3,
+    "rotate": false
+  },
+  "scrap-wall-gigantic": {
+    "size": 4,
+    "rotate": false
+  },
+  "thruster": {
+    "cost": {
+      "scrap": 96
+    },
+    "size": 4,
+    "rotate": false
+  },
+  "beryllium-wall": {
+    "cost": {
+      "beryllium": 6
+    },
+    "rotate": false
+  },
+  "beryllium-wall-large": {
+    "size": 2,
+    "rotate": false
+  },
+  "tungsten-wall": {
+    "cost": {
+      "tungsten": 6
+    },
+    "rotate": false
+  },
+  "tungsten-wall-large": {
+    "size": 2,
+    "rotate": false
+  },
+  "blast-door": {
+    "cost": {
+      "tungsten": 24,
+      "silicon": 24
+    },
+    "size": 2,
+    "rotate": false
+  },
+  "reinforced-surge-wall": {
+    "cost": {
+      "surge-alloy": 6,
+      "tungsten": 2
+    },
+    "rotate": false
+  },
+  "reinforced-surge-wall-large": {
+    "size": 2,
+    "rotate": false
+  },
+  "carbide-wall": {
+    "cost": {
+      "thorium": 6,
+      "carbide": 6
+    },
+    "rotate": false
+  },
+  "carbide-wall-large": {
+    "size": 2,
+    "rotate": false
+  },
+  "shielded-wall": {
+    "size": 2,
+    "rotate": false,
+    "power": 3.0
+  },
+  "mender": {
+    "cost": {
+      "lead": 30,
+      "copper": 25
+    },
+    "size": 1,
+    "range": 40,
+    "rotate": false,
+    "power": 18.0
+  },
+  "mend-projector": {
+    "cost": {
+      "lead": 100,
+      "titanium": 25,
+      "silicon": 40,
+      "copper": 50
+    },
+    "size": 2,
+    "range": 85,
+    "rotate": false,
+    "power": 90.0
+  },
+  "overdrive-projector": {
+    "cost": {
+      "lead": 100,
+      "titanium": 75,
+      "silicon": 75,
+      "plastanium": 30
+    },
+    "size": 2,
+    "rotate": false,
+    "power": 210.0
+  },
+  "overdrive-dome": {
+    "cost": {
+      "lead": 200,
+      "titanium": 130,
+      "silicon": 130,
+      "plastanium": 80,
+      "surge-alloy": 120
+    },
+    "size": 3,
+    "range": 200,
+    "rotate": false,
+    "power": 600,
+    "inputs": {
+      "phase-fabric": 1,
+      "silicon": 1
+    }
+  },
+  "force-projector": {
+    "cost": {
+      "lead": 100,
+      "titanium": 75,
+      "silicon": 125
+    },
+    "size": 3,
+    "rotate": false,
+    "power": 240
+  },
+  "shock-mine": {
+    "cost": {
+      "lead": 25,
+      "silicon": 12
+    },
+    "rotate": false
+  },
+  "radar": {
+    "cost": {
+      "silicon": 60,
+      "graphite": 50,
+      "beryllium": 10
+    },
+    "rotate": false,
+    "power": 36.0
+  },
+  "build-tower": {
+    "cost": {
+      "silicon": 150,
+      "oxide": 40,
+      "thorium": 60
+    },
+    "size": 3,
+    "range": 200,
+    "rotate": false,
+    "power": 180,
+    "liquids": {
+      "nitrogen": 3.0
+    }
+  },
+  "regen-projector": {
+    "cost": {
+      "silicon": 80,
+      "tungsten": 60,
+      "oxide": 40,
+      "beryllium": 80
+    },
+    "size": 3,
+    "range": 28,
+    "rotate": false,
+    "power": 60,
+    "liquids": {
+      "hydrogen": 1.0
+    }
+  },
+  "barrier-projector": {
+    "cost": {
+      "surge-alloy": 100,
+      "silicon": 125
+    },
+    "size": 3,
+    "rotate": false,
+    "power": 240
+  },
+  "shockwave-tower": {
+    "cost": {
+      "surge-alloy": 50,
+      "silicon": 150,
+      "oxide": 30,
+      "tungsten": 100
+    },
+    "size": 3,
+    "range": 170,
+    "rotate": false,
+    "power": 100.0
+  },
+  "shield-projector": {
+    "cost": {},
+    "size": 3,
+    "rotate": false,
+    "power": 300
+  },
+  "large-shield-projector": {
+    "cost": {},
+    "size": 4,
+    "rotate": false,
+    "power": 300
+  },
+  "conveyor": {
+    "cost": {
+      "copper": 1
+    },
+    "rotate": false
+  },
+  "titanium-conveyor": {
+    "cost": {
+      "copper": 1,
+      "lead": 1,
+      "titanium": 1
+    },
+    "rotate": false
+  },
+  "plastanium-conveyor": {
+    "cost": {
+      "plastanium": 1,
+      "silicon": 1,
+      "graphite": 1
+    },
+    "rotate": false
+  },
+  "armored-conveyor": {
+    "cost": {
+      "plastanium": 1,
+      "thorium": 1,
+      "metaglass": 1
+    },
+    "rotate": false
+  },
+  "junction": {
+    "cost": {
+      "copper": 2
+    },
+    "rotate": false
+  },
+  "bridge-conveyor": {
+    "cost": {
+      "lead": 6,
+      "copper": 6
+    },
+    "range": 4,
+    "rotate": false
+  },
+  "phase-conveyor": {
+    "cost": {
+      "phase-fabric": 5,
+      "silicon": 7,
+      "lead": 10,
+      "graphite": 10
+    },
+    "range": 12,
+    "rotate": false,
+    "power": 18.0
+  },
+  "sorter": {
+    "cost": {
+      "lead": 2,
+      "copper": 2
+    },
+    "rotate": false
+  },
+  "inverted-sorter": {
+    "cost": {
+      "lead": 2,
+      "copper": 2
+    },
+    "rotate": false
+  },
+  "router": {
+    "cost": {
+      "copper": 3
+    },
+    "rotate": false
+  },
+  "distributor": {
+    "cost": {
+      "lead": 4,
+      "copper": 4
+    },
+    "size": 2,
+    "rotate": false
+  },
+  "overflow-gate": {
+    "cost": {
+      "lead": 2,
+      "copper": 4
+    },
+    "rotate": false
+  },
+  "underflow-gate": {
+    "cost": {
+      "lead": 2,
+      "copper": 4
+    },
+    "rotate": false
+  },
+  "mass-driver": {
+    "cost": {
+      "titanium": 125,
+      "silicon": 75,
+      "lead": 125,
+      "thorium": 50
+    },
+    "size": 3,
+    "range": 440,
+    "rotate": false,
+    "power": 105.0
+  },
+  "duct": {
+    "cost": {
+      "beryllium": 1
+    },
+    "rotate": false
+  },
+  "armored-duct": {
+    "cost": {
+      "beryllium": 2,
+      "tungsten": 1
+    },
+    "rotate": false
+  },
+  "duct-router": {
+    "cost": {
+      "beryllium": 10
+    },
+    "rotate": false
+  },
+  "overflow-duct": {
+    "cost": {
+      "graphite": 8,
+      "beryllium": 8
+    },
+    "rotate": false
+  },
+  "underflow-duct": {
+    "cost": {
+      "graphite": 8,
+      "beryllium": 8
+    },
+    "rotate": false
+  },
+  "duct-bridge": {
+    "cost": {
+      "beryllium": 20
+    },
+    "rotate": false
+  },
+  "duct-unloader": {
+    "cost": {
+      "graphite": 20,
+      "silicon": 20,
+      "tungsten": 10
+    },
+    "rotate": false
+  },
+  "surge-conveyor": {
+    "cost": {
+      "surge-alloy": 1,
+      "tungsten": 1
+    },
+    "rotate": false,
+    "power": 1.0
+  },
+  "surge-router": {
+    "cost": {
+      "surge-alloy": 5,
+      "tungsten": 1
+    },
+    "rotate": false,
+    "power": 3.0
+  },
+  "unit-cargo-loader": {
+    "cost": {
+      "silicon": 80,
+      "surge-alloy": 50,
+      "oxide": 20
+    },
+    "size": 3,
+    "rotate": false,
+    "power": 8.0,
+    "liquids": {
+      "nitrogen": 10.0
+    }
+  },
+  "unit-cargo-unload-point": {
+    "cost": {
+      "silicon": 60,
+      "tungsten": 60
+    },
+    "size": 2,
+    "rotate": false
+  },
+  "mechanical-pump": {
+    "cost": {
+      "copper": 15,
+      "metaglass": 10
+    },
+    "rotate": false
+  },
+  "rotary-pump": {
+    "cost": {
+      "copper": 70,
+      "metaglass": 50,
+      "silicon": 20,
+      "titanium": 35
+    },
+    "size": 2,
+    "rotate": false,
+    "power": 18.0
+  },
+  "impulse-pump": {
+    "cost": {
+      "copper": 80,
+      "metaglass": 90,
+      "silicon": 30,
+      "titanium": 40,
+      "thorium": 35
+    },
+    "size": 3,
+    "rotate": false,
+    "power": 78.0
+  },
+  "conduit": {
+    "cost": {
+      "metaglass": 1
+    },
+    "rotate": false
+  },
+  "pulse-conduit": {
+    "cost": {
+      "titanium": 2,
+      "metaglass": 1
+    },
+    "rotate": false
+  },
+  "plated-conduit": {
+    "cost": {
+      "thorium": 2,
+      "metaglass": 1,
+      "plastanium": 1
+    },
+    "rotate": false
+  },
+  "liquid-router": {
+    "cost": {
+      "graphite": 4,
+      "metaglass": 2
+    },
+    "rotate": false
+  },
+  "liquid-container": {
+    "cost": {
+      "titanium": 10,
+      "metaglass": 15
+    },
+    "size": 2,
+    "rotate": false
+  },
+  "liquid-tank": {
+    "cost": {
+      "titanium": 30,
+      "metaglass": 40
+    },
+    "size": 3,
+    "rotate": false
+  },
+  "liquid-junction": {
+    "cost": {
+      "graphite": 4,
+      "metaglass": 8
+    },
+    "rotate": false
+  },
+  "bridge-conduit": {
+    "cost": {
+      "graphite": 4,
+      "metaglass": 8
+    },
+    "range": 4,
+    "rotate": false
+  },
+  "phase-conduit": {
+    "cost": {
+      "phase-fabric": 5,
+      "silicon": 7,
+      "metaglass": 20,
+      "titanium": 10
+    },
+    "range": 12,
+    "rotate": false,
+    "power": 18.0
+  },
+  "reinforced-pump": {
+    "cost": {
+      "beryllium": 40,
+      "tungsten": 30,
+      "silicon": 20
+    },
+    "size": 2,
+    "rotate": false,
+    "liquids": {
+      "hydrogen": 1.5
+    }
+  },
+  "reinforced-conduit": {
+    "cost": {
+      "beryllium": 2
+    },
+    "rotate": false
+  },
+  "reinforced-liquid-junction": {
+    "cost": {
+      "graphite": 4,
+      "beryllium": 8
+    },
+    "rotate": false
+  },
+  "reinforced-bridge-conduit": {
+    "cost": {
+      "graphite": 8,
+      "beryllium": 20
+    },
+    "range": 4,
+    "rotate": false
+  },
+  "reinforced-liquid-router": {
+    "cost": {
+      "graphite": 8,
+      "beryllium": 4
+    },
+    "rotate": false
+  },
+  "reinforced-liquid-container": {
+    "cost": {
+      "tungsten": 10,
+      "beryllium": 16
+    },
+    "size": 2,
+    "rotate": false
+  },
+  "reinforced-liquid-tank": {
+    "cost": {
+      "tungsten": 40,
+      "beryllium": 50
+    },
+    "size": 3,
+    "rotate": false
+  },
+  "power-node": {
+    "cost": {
+      "copper": 1,
+      "lead": 3
+    },
+    "laserRange": 6,
+    "maxNodes": 10,
+    "rotate": false
+  },
+  "power-node-large": {
+    "cost": {
+      "titanium": 5,
+      "lead": 10,
+      "silicon": 3
+    },
+    "size": 2,
+    "laserRange": 15,
+    "maxNodes": 15,
+    "rotate": false
+  },
+  "surge-tower": {
+    "cost": {
+      "titanium": 7,
+      "lead": 10,
+      "silicon": 15,
+      "surge-alloy": 15
+    },
+    "size": 2,
+    "laserRange": 40,
+    "maxNodes": 2,
+    "rotate": false
+  },
+  "diode": {
+    "cost": {
+      "silicon": 10,
+      "plastanium": 5,
+      "metaglass": 10
+    },
+    "rotate": false
+  },
+  "battery": {
+    "cost": {
+      "copper": 5,
+      "lead": 20
+    },
+    "rotate": false
+  },
+  "battery-large": {
+    "cost": {
+      "titanium": 20,
+      "lead": 50,
+      "silicon": 30
+    },
+    "size": 3,
+    "rotate": false
+  },
+  "combustion-generator": {
+    "cost": {
+      "copper": 25,
+      "lead": 15
+    },
+    "rotate": false
+  },
+  "thermal-generator": {
+    "cost": {
+      "copper": 40,
+      "graphite": 35,
+      "lead": 50,
+      "silicon": 35,
+      "metaglass": 40
+    },
+    "size": 2,
+    "rotate": false
+  },
+  "steam-generator": {
+    "cost": {
+      "copper": 35,
+      "graphite": 25,
+      "lead": 40,
+      "silicon": 30
+    },
+    "size": 2,
+    "rotate": false,
+    "liquids": {
+      "water": 6.0
+    }
+  },
+  "differential-generator": {
+    "cost": {
+      "copper": 70,
+      "titanium": 50,
+      "lead": 100,
+      "silicon": 65,
+      "metaglass": 50
+    },
+    "size": 3,
+    "rotate": false,
+    "liquids": {
+      "cryofluid": 6.0
+    }
+  },
+  "rtg-generator": {
+    "cost": {
+      "lead": 100,
+      "silicon": 75,
+      "phase-fabric": 25,
+      "plastanium": 75,
+      "thorium": 50
+    },
+    "size": 2,
+    "rotate": false
+  },
+  "solar-panel": {
+    "cost": {
+      "lead": 10,
+      "silicon": 15
+    },
+    "rotate": false
+  },
+  "solar-panel-large": {
+    "cost": {
+      "lead": 80,
+      "silicon": 110,
+      "phase-fabric": 15
+    },
+    "size": 3,
+    "rotate": false
+  },
+  "thorium-reactor": {
+    "cost": {
+      "lead": 300,
+      "silicon": 200,
+      "graphite": 150,
+      "thorium": 150,
+      "metaglass": 50
+    },
+    "size": 3,
+    "rotate": false
+  },
+  "impact-reactor": {
+    "cost": {
+      "lead": 500,
+      "silicon": 300,
+      "graphite": 400,
+      "thorium": 100,
+      "surge-alloy": 250,
+      "metaglass": 250
+    },
+    "size": 4,
+    "rotate": false,
+    "power": 1500,
+    "liquids": {
+      "cryofluid": 15.0
+    }
+  },
+  "beam-node": {
+    "cost": {
+      "beryllium": 8
+    },
+    "range": 10,
+    "rotate": false
+  },
+  "beam-tower": {
+    "cost": {
+      "beryllium": 30,
+      "oxide": 10,
+      "silicon": 10
+    },
+    "size": 3,
+    "range": 23,
+    "rotate": false
+  },
+  "beam-link": {
+    "cost": {},
+    "size": 3,
+    "laserRange": 1000,
+    "maxNodes": 1,
+    "rotate": false
+  },
+  "turbine-condenser": {
+    "cost": {
+      "beryllium": 60
+    },
+    "size": 3,
+    "rotate": false
+  },
+  "chemical-combustion-chamber": {
+    "cost": {
+      "graphite": 40,
+      "tungsten": 40,
+      "oxide": 40,
+      "silicon": 30
+    },
+    "size": 3,
+    "rotate": false
+  },
+  "pyrolysis-generator": {
+    "cost": {
+      "graphite": 50,
+      "carbide": 50,
+      "oxide": 60,
+      "silicon": 50
+    },
+    "size": 3,
+    "rotate": false
+  },
+  "flux-reactor": {
+    "cost": {
+      "graphite": 300,
+      "carbide": 200,
+      "oxide": 100,
+      "silicon": 600,
+      "surge-alloy": 300
+    },
+    "size": 5,
+    "rotate": false,
+    "liquids": {
+      "cyanogen": 9.0
+    }
+  },
+  "neoplasia-reactor": {
+    "cost": {
+      "tungsten": 1000,
+      "carbide": 300,
+      "oxide": 150,
+      "silicon": 500,
+      "phase-fabric": 300,
+      "surge-alloy": 200
+    },
+    "size": 5,
+    "range": 4,
+    "rotate": false,
+    "liquids": {
+      "arkycite": 80.0,
+      "water": 10.0
+    }
+  },
+  "mechanical-drill": {
+    "cost": {
+      "copper": 12
+    },
+    "size": 2,
+    "tier": 2,
+    "drillTime": 600,
+    "rotate": false,
+    "liquids": {
+      "water": 3.0
+    }
+  },
+  "pneumatic-drill": {
+    "cost": {
+      "copper": 18,
+      "graphite": 10
+    },
+    "size": 2,
+    "tier": 3,
+    "drillTime": 400,
+    "rotate": false,
+    "liquids": {
+      "water": 3.5999999999999996
+    }
+  },
+  "laser-drill": {
+    "cost": {
+      "copper": 35,
+      "graphite": 30,
+      "silicon": 30,
+      "titanium": 20
+    },
+    "size": 3,
+    "tier": 4,
+    "drillTime": 280,
+    "rotate": false,
+    "power": 66.0,
+    "liquids": {
+      "water": 4.8
+    }
+  },
+  "blast-drill": {
+    "cost": {
+      "copper": 65,
+      "silicon": 60,
+      "titanium": 50,
+      "thorium": 75
+    },
+    "size": 4,
+    "tier": 5,
+    "drillTime": 280,
+    "rotate": false,
+    "power": 180,
+    "liquids": {
+      "water": 6.0
+    }
+  },
+  "water-extractor": {
+    "cost": {
+      "metaglass": 30,
+      "graphite": 30,
+      "lead": 30,
+      "copper": 30
+    },
+    "size": 2,
+    "rotate": false,
+    "power": 90.0
+  },
+  "cultivator": {
+    "cost": {
+      "copper": 25,
+      "lead": 25,
+      "silicon": 10
+    },
+    "size": 2,
+    "craftTime": 100,
+    "rotate": false,
+    "power": 80.0,
+    "liquids": {
+      "water": 18.0
+    },
+    "output": {
+      "spore-pod": 1
+    }
+  },
+  "oil-extractor": {
+    "cost": {
+      "copper": 150,
+      "graphite": 175,
+      "lead": 115,
+      "thorium": 115,
+      "silicon": 75
+    },
+    "size": 3,
+    "rotate": false,
+    "power": 180,
+    "liquids": {
+      "water": 9.0
+    }
+  },
+  "vent-condenser": {
+    "cost": {
+      "graphite": 20,
+      "beryllium": 60
+    },
+    "size": 3,
+    "craftTime": 120,
+    "rotate": false,
+    "power": 30.0
+  },
+  "cliff-crusher": {
+    "cost": {
+      "graphite": 25,
+      "beryllium": 20
+    },
+    "size": 2,
+    "drillTime": 110,
+    "rotate": false,
+    "power": 11.0
+  },
+  "plasma-bore": {
+    "cost": {
+      "beryllium": 40
+    },
+    "size": 2,
+    "tier": 3,
+    "drillTime": 160,
+    "range": 5,
+    "rotate": false,
+    "power": 9.0,
+    "liquids": {
+      "hydrogen": 0.25
+    }
+  },
+  "large-plasma-bore": {
+    "cost": {
+      "silicon": 100,
+      "oxide": 25,
+      "beryllium": 100,
+      "tungsten": 70
+    },
+    "size": 3,
+    "tier": 5,
+    "drillTime": 100,
+    "range": 6,
+    "rotate": false,
+    "power": 48.0,
+    "liquids": {
+      "hydrogen": 0.5,
+      "nitrogen": 3.0
+    }
+  },
+  "impact-drill": {
+    "cost": {
+      "silicon": 70,
+      "beryllium": 90,
+      "graphite": 60
+    },
+    "size": 4,
+    "tier": 6,
+    "drillTime": 720,
+    "rotate": false,
+    "power": 160.0,
+    "liquids": {
+      "water": 12.0
+    }
+  },
+  "eruption-drill": {
+    "cost": {
+      "silicon": 200,
+      "oxide": 20,
+      "tungsten": 200,
+      "thorium": 120
+    },
+    "size": 5,
+    "tier": 7,
+    "drillTime": 360,
+    "rotate": false,
+    "power": 360
+  },
+  "core-shard": {
+    "cost": {
+      "copper": 1000,
+      "lead": 800
+    },
+    "size": 3,
+    "rotate": false
+  },
+  "core-foundation": {
+    "cost": {
+      "copper": 3000,
+      "lead": 3000,
+      "silicon": 2000
+    },
+    "size": 4,
+    "rotate": false
+  },
+  "core-nucleus": {
+    "cost": {
+      "copper": 8000,
+      "lead": 8000,
+      "silicon": 5000,
+      "thorium": 4000
+    },
+    "size": 5,
+    "rotate": false
+  },
+  "core-bastion": {
+    "cost": {
+      "graphite": 1000,
+      "silicon": 1000,
+      "beryllium": 800
+    },
+    "size": 4,
+    "rotate": false
+  },
+  "core-citadel": {
+    "cost": {
+      "silicon": 4000,
+      "beryllium": 4000,
+      "tungsten": 3000,
+      "oxide": 1000
+    },
+    "size": 5,
+    "rotate": false
+  },
+  "core-acropolis": {
+    "cost": {
+      "beryllium": 6000,
+      "silicon": 5000,
+      "tungsten": 5000,
+      "carbide": 3000,
+      "oxide": 3000
+    },
+    "size": 6,
+    "rotate": false
+  },
+  "container": {
+    "cost": {
+      "titanium": 100
+    },
+    "size": 2,
+    "rotate": false
+  },
+  "vault": {
+    "cost": {
+      "titanium": 250,
+      "thorium": 125
+    },
+    "size": 3,
+    "rotate": false
+  },
+  "unloader": {
+    "cost": {
+      "titanium": 25,
+      "silicon": 30
+    },
+    "rotate": false
+  },
+  "reinforced-container": {
+    "cost": {
+      "tungsten": 30,
+      "graphite": 40
+    },
+    "size": 2,
+    "rotate": false
+  },
+  "reinforced-vault": {
+    "cost": {
+      "tungsten": 125,
+      "thorium": 70,
+      "beryllium": 100
+    },
+    "size": 3,
+    "rotate": false
+  },
+  "duo": {
+    "cost": {
+      "copper": 35
+    },
+    "range": 110,
+    "rotate": false
+  },
+  "scatter": {
+    "cost": {
+      "copper": 85,
+      "lead": 45
+    },
+    "size": 2,
+    "range": 220,
+    "rotate": false
+  },
+  "scorch": {
+    "cost": {
+      "copper": 25,
+      "graphite": 22
+    },
+    "range": 60,
+    "rotate": false
+  },
+  "hail": {
+    "cost": {
+      "copper": 40,
+      "graphite": 17
+    },
+    "range": 235,
+    "rotate": false
+  },
+  "wave": {
+    "cost": {
+      "metaglass": 45,
+      "lead": 75,
+      "copper": 25
+    },
+    "size": 2,
+    "range": 110,
+    "rotate": false
+  },
+  "lancer": {
+    "cost": {
+      "copper": 60,
+      "lead": 70,
+      "silicon": 60,
+      "titanium": 30
+    },
+    "size": 2,
+    "range": 165,
+    "rotate": false,
+    "power": 360
+  },
+  "arc": {
+    "cost": {
+      "copper": 50,
+      "lead": 50
+    },
+    "size": 1,
+    "range": 90,
+    "rotate": false,
+    "power": 198.0
+  },
+  "parallax": {
+    "cost": {
+      "silicon": 120,
+      "titanium": 90,
+      "graphite": 30
+    },
+    "size": 2,
+    "range": 240,
+    "rotate": false,
+    "power": 180
+  },
+  "swarmer": {
+    "cost": {
+      "graphite": 35,
+      "titanium": 35,
+      "plastanium": 45,
+      "silicon": 30
+    },
+    "size": 2,
+    "range": 240,
+    "rotate": false
+  },
+  "salvo": {
+    "cost": {
+      "copper": 100,
+      "graphite": 80,
+      "titanium": 50
+    },
+    "size": 2,
+    "range": 190,
+    "rotate": false
+  },
+  "segment": {
+    "cost": {
+      "silicon": 130,
+      "thorium": 80,
+      "phase-fabric": 40,
+      "titanium": 40
+    },
+    "size": 2,
+    "range": 180,
+    "rotate": false,
+    "power": 480
+  },
+  "tsunami": {
+    "cost": {
+      "metaglass": 100,
+      "lead": 400,
+      "titanium": 250,
+      "thorium": 100
+    },
+    "size": 3,
+    "range": 190,
+    "rotate": false
+  },
+  "fuse": {
+    "cost": {
+      "copper": 225,
+      "graphite": 225,
+      "thorium": 100
+    },
+    "size": 3,
+    "range": 90,
+    "rotate": false
+  },
+  "ripple": {
+    "cost": {
+      "copper": 150,
+      "graphite": 135,
+      "titanium": 60
+    },
+    "size": 3,
+    "range": 290,
+    "rotate": false
+  },
+  "cyclone": {
+    "cost": {
+      "copper": 200,
+      "titanium": 125,
+      "plastanium": 80
+    },
+    "size": 3,
+    "range": 200,
+    "rotate": false
+  },
+  "foreshadow": {
+    "cost": {
+      "copper": 1000,
+      "metaglass": 600,
+      "surge-alloy": 300,
+      "plastanium": 200,
+      "silicon": 600
+    },
+    "size": 4,
+    "range": 500,
+    "rotate": false,
+    "power": 600
+  },
+  "spectre": {
+    "cost": {
+      "copper": 900,
+      "graphite": 300,
+      "surge-alloy": 250,
+      "plastanium": 175,
+      "thorium": 250
+    },
+    "size": 4,
+    "range": 260,
+    "rotate": false
+  },
+  "meltdown": {
+    "cost": {
+      "copper": 1200,
+      "lead": 350,
+      "graphite": 300,
+      "surge-alloy": 325,
+      "silicon": 325
+    },
+    "size": 4,
+    "range": 195,
+    "rotate": false,
+    "power": 1020
+  },
+  "breach": {
+    "cost": {
+      "beryllium": 150,
+      "silicon": 150,
+      "graphite": 250
+    },
+    "size": 3,
+    "range": 190,
+    "rotate": false
+  },
+  "diffuse": {
+    "cost": {
+      "beryllium": 150,
+      "silicon": 200,
+      "graphite": 200,
+      "tungsten": 50
+    },
+    "size": 3,
+    "range": 125,
+    "rotate": false
+  },
+  "sublimate": {
+    "cost": {
+      "tungsten": 150,
+      "silicon": 200,
+      "oxide": 40,
+      "beryllium": 400
+    },
+    "size": 3,
+    "range": 130,
+    "rotate": false
+  },
+  "titan": {
+    "cost": {
+      "tungsten": 250,
+      "silicon": 300,
+      "thorium": 400
+    },
+    "size": 4,
+    "range": 390,
+    "rotate": false,
+    "liquids": {
+      "hydrogen": 5.0
+    }
+  },
+  "disperse": {
+    "cost": {
+      "thorium": 50,
+      "oxide": 150,
+      "silicon": 200,
+      "beryllium": 350
+    },
+    "size": 4,
+    "range": 310,
+    "rotate": false
+  },
+  "afflict": {
+    "cost": {
+      "surge-alloy": 100,
+      "silicon": 200,
+      "graphite": 250,
+      "oxide": 40
+    },
+    "size": 4,
+    "heatRequirement": 10,
+    "range": 350,
+    "rotate": false,
+    "power": 300
+  },
+  "lustre": {
+    "cost": {
+      "silicon": 250,
+      "graphite": 200,
+      "oxide": 50,
+      "carbide": 90
+    },
+    "size": 4,
+    "range": 250,
+    "rotate": false,
+    "liquids": {
+      "nitrogen": 6.0
+    }
+  },
+  "scathe": {
+    "cost": {
+      "silicon": 450,
+      "graphite": 400,
+      "tungsten": 500,
+      "oxide": 100,
+      "carbide": 200
+    },
+    "size": 4,
+    "range": 1350,
+    "rotate": false
+  },
+  "smite": {
+    "cost": {
+      "oxide": 200,
+      "surge-alloy": 400,
+      "silicon": 800,
+      "carbide": 500,
+      "phase-fabric": 300
+    },
+    "size": 5,
+    "range": 300,
+    "rotate": false
+  },
+  "malign": {
+    "cost": {
+      "carbide": 400,
+      "beryllium": 2000,
+      "silicon": 800,
+      "graphite": 800,
+      "phase-fabric": 300
+    },
+    "size": 5,
+    "heatRequirement": 90,
+    "range": 370,
+    "rotate": false,
+    "power": 600
+  },
+  "ground-factory": {
+    "cost": {
+      "copper": 50,
+      "lead": 120,
+      "silicon": 80
+    },
+    "size": 3,
+    "rotate": false,
+    "power": 72.0
+  },
+  "air-factory": {
+    "cost": {
+      "copper": 60,
+      "lead": 70
+    },
+    "size": 3,
+    "rotate": false,
+    "power": 72.0
+  },
+  "naval-factory": {
+    "cost": {
+      "copper": 150,
+      "lead": 130,
+      "metaglass": 120
+    },
+    "size": 3,
+    "rotate": false,
+    "power": 72.0
+  },
+  "additive-reconstructor": {
+    "cost": {
+      "copper": 200,
+      "lead": 120,
+      "silicon": 90
+    },
+    "size": 3,
+    "rotate": false,
+    "power": 180,
+    "inputs": {
+      "silicon": 40,
+      "graphite": 40
+    }
+  },
+  "multiplicative-reconstructor": {
+    "cost": {
+      "lead": 650,
+      "silicon": 450,
+      "titanium": 350,
+      "thorium": 650
+    },
+    "size": 5,
+    "rotate": false,
+    "power": 360,
+    "inputs": {
+      "silicon": 130,
+      "titanium": 80,
+      "metaglass": 40
+    }
+  },
+  "exponential-reconstructor": {
+    "cost": {
+      "lead": 2000,
+      "silicon": 1000,
+      "titanium": 2000,
+      "thorium": 750,
+      "plastanium": 450,
+      "phase-fabric": 600
+    },
+    "size": 7,
+    "rotate": false,
+    "power": 780,
+    "inputs": {
+      "silicon": 850,
+      "titanium": 750,
+      "plastanium": 650
+    },
+    "liquids": {
+      "cryofluid": 60
+    }
+  },
+  "tetrative-reconstructor": {
+    "cost": {
+      "lead": 4000,
+      "silicon": 3000,
+      "thorium": 1000,
+      "plastanium": 600,
+      "phase-fabric": 600,
+      "surge-alloy": 800
+    },
+    "size": 9,
+    "rotate": false,
+    "power": 1500,
+    "inputs": {
+      "silicon": 1000,
+      "plastanium": 600,
+      "surge-alloy": 500,
+      "phase-fabric": 350
+    },
+    "liquids": {
+      "cryofluid": 180
+    }
+  },
+  "repair-point": {
+    "cost": {
+      "lead": 30,
+      "copper": 30,
+      "silicon": 20
+    },
+    "rotate": false
+  },
+  "repair-turret": {
+    "cost": {
+      "silicon": 90,
+      "thorium": 80,
+      "plastanium": 60
+    },
+    "size": 2,
+    "rotate": false
+  },
+  "tank-fabricator": {
+    "cost": {
+      "silicon": 200,
+      "beryllium": 150
+    },
+    "size": 3,
+    "rotate": false,
+    "power": 120
+  },
+  "ship-fabricator": {
+    "cost": {
+      "silicon": 250,
+      "beryllium": 200
+    },
+    "size": 3,
+    "rotate": false,
+    "power": 120
+  },
+  "mech-fabricator": {
+    "cost": {
+      "silicon": 200,
+      "graphite": 300,
+      "tungsten": 60
+    },
+    "size": 3,
+    "rotate": false,
+    "power": 120
+  },
+  "tank-refabricator": {
+    "cost": {
+      "beryllium": 200,
+      "tungsten": 80,
+      "silicon": 100
+    },
+    "size": 3,
+    "rotate": false,
+    "power": 180,
+    "inputs": {
+      "silicon": 40,
+      "tungsten": 30
+    },
+    "liquids": {
+      "hydrogen": 3.0
+    }
+  },
+  "mech-refabricator": {
+    "cost": {
+      "beryllium": 250,
+      "tungsten": 120,
+      "silicon": 150
+    },
+    "size": 3,
+    "rotate": false,
+    "power": 150.0,
+    "inputs": {
+      "silicon": 50,
+      "tungsten": 40
+    },
+    "liquids": {
+      "hydrogen": 3.0
+    }
+  },
+  "ship-refabricator": {
+    "cost": {
+      "beryllium": 200,
+      "tungsten": 100,
+      "silicon": 150,
+      "oxide": 40
+    },
+    "size": 3,
+    "rotate": false,
+    "power": 150.0,
+    "inputs": {
+      "silicon": 60,
+      "tungsten": 40
+    },
+    "liquids": {
+      "hydrogen": 3.0
+    }
+  },
+  "prime-refabricator": {
+    "cost": {
+      "thorium": 250,
+      "oxide": 200,
+      "tungsten": 200,
+      "silicon": 400
+    },
+    "size": 5,
+    "rotate": false,
+    "power": 300,
+    "inputs": {
+      "thorium": 80,
+      "silicon": 100
+    },
+    "liquids": {
+      "nitrogen": 10.0
+    }
+  },
+  "tank-assembler": {
+    "cost": {
+      "thorium": 500,
+      "oxide": 150,
+      "carbide": 80,
+      "silicon": 500
+    },
+    "size": 5,
+    "rotate": false,
+    "power": 180,
+    "liquids": {
+      "cyanogen": 9.0
+    }
+  },
+  "ship-assembler": {
+    "cost": {
+      "carbide": 100,
+      "oxide": 200,
+      "tungsten": 500,
+      "silicon": 800,
+      "thorium": 400
+    },
+    "size": 5,
+    "rotate": false,
+    "power": 180,
+    "liquids": {
+      "cyanogen": 12.0
+    }
+  },
+  "mech-assembler": {
+    "cost": {
+      "carbide": 200,
+      "thorium": 600,
+      "oxide": 200,
+      "tungsten": 500,
+      "silicon": 900
+    },
+    "size": 5,
+    "rotate": false,
+    "power": 210.0,
+    "liquids": {
+      "cyanogen": 12.0
+    }
+  },
+  "basic-assembler-module": {
+    "cost": {
+      "carbide": 300,
+      "thorium": 500,
+      "oxide": 200,
+      "phase-fabric": 400
+    },
+    "size": 5,
+    "rotate": false,
+    "power": 240
+  },
+  "unit-repair-tower": {
+    "cost": {
+      "graphite": 90,
+      "silicon": 90,
+      "tungsten": 80
+    },
+    "size": 2,
+    "range": 100,
+    "rotate": false,
+    "power": 60,
+    "liquids": {
+      "ozone": 3.0
+    }
+  },
+  "payload-conveyor": {
+    "cost": {
+      "graphite": 10,
+      "copper": 10
+    },
+    "rotate": false
+  },
+  "payload-router": {
+    "cost": {
+      "graphite": 15,
+      "copper": 10
+    },
+    "rotate": false
+  },
+  "reinforced-payload-conveyor": {
+    "cost": {
+      "tungsten": 10
+    },
+    "rotate": false
+  },
+  "reinforced-payload-router": {
+    "cost": {
+      "tungsten": 15
+    },
+    "rotate": false
+  },
+  "payload-mass-driver": {
+    "cost": {
+      "tungsten": 120,
+      "silicon": 120,
+      "graphite": 50
+    },
+    "size": 3,
+    "range": 700,
+    "rotate": false,
+    "power": 30.0
+  },
+  "large-payload-mass-driver": {
+    "cost": {
+      "thorium": 200,
+      "tungsten": 200,
+      "silicon": 200,
+      "graphite": 100,
+      "oxide": 30
+    },
+    "size": 5,
+    "range": 1100,
+    "rotate": false,
+    "power": 180
+  },
+  "small-deconstructor": {
+    "cost": {
+      "beryllium": 100,
+      "silicon": 100,
+      "oxide": 40,
+      "graphite": 80
+    },
+    "size": 3,
+    "rotate": false,
+    "power": 60
+  },
+  "deconstructor": {
+    "cost": {
+      "beryllium": 250,
+      "oxide": 100,
+      "silicon": 250,
+      "carbide": 250
+    },
+    "size": 5,
+    "rotate": false,
+    "power": 180
+  },
+  "constructor": {
+    "cost": {
+      "silicon": 100,
+      "beryllium": 150,
+      "tungsten": 80
+    },
+    "size": 3,
+    "rotate": false,
+    "power": 120
+  },
+  "large-constructor": {
+    "cost": {
+      "silicon": 150,
+      "oxide": 150,
+      "tungsten": 200,
+      "phase-fabric": 40
+    },
+    "size": 5,
+    "rotate": false,
+    "power": 120
+  },
+  "payload-loader": {
+    "cost": {
+      "graphite": 50,
+      "silicon": 50,
+      "tungsten": 80
+    },
+    "size": 3,
+    "rotate": false,
+    "power": 120
+  },
+  "payload-unloader": {
+    "cost": {
+      "graphite": 50,
+      "silicon": 50,
+      "tungsten": 30
+    },
+    "size": 3,
+    "rotate": false,
+    "power": 120
+  },
+  "power-source": {
+    "cost": {},
+    "rotate": false
+  },
+  "power-void": {
+    "cost": {},
+    "rotate": false
+  },
+  "item-source": {
+    "cost": {},
+    "rotate": false
+  },
+  "item-void": {
+    "cost": {},
+    "rotate": false
+  },
+  "liquid-source": {
+    "cost": {},
+    "rotate": false
+  },
+  "liquid-void": {
+    "cost": {},
+    "rotate": false
+  },
+  "payload-source": {
+    "cost": {},
+    "size": 5,
+    "rotate": false
+  },
+  "payload-void": {
+    "cost": {},
+    "size": 5,
+    "rotate": false
+  },
+  "heat-source": {
+    "cost": {},
+    "size": 1,
+    "rotate": false
+  },
+  "illuminator": {
+    "cost": {
+      "graphite": 12,
+      "silicon": 8,
+      "lead": 8
+    },
+    "size": 2,
+    "rotate": false,
+    "power": 3.0
+  },
+  "launch-pad": {
+    "cost": {
+      "copper": 350,
+      "silicon": 140,
+      "lead": 200,
+      "titanium": 150
+    },
+    "size": 3,
+    "rotate": false,
+    "power": 240
+  },
+  "interplanetary-accelerator": {
+    "cost": {
+      "copper": 16000,
+      "silicon": 11000,
+      "thorium": 13000,
+      "titanium": 12000,
+      "surge-alloy": 6000,
+      "phase-fabric": 5000
+    },
+    "size": 7,
+    "rotate": false,
+    "power": 600
+  },
+  "message": {
+    "cost": {
+      "graphite": 5,
+      "copper": 5
+    },
+    "rotate": false
+  },
+  "switch": {
+    "cost": {
+      "graphite": 5,
+      "copper": 5
+    },
+    "rotate": false
+  },
+  "micro-processor": {
+    "cost": {
+      "copper": 90,
+      "lead": 50,
+      "silicon": 50
+    },
+    "size": 1,
+    "rotate": false
+  },
+  "logic-processor": {
+    "cost": {
+      "lead": 320,
+      "silicon": 80,
+      "graphite": 60,
+      "thorium": 50
+    },
+    "size": 2,
+    "range": 176,
+    "rotate": false
+  },
+  "hyper-processor": {
+    "cost": {
+      "lead": 450,
+      "silicon": 150,
+      "thorium": 75,
+      "surge-alloy": 50
+    },
+    "size": 3,
+    "range": 336,
+    "rotate": false,
+    "liquids": {
+      "cryofluid": 4.8
+    }
+  },
+  "memory-cell": {
+    "cost": {
+      "graphite": 30,
+      "silicon": 30,
+      "copper": 30
+    },
+    "rotate": false
+  },
+  "memory-bank": {
+    "cost": {
+      "graphite": 80,
+      "silicon": 80,
+      "phase-fabric": 30,
+      "copper": 30
+    },
+    "size": 2,
+    "rotate": false
+  },
+  "logic-display": {
+    "cost": {
+      "lead": 100,
+      "silicon": 50,
+      "metaglass": 50
+    },
+    "size": 3,
+    "rotate": false
+  },
+  "large-logic-display": {
+    "cost": {
+      "lead": 200,
+      "silicon": 150,
+      "metaglass": 100,
+      "phase-fabric": 75
+    },
+    "size": 6,
+    "rotate": false
+  },
+  "canvas": {
+    "cost": {
+      "silicon": 10,
+      "beryllium": 10
+    },
+    "size": 2,
+    "rotate": false
+  },
+  "reinforced-message": {
+    "cost": {
+      "graphite": 10,
+      "beryllium": 5
+    },
+    "rotate": false
+  },
+  "world-processor": {
+    "cost": {},
+    "size": 1,
+    "rotate": false
+  },
+  "world-cell": {
+    "cost": {},
+    "rotate": false
+  },
+  "world-message": {
+    "cost": {},
+    "rotate": false
+  }
+}

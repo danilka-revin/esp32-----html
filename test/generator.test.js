@@ -35,7 +35,7 @@ test('all generator directions, planets, stages and footprints produce collision
       for (const stage of stages) {
         for (const footprint of Object.keys(canvasPresets)) {
           for (const variant of [0, 1, 2]) {
-            const scheme = generateLayout({ ...initialSettings, direction, planet, stage, footprint, variant, compactness: 25 + variant * 30 });
+            const scheme = generateLayout({ ...initialSettings, minimal: false, direction, planet, stage, footprint, variant, compactness: 25 + variant * 30 });
             assert.ok(scheme.tiles.some((tile) => tile.id.startsWith('core-')), `${direction}/${planet}/${stage}/${footprint} is missing a core`);
             for (let index = 0; index < scheme.tiles.length; index += 1) {
               const rect = blockRect(scheme.tiles[index]);
@@ -62,7 +62,7 @@ test('factory, defense, unit and logistics layouts honor all supply modes withou
       for (const stage of stages) {
         for (const footprint of Object.keys(canvasPresets)) {
           for (const supplyMode of modes) {
-            const settings = { ...initialSettings, direction, planet, stage, footprint, supplyMode, processorControl: supplyMode === 'core', variant: 1 };
+            const settings = { ...initialSettings, minimal: false, direction, planet, stage, footprint, supplyMode, processorControl: supplyMode === 'core', variant: 1 };
             const scheme = generateLayout(settings);
             assert.ok(scheme.tiles.some((tile) => tile.id.startsWith('core-')), `${direction}/${planet}/${stage}/${footprint}/${supplyMode} is missing a core`);
             assert.equal(scheme.settings.supplyMode, supplyMode);
@@ -97,7 +97,7 @@ test('factory, defense, unit and logistics layouts honor all supply modes withou
 });
 
 test('MLOG snippets configure reserve control and unit-based factory supply', () => {
-  const coreSettings = { ...initialSettings, direction: 'production', supplyMode: 'core', processorControl: true, transportItem: 'copper', reserveThreshold: 90 };
+  const coreSettings = { ...initialSettings, minimal: false, direction: 'production', supplyMode: 'core', processorControl: true, transportItem: 'copper', reserveThreshold: 90 };
   const coreProgram = buildLogicProgram(coreSettings);
   assert.match(coreProgram, /getlink core 0/);
   assert.match(coreProgram, /getlink factory 1/);
@@ -106,7 +106,7 @@ test('MLOG snippets configure reserve control and unit-based factory supply', ()
   assert.match(coreProgram, /control enabled factory 0/);
   assert.match(getLogicLinkInstructions(coreSettings), /ядро первым/);
 
-  const droneSettings = { ...initialSettings, direction: 'production', supplyMode: 'drones', droneUnit: 'poly', transportItem: 'titanium', droneCapacity: 70 };
+  const droneSettings = { ...initialSettings, minimal: false, direction: 'production', supplyMode: 'drones', droneUnit: 'poly', transportItem: 'titanium', droneCapacity: 70 };
   const droneProgram = buildLogicProgram(droneSettings);
   assert.match(droneProgram, /getlink factory 0/);
   assert.match(droneProgram, /ubind @poly/);
@@ -142,7 +142,7 @@ test('update checker separates a deployed web build from source-only GitHub comm
 });
 
 test('MSCH export is a valid zlib-backed Mindustry schematic and round-trips', () => {
-  const scheme = generateLayout(initialSettings);
+  const scheme = generateLayout({ ...initialSettings, minimal: false });
   const bytes = encodeSchematic(scheme);
   assert.equal(new TextDecoder().decode(bytes.subarray(0, 4)), 'msch');
   assert.equal(bytes[4], 1);
@@ -162,7 +162,7 @@ test('MSCH export is a valid zlib-backed Mindustry schematic and round-trips', (
   assert.equal(decoded.settings.processorControl, scheme.settings.processorControl);
   assert.equal(decoded.settings.droneCapacity, scheme.settings.droneCapacity);
 
-  const erekirScheme = generateLayout({ ...initialSettings, planet: 'erekir', direction: 'production', supplyMode: 'hybrid', transportItem: 'beryllium' });
+  const erekirScheme = generateLayout({ ...initialSettings, minimal: false, planet: 'erekir', direction: 'production', supplyMode: 'hybrid', transportItem: 'beryllium' });
   const erekirDecoded = decodeSchematic(encodeSchematic(erekirScheme));
   assert.deepEqual(erekirDecoded.tiles.find((tile) => tile.id === 'duct-unloader')?.config, { type: 'content', contentType: 'item', id: 'beryllium' });
   assert.deepEqual(erekirDecoded.tiles.find((tile) => tile.id === 'unit-cargo-unload-point')?.config, { type: 'content', contentType: 'item', id: 'beryllium' });
