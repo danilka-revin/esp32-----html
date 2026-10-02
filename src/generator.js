@@ -1,6 +1,7 @@
 import { footprint, minimalProduction, trimLayout } from './mechanics.js';
-import { blockById, productsByDirection } from './catalog.js';
+import { blockById, campaignBlockById, getProductsForDirection } from './catalog.js';
 import { getTransportItem } from './logic.js';
+import { GAME_VERSION } from './game-version.js';
 
 export const canvasPresets = {
   compact: { label: 'Компактная', width: 18, height: 16, note: '18 × 16' },
@@ -32,6 +33,7 @@ export const initialSettings = {
   transportItem: 'copper',
   reserveThreshold: 40,
   droneCapacity: 50,
+  campaignLink: false,
 };
 
 const coreFor = (planet, stage) => {
@@ -75,12 +77,12 @@ export function blockFits(tiles, id, x, y, width, height, ignoredTile = null) {
 }
 
 function goalFor(settings) {
-  const options = productsByDirection[settings.direction] ?? [];
+  const options = getProductsForDirection(settings.direction, settings.planet, settings.stage);
   return options.find((option) => option.id === settings.goal) ?? options[0] ?? null;
 }
 
 function selectBlock(...ids) {
-  return ids.find((id) => id && blockById.has(id)) ?? null;
+  return ids.find((id) => id && campaignBlockById.has(id)) ?? null;
 }
 
 function chooseDrill(settings, goal) {
@@ -119,7 +121,7 @@ function chooseProcessor(settings, goal) {
 
 export function generateLayout(input = {}) {
   const settings = { ...initialSettings, ...input };
-  if (settings.minimal && settings.direction === 'production') {
+  if ((settings.minimal || settings.campaignLink) && settings.direction === 'production') {
     const module = minimalProduction(settings);
     if (module) return module;
   }
@@ -129,7 +131,8 @@ export function generateLayout(input = {}) {
     settings.processorControl = false;
     settings.droneUnit = 'manifold';
   }
-  const coreFed = ['core', 'hybrid'].includes(settings.supplyMode);
+  const campaignDefenseImport = settings.campaignLink && settings.direction === 'defense' && settings.planet === 'serpulo';
+  const coreFed = !campaignDefenseImport && ['core', 'hybrid'].includes(settings.supplyMode);
   const localFed = settings.supplyMode === 'local';
   const droneFed = ['drones', 'hybrid'].includes(settings.supplyMode);
   const logicAvailable = settings.planet !== 'erekir';
@@ -258,6 +261,14 @@ export function generateLayout(input = {}) {
     add('unloader', coreBusEnd, coreY, 0, transportItemConfig);
     return { x: coreBusEnd - 1, y: cy };
   };
+  const addLandingPadSource = (preferredX, preferredY) => {
+    const padId = selectBlock('landing-pad');
+    if (!padId) return null;
+    const pad = addNearestFree(padId, preferredX, preferredY, 0, transportItemConfig);
+    if (!pad) return null;
+    const bounds = rectFor({ id: padId, ...pad });
+    return { x: bounds.endX + 1, y: pad.y, pad };
+  };
 
   addCoreAndStorage();
 
@@ -333,13 +344,23 @@ export function generateLayout(input = {}) {
     const left = Math.max(2, cx - 6); const right = Math.min(width - 3, cx + 6);
     const top = Math.max(2, cy - 5); const bottom = Math.min(height - 3, cy + 5);
     const turretYTop = Math.max(2, top - 2); const turretYBottom = Math.min(height - 3, bottom + 2);
-    if (coreFed) {
+    if (coreFed || campaignDefenseImport) {
       const belt = selectBlock(settings.planet === 'erekir' ? 'duct' : 'conveyor', 'conveyor');
       const feedX = cx + 3;
       const feedY = Math.min(height - 3, cy + 2);
-      const source = addCoreUnloader();
-      line(belt, source.x, source.y, source.x, feedY, 2);
-      line(belt, feedX, feedY, coreBusEnd, feedY, 3);
+      if (campaignDefenseImport) {
+        const source = addLandingPadSource(Math.max(3, left - 3), cy);
+        if (source) {
+          // Leave a gate in the left wall; imported ammunition joins the inner
+          // distribution spine instead of pretending to come from the core.
+          line(belt, source.x, source.y, feedX, source.y, 0);
+          line(belt, feedX, source.y, feedX, feedY, feedY < source.y ? 3 : 1);
+        }
+      } else {
+        const source = addCoreUnloader();
+        line(belt, source.x, source.y, source.x, feedY, 2);
+        line(belt, feedX, feedY, coreBusEnd, feedY, 3);
+      }
       line(belt, feedX, turretYTop, feedX, turretYBottom, 0);
       line(belt, cx - 3, turretYTop, feedX, turretYTop, 1);
       line(belt, cx - 3, turretYBottom, feedX, turretYBottom, 1);
@@ -360,7 +381,7 @@ export function generateLayout(input = {}) {
       : [profileTurret, supportTurret];
     [[cx - 4, turretYTop, 0], [cx + 4, turretYTop, 0], [cx - 4, turretYBottom, 2], [cx + 4, turretYBottom, 2]].forEach(([x, y, rot], i) => add(selectBlock(turrets[i % turrets.length], turret), x, y, rot, null, true));
     addNearestFree(selectBlock(settings.planet === 'erekir' ? 'regen-projector' : 'mend-projector', 'mender'), cx - 5, cy);
-    addNearestFree(selectBlock(settings.planet === 'erekir' ? 'barrier-projector' : 'force-projector', 'mender'), cx + 5, cy);
+    addNearestFree(selectBlock(settings.planet === 'erekir' ? 'shockwave-tower' : 'force-projector', settings.planet === 'erekir' ? 'regen-projector' : 'mend-projector', 'mender'), cx + 5, cy);
     if (droneFed) addDroneDock(Math.max(2, left - 1), Math.max(2, top - 1));
     if (needsProcessor) addLogicController(Math.max(2, left + 1), Math.min(height - 2, bottom + 2));
     if (settings.includePower) addPowerBackbone();
@@ -470,15 +491,19 @@ export function generateLayout(input = {}) {
   }
 
   if (settings.direction === 'campaign') {
-    const launch = settings.stage === 'late' ? 'interplanetary-accelerator' : 'launch-pad';
+    const launch = settings.stage === 'late' ? 'interplanetary-accelerator' : 'advanced-launch-pad';
     const belt = selectBlock(settings.planet === 'erekir' ? 'payload-conveyor' : 'conveyor', 'conveyor');
     const launchX = width <= 18 ? Math.round(width * 0.40) : Math.round(width * 0.43);
     add(launch, launchX, cy, 0, null, false);
     const launchSize = blockById.get(launch)?.size ?? 1;
     const start = launchX - Math.floor(launchSize / 2) - 1;
     line(belt, 3, cy, start, cy, 1);
-    add(selectBlock(settings.planet === 'erekir' ? 'beam-node' : 'power-node', 'power-node'), launchX, cy - 5, 0);
-    add(selectBlock('launch-pad', 'interplanetary-accelerator'), Math.max(4, launchX - 1), cy + 5, 0);
+    if (settings.planet === 'serpulo' && launch === 'advanced-launch-pad') {
+      add('conduit', launchX, cy + Math.ceil(launchSize / 2) + 1, 0);
+      add('power-node', launchX, cy - Math.ceil(launchSize / 2) - 1, 0);
+    } else {
+      add(selectBlock(settings.planet === 'erekir' ? 'beam-node' : 'power-node', 'power-node'), launchX, cy - 5, 0);
+    }
     if (settings.includePower) addPowerBackbone();
   }
 
@@ -504,7 +529,7 @@ export function generateLayout(input = {}) {
     height,
     tiles,
     name: `${product} · ${planetLabel}`,
-    description: `${directionName} · ${stageLabel}${supplyDescription} · ванильные блоки Mindustry v146`,
+    description: `${directionName} · ${stageLabel}${supplyDescription} · ванильные блоки Mindustry ${GAME_VERSION}`,
     tags: {
       name: `${product} · ${planetLabel}`,
       description: `${directionName} · ${stageLabel}${supplyDescription}`,
@@ -518,8 +543,65 @@ export function generateLayout(input = {}) {
       transportItem: settings.transportItem,
       reserveThreshold: String(settings.reserveThreshold),
       droneCapacity: String(settings.droneCapacity),
+      campaignLink: String(Boolean(settings.campaignLink)),
     },
     settings: { ...settings, goal: target?.id ?? settings.goal, variant: variation },
   };
   return settings.minimal ? trimLayout(result) : result;
+}
+
+function reflectLayout(scheme, axis) {
+  const flipX = axis === 'x';
+  const tiles = scheme.tiles.map(tile => {
+    const size = blockById.get(tile.id)?.size ?? 1;
+    const rect = rectFor(tile);
+    const next = { ...tile };
+    if (flipX) {
+      const startX = scheme.width - 1 - rect.endX;
+      next.x = startX + Math.floor((size - 1) / 2);
+      next.rotation = [2, 1, 0, 3][tile.rotation ?? 0];
+    } else {
+      const startY = scheme.height - 1 - rect.endY;
+      next.y = startY + Math.floor((size - 1) / 2);
+      next.rotation = [0, 3, 2, 1][tile.rotation ?? 0];
+    }
+    return next;
+  });
+  return { ...scheme, tiles: tiles.sort((a, b) => a.y - b.y || a.x - b.x) };
+}
+
+export function generateLayoutVariants(input = {}) {
+  const settings = { ...initialSettings, ...input };
+  const minimalProductionMode = settings.direction === 'production' && (settings.minimal || settings.campaignLink);
+  const layouts = minimalProductionMode
+    ? [0, 1, 2].map(variant => generateLayout({ ...settings, variant }))
+    : [
+      generateLayout({ ...settings, variant: 0 }),
+      reflectLayout(generateLayout({ ...settings, variant: 1 }), 'y'),
+      reflectLayout(generateLayout({ ...settings, variant: 2 }), 'x'),
+    ];
+  const labels = minimalProductionMode
+    ? settings.campaignLink
+      ? [
+        ['Короткий выпуск', 'Пусковая площадка стоит прямо за выходным конвейером.'],
+        ['Верхний выпуск', 'Та же производительность, другой край выхода — удобно обходить препятствия.'],
+        ['Нижний выпуск', 'Зеркальная компоновка с теми же входными портами и скоростью.'],
+      ]
+      : [
+        ['Компактная', 'Выпуск на восток; входы разделены по соседним сторонам фабрики.'],
+        ['Выпуск вверх', 'Тот же рецепт и число блоков, выход смотрит на север.'],
+        ['Зеркальная', 'Выход на запад — можно поставить линию вплотную к другой базе.'],
+      ]
+    : [
+      ['Базовая', 'Исходная компоновка генератора.'],
+      ['Зеркальная по вертикали', 'Сторона ядра/магистрали отражена относительно поля.'],
+      ['Зеркальная по горизонтали', 'Другая ориентация маршрутов без изменения состава блоков.'],
+    ];
+  return layouts.map((scheme, index) => ({
+    scheme,
+    label: labels[index][0],
+    note: labels[index][1],
+    index,
+    score: scheme.tiles.length * 100 + scheme.width * scheme.height,
+  }));
 }

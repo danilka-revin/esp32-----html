@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildableBlocks, gameCatalog, gameBlocks, liquids, materials, units } from '../src/catalog.js';
-import { blockRect, canvasPresets, generateLayout, initialSettings } from '../src/generator.js';
+import { buildableBlocks, campaignBlockById, gameCatalog, gameBlocks, liquids, materials, units } from '../src/catalog.js';
+import { blockRect, canvasPresets, generateLayout, generateLayoutVariants, initialSettings } from '../src/generator.js';
+import { GAME_VERSION } from '../src/game-version.js';
 import { decodeSchematic, encodeSchematic } from '../src/schematic-io.js';
 import { buildLogicProgram, getLogicLinkInstructions, needsLogicProgram } from '../src/logic.js';
 import { checkForUpdates, compareBuilds, sourceArchiveUrl } from '../src/update-checker.js';
@@ -16,16 +17,19 @@ function overlaps(first, second) {
   return a.startX <= b.endX && a.endX >= b.startX && a.startY <= b.endY && a.endY >= b.startY;
 }
 
-test('vanilla v146 catalog covers the complete bundled object set', () => {
-  assert.equal(gameCatalog.length, 476);
-  assert.equal(gameBlocks.length, 393);
-  assert.equal(buildableBlocks.length, 255);
-  assert.equal(gameBlocks.length - buildableBlocks.length, 138);
+test(`Mindustry ${GAME_VERSION} catalog covers the complete bundled object set`, () => {
+  assert.equal(gameCatalog.length, 521);
+  assert.equal(gameBlocks.length, 426);
+  assert.equal(buildableBlocks.length, 226);
+  assert.equal(gameBlocks.length - buildableBlocks.length, 200);
   assert.equal(materials.length, 22);
   assert.equal(liquids.length, 11);
-  assert.equal(units.length, 50);
+  assert.equal(units.length, 62);
   assert.equal(buildableBlocks.find((block) => block.id === 'unit-cargo-loader')?.planet, 'erekir');
   assert.equal(buildableBlocks.find((block) => block.id === 'unit-cargo-unload-point')?.planet, 'erekir');
+  assert.ok(campaignBlockById.has('advanced-launch-pad'));
+  assert.ok(campaignBlockById.has('landing-pad'));
+  assert.equal(gameBlocks.find((block) => block.id === 'heat-reactor')?.campaignBuildable, false, 'debug-only blocks stay out of the campaign palette');
 });
 
 test('all generator directions, planets, stages and footprints produce collision-free core layouts', () => {
@@ -51,6 +55,39 @@ test('all generator directions, planets, stages and footprints produce collision
     }
   }
   assert.equal(checked, 432);
+});
+
+test('generator presents three valid Serpulo export choices with distinct orientations', () => {
+  const candidates = generateLayoutVariants({ ...initialSettings, goal: 'silicon', campaignLink: true });
+  assert.equal(candidates.length, 3);
+  const signatures = new Set();
+  candidates.forEach((candidate, index) => {
+    const { scheme } = candidate;
+    assert.equal(scheme.settings.variant, index);
+    assert.ok(scheme.tiles.some((tile) => tile.id === 'advanced-launch-pad'));
+    signatures.add(scheme.tiles.map((tile) => `${tile.id}:${tile.x}:${tile.y}:${tile.rotation}`).join('|'));
+    for (let tileIndex = 0; tileIndex < scheme.tiles.length; tileIndex += 1) {
+      const rect = blockRect(scheme.tiles[tileIndex]);
+      assert.ok(rect.startX >= 0 && rect.startY >= 0 && rect.endX < scheme.width && rect.endY < scheme.height);
+      assert.ok(campaignBlockById.has(scheme.tiles[tileIndex].id));
+      for (let other = tileIndex + 1; other < scheme.tiles.length; other += 1) assert.equal(overlaps(scheme.tiles[tileIndex], scheme.tiles[other]), false, `${candidate.label} has overlapping blocks`);
+    }
+  });
+  assert.equal(signatures.size, 3, 'each selectable blueprint has a distinct layout');
+});
+
+test('campaign defense imports a selected item through a configured landing pad', () => {
+  const candidates = generateLayoutVariants({ ...initialSettings, minimal: false, direction: 'defense', campaignLink: true, transportItem: 'thorium' });
+  assert.equal(candidates.length, 3);
+  for (const { scheme } of candidates) {
+    const pad = scheme.tiles.find((tile) => tile.id === 'landing-pad');
+    assert.ok(pad);
+    assert.deepEqual(pad.config, { type: 'content', contentType: 'item', id: 'thorium' });
+    assert.equal(scheme.tiles.some((tile) => tile.id === 'unloader'), false, 'campaign import should not also unload from the core');
+    for (let index = 0; index < scheme.tiles.length; index += 1) {
+      for (let other = index + 1; other < scheme.tiles.length; other += 1) assert.equal(overlaps(scheme.tiles[index], scheme.tiles[other]), false);
+    }
+  }
 });
 
 test('factory, defense, unit and logistics layouts honor all supply modes without overlaps', () => {
@@ -172,4 +209,12 @@ test('MSCH export is a valid zlib-backed Mindustry schematic and round-trips', (
   const erekirDecoded = decodeSchematic(encodeSchematic(erekirScheme));
   assert.deepEqual(erekirDecoded.tiles.find((tile) => tile.id === 'duct-unloader')?.config, { type: 'content', contentType: 'item', id: 'beryllium' });
   assert.deepEqual(erekirDecoded.tiles.find((tile) => tile.id === 'unit-cargo-unload-point')?.config, { type: 'content', contentType: 'item', id: 'beryllium' });
+});
+
+test('campaign export flag survives the Mindustry schematic round-trip', () => {
+  const scheme = generateLayout({ ...initialSettings, campaignLink: true });
+  const decoded = decodeSchematic(encodeSchematic(scheme));
+  assert.ok(decoded.tiles.some((tile) => tile.id === 'advanced-launch-pad'));
+  assert.equal(decoded.tags.campaignLink, 'true');
+  assert.equal(decoded.settings.campaignLink, true);
 });

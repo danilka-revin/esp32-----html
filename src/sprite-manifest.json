@@ -13,6 +13,22 @@
     "invisible": false,
     "fallback": false
   },
+  "block:remove-wall": {
+    "file": "/mindustry/block-remove-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/remove-wall.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:remove-ore": {
+    "file": "/mindustry/block-remove-ore.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/remove-ore.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
   "block:cliff": {
     "file": "/mindustry/block-cliff.png",
     "layers": [
@@ -441,6 +457,22 @@
     "file": "/mindustry/block-crystalline-vent.png",
     "layers": [
       "core/assets-raw/sprites/blocks/environment/crystalline-vent1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:stone-vent": {
+    "file": "/mindustry/block-stone-vent.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/stone-vent1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:basalt-vent": {
+    "file": "/mindustry/block-basalt-vent.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/basalt-vent1.png"
     ],
     "invisible": false,
     "fallback": false
@@ -981,6 +1013,182 @@
     "invisible": false,
     "fallback": false
   },
+  "block:metal-tiles-1": {
+    "file": "/mindustry/block-metal-tiles-1.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/metal-tiles-1-autotile.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:metal-tiles-2": {
+    "file": "/mindustry/block-metal-tiles-2.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/metal-tiles-2-autotile.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:metal-tiles-3": {
+    "file": "/mindustry/block-metal-tiles-3.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/metal-tiles-3-autotile.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:metal-tiles-4": {
+    "file": "/mindustry/block-metal-tiles-4.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/metal-tiles-4-autotile.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:metal-tiles-5": {
+    "file": "/mindustry/block-metal-tiles-5.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/metal-tiles-5-autotile.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:metal-tiles-6": {
+    "file": "/mindustry/block-metal-tiles-6.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/metal-tiles-6-autotile.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:metal-tiles-7": {
+    "file": "/mindustry/block-metal-tiles-7.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/metal-tiles-7-autotile.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:metal-tiles-8": {
+    "file": "/mindustry/block-metal-tiles-8.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/metal-tiles-8-autotile.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:metal-tiles-9": {
+    "file": "/mindustry/block-metal-tiles-9.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/metal-tiles-9-autotile.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:metal-tiles-10": {
+    "file": "/mindustry/block-metal-tiles-10.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/metal-tiles-10-autotile.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:metal-tiles-11": {
+    "file": "/mindustry/block-metal-tiles-11.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/metal-tiles-11-autotile1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:metal-tiles-12": {
+    "file": "/mindustry/block-metal-tiles-12.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/metal-tiles-12-autotile1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:metal-tiles-13": {
+    "file": "/mindustry/block-metal-tiles-13.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/metal-tiles-13-autotile.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:metal-wall-1": {
+    "file": "/mindustry/block-metal-wall-1.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/metal-wall-1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:metal-wall-2": {
+    "file": "/mindustry/block-metal-wall-2.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/metal-wall-2.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:metal-wall-3": {
+    "file": "/mindustry/block-metal-wall-3.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/metal-wall-3.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:colored-floor": {
+    "file": "/mindustry/block-colored-floor.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/colored-floor.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:colored-wall": {
+    "file": "/mindustry/block-colored-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/colored-wall.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:character-overlay": {
+    "file": "/mindustry/block-character-overlay.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/character-overlay/character-overlay.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:character-overlay-white": {
+    "file": "/mindustry/block-character-overlay-white.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/character-overlay/character-overlay-white.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:rune-overlay": {
+    "file": "/mindustry/block-rune-overlay.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/rune-overlay/rune-overlay.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:rune-overlay-crux": {
+    "file": "/mindustry/block-rune-overlay-crux.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/rune-overlay/rune-overlay-crux.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
   "block:pebbles": {
     "file": "/mindustry/block-pebbles.png",
     "layers": [
@@ -1089,6 +1297,14 @@
     "file": "/mindustry/block-graphitic-wall.png",
     "layers": [
       "core/assets-raw/sprites/blocks/environment/graphitic-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:ore-wall-graphite": {
+    "file": "/mindustry/block-ore-wall-graphite.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/environment/ore-wall-graphite1.png"
     ],
     "invisible": false,
     "fallback": false
@@ -1323,6 +1539,14 @@
     "file": "/mindustry/block-heat-redirector.png",
     "layers": [
       "core/assets-raw/sprites/blocks/production/heat-redirector.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:small-heat-redirector": {
+    "file": "/mindustry/block-small-heat-redirector.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/production/small-heat-redirector.png"
     ],
     "invisible": false,
     "fallback": false
@@ -1592,6 +1816,47 @@
     "invisible": false,
     "fallback": false
   },
+  "block:scrap-wall": {
+    "file": "/mindustry/block-scrap-wall.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/scrap-wall1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:scrap-wall-large": {
+    "file": "/mindustry/block-scrap-wall-large.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/scrap-wall-large1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:scrap-wall-huge": {
+    "file": "/mindustry/block-scrap-wall-huge.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/scrap-wall-huge1.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:scrap-wall-gigantic": {
+    "file": "/mindustry/block-scrap-wall-gigantic.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/scrap-wall-gigantic.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:thruster": {
+    "file": "/mindustry/block-thruster.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/walls/thruster.png",
+      "core/assets-raw/sprites/blocks/walls/thruster-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
   "block:beryllium-wall": {
     "file": "/mindustry/block-beryllium-wall.png",
     "layers": [
@@ -1725,43 +1990,10 @@
     "invisible": false,
     "fallback": false
   },
-  "block:scrap-wall": {
-    "file": "/mindustry/block-scrap-wall.png",
+  "block:target-dummy": {
+    "file": "/mindustry/block-target-dummy.png",
     "layers": [
-      "core/assets-raw/sprites/blocks/walls/scrap-wall1.png"
-    ],
-    "invisible": false,
-    "fallback": false
-  },
-  "block:scrap-wall-large": {
-    "file": "/mindustry/block-scrap-wall-large.png",
-    "layers": [
-      "core/assets-raw/sprites/blocks/walls/scrap-wall-large1.png"
-    ],
-    "invisible": false,
-    "fallback": false
-  },
-  "block:scrap-wall-huge": {
-    "file": "/mindustry/block-scrap-wall-huge.png",
-    "layers": [
-      "core/assets-raw/sprites/blocks/walls/scrap-wall-huge1.png"
-    ],
-    "invisible": false,
-    "fallback": false
-  },
-  "block:scrap-wall-gigantic": {
-    "file": "/mindustry/block-scrap-wall-gigantic.png",
-    "layers": [
-      "core/assets-raw/sprites/blocks/walls/scrap-wall-gigantic.png"
-    ],
-    "invisible": false,
-    "fallback": false
-  },
-  "block:thruster": {
-    "file": "/mindustry/block-thruster.png",
-    "layers": [
-      "core/assets-raw/sprites/blocks/walls/thruster.png",
-      "core/assets-raw/sprites/blocks/walls/thruster-top.png"
+      "core/assets-raw/sprites/blocks/defense/target-dummy-preview.png"
     ],
     "invisible": false,
     "fallback": false
@@ -1791,14 +2023,6 @@
     "invisible": false,
     "fallback": false
   },
-  "block:barrier-projector": {
-    "file": "/mindustry/block-barrier-projector.png",
-    "layers": [
-      "core/assets-raw/sprites/blocks/defense/barrier-projector.png"
-    ],
-    "invisible": false,
-    "fallback": false
-  },
   "block:shockwave-tower": {
     "file": "/mindustry/block-shockwave-tower.png",
     "layers": [
@@ -1822,12 +2046,6 @@
     ],
     "invisible": false,
     "fallback": false
-  },
-  "block:shield-breaker": {
-    "file": "/mindustry/block-shield-breaker.png",
-    "layers": [],
-    "invisible": false,
-    "fallback": true
   },
   "block:conveyor": {
     "file": "/mindustry/block-conveyor.png",
@@ -1929,6 +2147,14 @@
     "file": "/mindustry/block-underflow-gate.png",
     "layers": [
       "core/assets-raw/sprites/blocks/distribution/underflow-gate.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:unloader": {
+    "file": "/mindustry/block-unloader.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/storage/unloader.png"
     ],
     "invisible": false,
     "fallback": false
@@ -2074,7 +2300,7 @@
     "file": "/mindustry/block-pulse-conduit.png",
     "layers": [
       "core/assets-raw/sprites/blocks/liquid/conduits/conduit-bottom-0.png",
-      "core/assets-raw/sprites/blocks/liquid/conduits/pulse-conduit-top-0.png"
+      "core/assets-raw/sprites/blocks/liquid/conduits/conduit-top-0.png"
     ],
     "invisible": false,
     "fallback": false
@@ -2083,7 +2309,7 @@
     "file": "/mindustry/block-plated-conduit.png",
     "layers": [
       "core/assets-raw/sprites/blocks/liquid/conduits/conduit-bottom-0.png",
-      "core/assets-raw/sprites/blocks/liquid/conduits/plated-conduit-top-0.png"
+      "core/assets-raw/sprites/blocks/liquid/conduits/conduit-top-0.png"
     ],
     "invisible": false,
     "fallback": false
@@ -2126,7 +2352,8 @@
   "block:bridge-conduit": {
     "file": "/mindustry/block-bridge-conduit.png",
     "layers": [
-      "core/assets-raw/sprites/blocks/liquid/bridge-conduit.png"
+      "core/assets-raw/sprites/blocks/liquid/conduits/conduit-bottom-0.png",
+      "core/assets-raw/sprites/blocks/liquid/conduits/conduit-top-0.png"
     ],
     "invisible": false,
     "fallback": false
@@ -2134,7 +2361,8 @@
   "block:phase-conduit": {
     "file": "/mindustry/block-phase-conduit.png",
     "layers": [
-      "core/assets-raw/sprites/blocks/liquid/phase-conduit.png"
+      "core/assets-raw/sprites/blocks/liquid/conduits/conduit-bottom-0.png",
+      "core/assets-raw/sprites/blocks/liquid/conduits/conduit-top-0.png"
     ],
     "invisible": false,
     "fallback": false
@@ -2150,7 +2378,6 @@
   "block:reinforced-conduit": {
     "file": "/mindustry/block-reinforced-conduit.png",
     "layers": [
-      "core/assets-raw/sprites/blocks/liquid/conduits/conduit-bottom-0.png",
       "core/assets-raw/sprites/blocks/liquid/conduits/reinforced-conduit-top-0.png"
     ],
     "invisible": false,
@@ -2478,6 +2705,15 @@
     "invisible": false,
     "fallback": false
   },
+  "block:large-cliff-crusher": {
+    "file": "/mindustry/block-large-cliff-crusher.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/drills/large-cliff-crusher.png",
+      "core/assets-raw/sprites/blocks/drills/large-cliff-crusher-top.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
   "block:plasma-bore": {
     "file": "/mindustry/block-plasma-bore.png",
     "layers": [
@@ -2550,14 +2786,6 @@
     "file": "/mindustry/block-container.png",
     "layers": [
       "core/assets-raw/sprites/blocks/storage/container.png"
-    ],
-    "invisible": false,
-    "fallback": false
-  },
-  "block:unloader": {
-    "file": "/mindustry/block-unloader.png",
-    "layers": [
-      "core/assets-raw/sprites/blocks/storage/unloader.png"
     ],
     "invisible": false,
     "fallback": false
@@ -3201,6 +3429,14 @@
     "invisible": false,
     "fallback": false
   },
+  "block:tile-logic-display": {
+    "file": "/mindustry/block-tile-logic-display.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/logic/tile-logic-display.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
   "block:memory-cell": {
     "file": "/mindustry/block-memory-cell.png",
     "layers": [
@@ -3221,6 +3457,14 @@
     "file": "/mindustry/block-canvas.png",
     "layers": [
       "core/assets-raw/sprites/blocks/logic/canvas.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:large-canvas": {
+    "file": "/mindustry/block-large-canvas.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/logic/large-canvas.png"
     ],
     "invisible": false,
     "fallback": false
@@ -3257,10 +3501,34 @@
     "invisible": false,
     "fallback": false
   },
+  "block:world-switch": {
+    "file": "/mindustry/block-world-switch.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/logic/world-switch.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
   "block:launch-pad": {
     "file": "/mindustry/block-launch-pad.png",
     "layers": [
       "core/assets-raw/sprites/blocks/campaign/launch-pad.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:advanced-launch-pad": {
+    "file": "/mindustry/block-advanced-launch-pad.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/campaign/advanced-launch-pad-preview.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "block:landing-pad": {
+    "file": "/mindustry/block-landing-pad.png",
+    "layers": [
+      "core/assets-raw/sprites/blocks/campaign/landing-pad.png"
     ],
     "invisible": false,
     "fallback": false
@@ -3633,6 +3901,46 @@
     "invisible": false,
     "fallback": false
   },
+  "unit:merui": {
+    "file": "/mindustry/unit-merui.png",
+    "layers": [
+      "core/assets-raw/sprites/units/merui.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:cleroi": {
+    "file": "/mindustry/unit-cleroi.png",
+    "layers": [
+      "core/assets-raw/sprites/units/cleroi.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:anthicus": {
+    "file": "/mindustry/unit-anthicus.png",
+    "layers": [
+      "core/assets-raw/sprites/units/anthicus.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:tecta": {
+    "file": "/mindustry/unit-tecta.png",
+    "layers": [
+      "core/assets-raw/sprites/units/tecta.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:collaris": {
+    "file": "/mindustry/unit-collaris.png",
+    "layers": [
+      "core/assets-raw/sprites/units/collaris.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
   "unit:spiroct": {
     "file": "/mindustry/unit-spiroct.png",
     "layers": [
@@ -3705,6 +4013,22 @@
     "invisible": false,
     "fallback": false
   },
+  "unit:avert": {
+    "file": "/mindustry/unit-avert.png",
+    "layers": [
+      "core/assets-raw/sprites/units/avert.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:obviate": {
+    "file": "/mindustry/unit-obviate.png",
+    "layers": [
+      "core/assets-raw/sprites/units/obviate-preview.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
   "unit:mono": {
     "file": "/mindustry/unit-mono.png",
     "layers": [
@@ -3725,6 +4049,46 @@
     "file": "/mindustry/unit-mega.png",
     "layers": [
       "core/assets-raw/sprites/units/mega.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:evoke": {
+    "file": "/mindustry/unit-evoke.png",
+    "layers": [
+      "core/assets-raw/sprites/units/evoke.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:incite": {
+    "file": "/mindustry/unit-incite.png",
+    "layers": [
+      "core/assets-raw/sprites/units/incite.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:emanate": {
+    "file": "/mindustry/unit-emanate.png",
+    "layers": [
+      "core/assets-raw/sprites/units/emanate.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:quell": {
+    "file": "/mindustry/unit-quell.png",
+    "layers": [
+      "core/assets-raw/sprites/units/quell.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
+  "unit:disrupt": {
+    "file": "/mindustry/unit-disrupt.png",
+    "layers": [
+      "core/assets-raw/sprites/units/disrupt.png"
     ],
     "invisible": false,
     "fallback": false
@@ -3873,6 +4237,14 @@
     "invisible": false,
     "fallback": false
   },
+  "unit:dummy": {
+    "file": "/mindustry/unit-dummy.png",
+    "layers": [
+      "core/assets-raw/sprites/units/dummy.png"
+    ],
+    "invisible": false,
+    "fallback": false
+  },
   "unit:stell": {
     "file": "/mindustry/unit-stell.png",
     "layers": [
@@ -3909,14 +4281,6 @@
     "file": "/mindustry/unit-conquer.png",
     "layers": [
       "core/assets-raw/sprites/units/conquer.png"
-    ],
-    "invisible": false,
-    "fallback": false
-  },
-  "unit:missile": {
-    "file": "/mindustry/unit-missile.png",
-    "layers": [
-      "core/assets-raw/sprites/effects/missile.png"
     ],
     "invisible": false,
     "fallback": false
