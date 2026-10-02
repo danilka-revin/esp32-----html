@@ -5,7 +5,8 @@
 # Скрипт делает всё для первого запуска:
 #   1. Проверяет обязательные утилиты (git, node, npm, curl) и предлагает
 #      установить их через apt, если чего-то не хватает.
-#   2. Подтягивает последнюю версию кода (git pull origin main).
+#   2. Подтягивает последнюю версию кода (git fetch + fast-forward с таймаутом,
+#      поэтому шаг обновления не может зависнуть на недоступной сети).
 #   3. Ставит npm-зависимости (npm install).
 #   4. Делает первичную production-сборку (npm run build).
 #   5. Устанавливает ярлык в меню приложений (~/.local/share/applications)
@@ -184,10 +185,10 @@ check_system_deps() {
 }
 
 # -----------------------------------------------------------------------------
-# 2. Обновление кода (git pull)
+# 2. Обновление кода (git fetch + fast-forward, с таймаутом)
 # -----------------------------------------------------------------------------
 update_code() {
-    step "Обновление кода (git pull)"
+    step "Обновление кода (fetch + fast-forward, с таймаутом)"
     cd "$PROJECT_DIR"
 
     if [ ! -d .git ]; then
@@ -195,28 +196,16 @@ update_code() {
         return 0
     fi
 
-    info "Текущая ветка: $(git branch --show-current 2>/dev/null || echo '?')"
-    info "Текущий коммит: $(git rev-parse --short HEAD 2>/dev/null || echo '?')"
-
-    if ! git fetch origin main >> "$LOG_FILE" 2>&1; then
-        warn "git fetch не удался (нет сети? Репозиторий недоступен?). Продолжаю с текущей версией."
+    # Обновление с таймаутом и без интерактивных запросов:
+    # даже при недоступном GitHub установка продолжается, а не зависает.
+    if [ ! -f "$SCRIPT_DIR/git-update.sh" ]; then
+        warn "Файл scripts/git-update.sh не найден — обновление пропущено."
         return 0
     fi
 
-    LOCAL=$(git rev-parse HEAD 2>/dev/null || echo "unknown")
-    REMOTE=$(git rev-parse origin/main 2>/dev/null || echo "$LOCAL")
-
-    if [ "$LOCAL" != "$REMOTE" ]; then
-        info "Доступна новая версия ($(echo "$LOCAL" | cut -c1-8) → $(echo "$REMOTE" | cut -c1-8))"
-        if git pull origin main >> "$LOG_FILE" 2>&1; then
-            ok "Код обновлён до $(git rev-parse --short HEAD)"
-        else
-            warn "git pull не удался (возможно, есть локальные изменения)."
-            warn "Попробуйте вручную: cd $PROJECT_DIR && git stash && git pull"
-        fi
-    else
-        ok "Код актуален ($(git rev-parse --short HEAD))"
-    fi
+    # shellcheck source=scripts/git-update.sh disable=SC1090,SC1091
+    . "$SCRIPT_DIR/git-update.sh"
+    bee_update_code info ok warn "$LOG_FILE"
 }
 
 # -----------------------------------------------------------------------------
@@ -226,7 +215,8 @@ install_npm_deps() {
     step "Установка npm-зависимостей"
     cd "$PROJECT_DIR"
 
-    if [ -d node_modules ] && [ package.json -ot node_modules/.package-lock.json ] 2>/dev/null \
+    if [ "${BEE_FILES_UPDATED:-0}" != "1" ] && [ -d node_modules ] \
+       && [ package.json -ot node_modules/.package-lock.json ] 2>/dev/null \
        && [ package-lock.json -ot node_modules/.package-lock.json ] 2>/dev/null; then
         ok "Зависимости уже установлены и актуальны"
         return 0
@@ -372,7 +362,7 @@ main() {
             echo "Использование: $0 [install|update|remove|launcher]"
             echo ""
             echo "  install   (по умолчанию) — полная установка: проверка системы,"
-            echo "                            git pull, npm install, build, ярлык"
+            echo "                            обновить код, npm install, build, ярлык"
             echo "  update                  — подтянуть код, зависимости, пересобрать"
             echo "  remove                  — удалить ярлык из меню приложений"
             echo "  launcher                — сразу запустить лаунчер"

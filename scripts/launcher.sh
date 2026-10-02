@@ -4,7 +4,7 @@
 #
 # При каждом запуске:
 #   1. Проверяет наличие node / npm.
-#   2. Делает git pull origin main (автообновление кода).
+#   2. Обновляет код из origin/main (git fetch с таймаутом, без зависаний).
 #   3. Ставит npm-зависимости (только если нужно).
 #   4. Собирает production-версию (npm run build).
 #   5. Поднимает preview-сервер на http://localhost:4173.
@@ -82,31 +82,17 @@ check_runtime() {
 run() {
     cd "$PROJECT_DIR"
 
-    # --- 1. Auto-update: git pull ---
+    # --- 1. Auto-update: git fetch с таймаутом (см. scripts/git-update.sh) ---
+    # Обновление ограничено по времени и никогда не ждёт ввода пользователя,
+    # поэтому запуск не может «застрять» на шаге git pull.
     log "[1/4] Проверка обновлений..."
-    if [ -d .git ]; then
-        if git fetch origin main >> "$LOG_FILE" 2>&1; then
-            LOCAL=$(git rev-parse HEAD 2>/dev/null || echo unknown)
-            REMOTE=$(git rev-parse origin/main 2>/dev/null || echo "$LOCAL")
-            if [ "$LOCAL" != "$REMOTE" ]; then
-                log "  Новая версия: $(echo "$LOCAL" | cut -c1-8) → $(echo "$REMOTE" | cut -c1-8)"
-                if git pull origin main >> "$LOG_FILE" 2>&1; then
-                    ok "Код обновлён"
-                    NEED_INSTALL=1
-                else
-                    warn "git pull не удался (локальные правки?). Продолжаю с текущей версией."
-                    NEED_INSTALL=0
-                fi
-            else
-                ok "Код актуален ($(echo "$LOCAL" | cut -c1-8))"
-                NEED_INSTALL=0
-            fi
-        else
-            warn "Нет сети или GitHub недоступен, работаю офлайн."
-            NEED_INSTALL=0
-        fi
+    if [ -f "$SCRIPT_DIR/git-update.sh" ]; then
+        # shellcheck source=scripts/git-update.sh disable=SC1090,SC1091
+        . "$SCRIPT_DIR/git-update.sh"
+        bee_update_code log ok warn "$LOG_FILE"
+        NEED_INSTALL="${BEE_FILES_UPDATED:-0}"
     else
-        warn "Это не git-репозиторий, автообновление отключено"
+        warn "Файл scripts/git-update.sh не найден — автообновление отключено."
         NEED_INSTALL=0
     fi
 
