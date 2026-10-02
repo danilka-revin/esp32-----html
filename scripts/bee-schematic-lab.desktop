@@ -15,7 +15,7 @@ Actions=UpdateOnly;OpenLog;DevMode;
 
 [Desktop Action UpdateOnly]
 Name=Только обновить (без запуска)
-Exec=gnome-terminal --title="Bee Schematic Lab — обновление" --working-directory="%PROJECT_DIR%" -- bash -c "git pull origin main && npm install && npm run build; echo; read -n 1 -s -p 'Готово. Нажмите любую клавишу...'"
+Exec=gnome-terminal --title="Bee Schematic Lab — обновление" --working-directory="%PROJECT_DIR%" -- bash -c "bash scripts/install-shortcut.sh update; echo; read -n 1 -s -p 'Готово. Нажмите любую клавишу...'"
 
 [Desktop Action OpenLog]
 Name=Открыть лог запуска
