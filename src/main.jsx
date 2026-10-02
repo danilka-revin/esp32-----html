@@ -1,0 +1,667 @@
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createRoot } from 'react-dom/client';
+import {
+  buildableBlocks, categories, categoryById, directionMeta, gameBlocks, gameCatalog,
+  getPlanetLabel, getStageLabel, itemById, materials, productsByDirection, stageMeta, typeLabels,
+} from './catalog.js';
+import { blockFits, blockRect, canvasPresets, generateLayout, initialSettings, supplyModes, tileAtCell } from './generator.js';
+import { buildLogicProgram, getLogicLinkInstructions, getTransportItem, needsLogicProgram } from './logic.js';
+import { appBuildInfo, checkForUpdates, formatCommit, UPDATE_BRANCH, UPDATE_REPOSITORY_URL } from './update-checker.js';
+import UpdateDialog from './update-dialog.jsx';
+import { decodeSchematicFile, decodeSchematic, downloadSchematic, schematicToBase64 } from './schematic-io.js';
+import './styles.css';
+
+const iconPaths = {
+  spark: <><path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z" /><path d="m19 14 .9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9L19 14Z" /><path d="m5 3 .6 1.4L7 5l-1.4.6L5 7l-.6-1.4L3 5l1.4-.6L5 3Z" /></>,
+  undo: <><path d="M9 14 4 9l5-5" /><path d="M4 9h9a7 7 0 0 1 0 14h-2" /></>,
+  redo: <><path d="m15 14 5-5-5-5" /><path d="M20 9h-9a7 7 0 0 0 0 14h2" /></>,
+  sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" /></>,
+  moon: <path d="M20.7 13.1A8.6 8.6 0 0 1 10.9 3.3 8.6 8.6 0 1 0 20.7 13.1Z" />,
+  copy: <><rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" /></>,
+  download: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m7 10 5 5 5-5M12 15V3" /></>,
+  upload: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m17 8-5-5-5 5m5-5v12" /></>,
+  search: <><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></>,
+  grid: <><rect x="3" y="3" width="8" height="8" rx="1.5" /><rect x="13" y="3" width="8" height="8" rx="1.5" /><rect x="3" y="13" width="8" height="8" rx="1.5" /><rect x="13" y="13" width="8" height="8" rx="1.5" /></>,
+  cursor: <path d="m5 3 14 10-6 1.5L10 21 5 3Z" />,
+  eraser: <><path d="m7 21 10-10" /><path d="m5.1 12.9 7.8-7.8a2 2 0 0 1 2.8 0l3.2 3.2a2 2 0 0 1 0 2.8l-7.8 7.8H7l-1.9-1.9a2 2 0 0 1 0-2.8Z" /></>,
+  rotate: <><path d="M3 12a9 9 0 0 1 15.4-6.4L21 8" /><path d="M21 3v5h-5M21 12a9 9 0 0 1-15.4 6.4L3 16" /><path d="M3 21v-5h5" /></>,
+  zoomIn: <><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4M11 8v6m-3-3h6" /></>,
+  zoomOut: <><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4m-8-5h6" /></>,
+  save: <><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z" /><path d="M17 21v-8H7v8M7 3v5h8" /></>,
+  trash: <><path d="M3 6h18M8 6V4h8v2m3 0-1 14H6L5 6m4 4v6m6-6v6" /></>,
+  close: <path d="m18 6-12 12M6 6l12 12" />,
+  chevron: <path d="m6 9 6 6 6-6" />,
+  check: <path d="m5 12 4 4L19 6" />,
+  info: <><circle cx="12" cy="12" r="9" /><path d="M12 11v5m0-9h.01" /></>,
+  bookmark: <><path d="M6 4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18l-6-4-6 4V4Z" /></>,
+  plus: <path d="M12 5v14m-7-7h14" />,
+  minus: <path d="M5 12h14" />,
+  box: <><path d="m12 3 9 5-9 5-9-5 9-5Z" /><path d="m3 8 9 5 9-5m-18 0v9l9 5 9-5V8m-9 5v9" /></>,
+  layers: <><path d="m12 3 9 5-9 5-9-5 9-5Z" /><path d="m3 12 9 5 9-5m-18 5 9 5 9-5" /></>,
+  filter: <><path d="M4 5h16l-6 7v6l-4 2v-8L4 5Z" /></>,
+  external: <><path d="M14 3h7v7m-1-6-9 9" /><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /></>,
+  chevronLeft: <path d="m15 18-6-6 6-6" />,
+  eye: <><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></>,
+  sliders: <><path d="M4 21v-7m0-4V3m8 18v-9m0-4V3m8 18v-5m0-4V3M2 14h4m4-6h4m4 8h4" /></>,
+  refresh: <><path d="M20 7v5h-5" /><path d="M20 12a8 8 0 1 0 2.2 5.5" /><path d="M4 17v-5h5" /></>,
+};
+
+function Icon({ name, size = 16, className = '' }) {
+  return <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{iconPaths[name] ?? iconPaths.box}</svg>;
+}
+
+const categoryColors = {
+  mining: '#e7a444', production: '#bd8df0', logistics: '#51c4cb', power: '#ffc233',
+  defense: '#f07474', turret: '#fb806d', storage: '#92be70', liquid: '#58b7ec',
+  units: '#5bc38b', logic: '#de78c9', payload: '#d3ac63', campaign: '#e4bd54',
+  sandbox: '#adb8c5', surface: '#87919d', ore: '#ce9a5a', boulder: '#9299a5',
+  item: '#d1ad72', unit: '#65b88e',
+};
+
+const stripGameMarkup = (text = '') => text.replace(/\[[^\]]+\]/g, '').replace(/\\n/g, ' ').trim();
+
+function markFor(entry) {
+  if (entry?.mark) return entry.mark;
+  if (entry?.type === 'block') {
+    const parts = String(entry.id ?? '').split('-').filter((part) => !['large', 'small', 'reinforced', 'armored'].includes(part));
+    return (parts.length > 1 ? `${parts[0][0]}${parts[1][0]}` : (parts[0] ?? '◈').slice(0, 2)).toUpperCase();
+  }
+  return categoryById.get(entry?.category)?.icon ?? '◈';
+}
+
+function GameGlyph({ entry, size = 'small', className = '' }) {
+  const category = entry?.category ?? entry?.type ?? 'block';
+  const mark = markFor(entry);
+  return <span className={`game-glyph glyph-${size} cat-${category} ${className}`} style={{ '--glyph-color': categoryColors[category] ?? categoryColors.item }} aria-hidden="true">
+    <span>{mark}</span>{entry?.size > 1 && size !== 'tiny' && <i>{entry.size}×</i>}
+  </span>;
+}
+
+function TinyTag({ children, tone = '' }) { return <span className={`tiny-tag ${tone}`}>{children}</span>; }
+
+function Toggle({ checked, onChange, label, detail }) {
+  return <button className={`toggle-row ${checked ? 'checked' : ''}`} type="button" onClick={() => onChange(!checked)} aria-pressed={checked}>
+    <span className="toggle-copy"><b>{label}</b>{detail && <small>{detail}</small>}</span><span className="switch"><i /></span>
+  </button>;
+}
+
+function Toast({ toast, onClose }) {
+  if (!toast) return null;
+  return <div className={`toast ${toast.type ?? 'success'}`} role="status">
+    <span className="toast-icon"><Icon name={toast.type === 'error' ? 'info' : 'check'} size={15} /></span><span>{toast.message}</span>
+    <button className="icon-button toast-close" onClick={onClose} type="button" aria-label="Закрыть"><Icon name="close" size={14} /></button>
+  </div>;
+}
+
+function StatCard({ label, value, note, icon }) {
+  return <div className="stat-card"><span className="stat-icon"><Icon name={icon} size={15} /></span><span className="stat-copy"><small>{label}</small><b>{value}</b>{note && <em>{note}</em>}</span></div>;
+}
+
+function Header({ view, setView, canUndo, canRedo, onUndo, onRedo, theme, setTheme, onImport, onExport, onCopy, onPaste, onSave, savedCount, catalogCount, onOpenUpdates, updateState, updateAttention }) {
+  return <header className="toolbar">
+    <button className="brand" type="button" onClick={() => setView('editor')} aria-label="На главную"><span className="brandmark"><img src="/logo.png" alt="" /></span><span className="brandtext"><b>BEE <em>SCHEM</em></b><small>MINDUSTRY SCHEMATIC LAB</small></span></button>
+    <nav className="top-nav" aria-label="Разделы приложения">
+      <button className={`nav-tab ${view === 'editor' ? 'active' : ''}`} type="button" onClick={() => setView('editor')}><Icon name="grid" size={15} /><span>Редактор</span></button>
+      <button className={`nav-tab ${view === 'catalog' ? 'active' : ''}`} type="button" onClick={() => setView('catalog')}><Icon name="layers" size={15} /><span>Каталог</span><i>{catalogCount}</i></button>
+    </nav>
+    <div className="toolbar-rule" /><div className="toolbar-group history-group">
+      <button className="tool-btn" type="button" title="Отменить · Ctrl+Z" disabled={!canUndo} onClick={onUndo}><Icon name="undo" /></button>
+      <button className="tool-btn" type="button" title="Повторить · Ctrl+Shift+Z" disabled={!canRedo} onClick={onRedo}><Icon name="redo" /></button>
+    </div>
+    <div className="toolbar-spacer" />
+    <button className={`tool-btn update-check-button ${updateAttention ? 'available' : ''} ${updateState?.checking ? 'checking' : ''}`} type="button" onClick={onOpenUpdates} title={updateAttention ? 'Доступно обновление приложения' : 'Проверить обновления'} aria-label="Проверить обновления">
+      <Icon name="refresh" size={15} /><span className="button-label">Обновления</span>{updateAttention && <i className="update-badge-dot" />}
+    </button>
+    <div className="vanilla-badge"><span className="status-dot" /> VANILLA <b>146</b></div>
+    <div className="toolbar-group file-group">
+      <button className="tool-btn wide" type="button" title="Сохранить в браузере" onClick={onSave}><Icon name="bookmark" /><span className="button-label">Сохранить</span>{savedCount > 0 && <i className="save-count">{savedCount}</i>}</button>
+      <button className="tool-btn wide" type="button" title="Импортировать .msch" onClick={onImport}><Icon name="upload" /><span className="button-label">Импорт</span></button>
+      <button className="tool-btn wide" type="button" title="Вставить код схемы" onClick={onPaste}><Icon name="copy" /><span className="button-label">Вставить</span></button>
+    </div>
+    <div className="toolbar-group theme-group"><button className="tool-btn theme-toggle" type="button" title={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}><Icon name={theme === 'dark' ? 'sun' : 'moon'} size={17} /></button></div>
+    <button className="button button-primary export-button" type="button" onClick={onExport}><Icon name="download" size={15} /><span>Экспорт .msch</span></button>
+  </header>;
+}
+
+function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCategory, setPaletteCategory, paletteSearch, setPaletteSearch, onSelectBlock, selectedBlock, activeTool, setView }) {
+  const productOptions = productsByDirection[settings.direction] ?? [];
+  const product = productOptions.find((item) => item.id === settings.goal) ?? productOptions[0];
+  const hasSupplySettings = ['production', 'defense', 'units', 'logistics'].includes(settings.direction);
+  const selectedSupplyMode = supplyModes.find((mode) => mode.id === settings.supplyMode) ?? supplyModes[0];
+  const isErekir = settings.planet === 'erekir';
+  const isDroneMode = ['drones', 'hybrid'].includes(settings.supplyMode);
+  const showTransportSettings = isErekir
+    ? ['core', 'drones', 'hybrid'].includes(settings.supplyMode)
+    : (settings.processorControl || isDroneMode);
+  const erekirSupplyModes = {
+    core: { label: 'Буфер', hint: `В Эрекире нельзя выгружать предметы напрямую из ядра: схема использует усиленный контейнер и канальный разгрузчик для @${getTransportItem(settings)}.` },
+    local: { label: 'Локально', hint: 'Локальная подача от производственных блоков или отдельного склада.' },
+    drones: { label: 'Грузовой дрон', hint: `Unit Cargo Loader создаёт Manifold автоматически. Подай @${getTransportItem(settings)} в загрузчик; точка выгрузки настроена на тот же предмет.` },
+    hybrid: { label: 'Гибрид', hint: `Линия от складского буфера плюс Manifold. Наполни контейнер ресурсом @${getTransportItem(settings)} и подай его в загрузчик.` },
+  };
+  const supplyModeHint = isErekir ? (erekirSupplyModes[settings.supplyMode]?.hint ?? selectedSupplyMode.hint) : selectedSupplyMode.hint;
+  const transportOptions = materials.filter((item) => item.planet === settings.planet || item.planet === 'both');
+  const droneUnitOptions = settings.planet === 'erekir'
+    ? [{ id: 'manifold', label: 'Manifold · грузовой дрон' }]
+    : [{ id: 'mono', label: 'Mono · базовый' }, { id: 'poly', label: 'Poly · строитель' }, { id: 'mega', label: 'Mega · грузовой' }];
+  const filteredPalette = useMemo(() => buildableBlocks.filter((block) => {
+    const matchesCategory = paletteCategory === 'all' || block.category === paletteCategory;
+    const query = paletteSearch.trim().toLocaleLowerCase('ru');
+    return matchesCategory && (!query || `${block.name} ${block.id}`.toLocaleLowerCase('ru').includes(query));
+  }), [paletteCategory, paletteSearch]);
+  const patch = (field, value) => setSettings((current) => ({ ...current, [field]: value }));
+  const setDirection = (direction) => setSettings((current) => ({ ...current, direction, goal: productsByDirection[direction]?.[0]?.id ?? current.goal }));
+  const setPlanet = (planet) => setSettings((current) => {
+    const fallbackItem = planet === 'erekir' ? 'beryllium' : 'copper';
+    const currentItem = materials.find((item) => item.id === current.transportItem && (item.planet === planet || item.planet === 'both'))?.id;
+    const processorControl = planet === 'erekir' ? false : current.planet === 'erekir' ? true : current.processorControl;
+    return { ...current, planet, processorControl, droneUnit: planet === 'erekir' ? 'manifold' : 'mono', transportItem: currentItem ?? fallbackItem };
+  });
+  const setSupplyMode = (supplyMode) => setSettings((current) => ({
+    ...current,
+    supplyMode,
+    processorControl: current.planet === 'erekir' ? false : ['drones', 'hybrid'].includes(supplyMode) ? true : current.processorControl,
+  }));
+
+  return <aside className="left-sidebar panel-scroll">
+    <div className="section-kicker"><span className="kicker-line" /> КОНСТРУКТОР <span className="kicker-dot" /></div>
+    <div className="sidebar-title-row"><div><h1>Автогенератор</h1><p>Собери схему под свою задачу</p></div><span className="generator-spark"><Icon name="spark" size={18} /></span></div>
+    <section className="setting-section"><div className="field-label"><span>НАПРАВЛЕНИЕ</span><small>01 / 04</small></div><div className="direction-grid">
+      {Object.entries(directionMeta).map(([id, direction]) => <button className={`direction-option ${settings.direction === id ? 'selected' : ''}`} type="button" key={id} onClick={() => setDirection(id)}><span className="direction-icon">{direction.icon}</span><span>{direction.short}</span></button>)}
+    </div></section>
+    <section className="setting-section compact-section"><div className="field-label"><span>ЭТАП ИГРЫ</span><small>ТЕХНОЛОГИИ</small></div><div className="stage-segment">
+      {Object.entries(stageMeta).map(([id, stage]) => <button type="button" key={id} className={`stage-choice ${settings.stage === id ? `active ${stage.color}` : ''}`} onClick={() => patch('stage', id)}><i>{stage.number}</i><span>{stage.label}</span></button>)}
+    </div><div className="stage-note"><span className={`stage-pip ${stageMeta[settings.stage]?.color}`} />{stageMeta[settings.stage]?.resourceLine}</div></section>
+    <section className="setting-section compact-section"><div className="field-label"><span>ПЛАНЕТА</span><small>КОНТЕНТ v146</small></div><div className="planet-switch">
+      <button type="button" className={settings.planet === 'serpulo' ? 'selected' : ''} onClick={() => setPlanet('serpulo')}><span className="planet-orb serpulo" />Серпуло</button>
+      <button type="button" className={settings.planet === 'erekir' ? 'selected' : ''} onClick={() => setPlanet('erekir')}><span className="planet-orb erekir" />Эрекир</button>
+    </div></section>
+    <section className="setting-section compact-section"><label className="field-label" htmlFor="goal-select"><span>ЦЕЛЬ СХЕМЫ</span><small>ПРОДУКТ / ЗАДАЧА</small></label><div className="select-wrap">
+      <select id="goal-select" value={product?.id ?? ''} onChange={(event) => patch('goal', event.target.value)}>{productOptions.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}</select><Icon name="chevron" size={13} />
+    </div></section>
+    {hasSupplySettings && <>
+      <section className="setting-section supply-section"><div className="field-label"><span>СНАБЖЕНИЕ И УПРАВЛЕНИЕ</span><small>ФАБРИКА / УЗЕЛ</small></div>
+        <div className="supply-mode-grid" role="group" aria-label="Способ снабжения">
+          {supplyModes.map((mode) => <button type="button" key={mode.id} title={isErekir ? erekirSupplyModes[mode.id]?.hint ?? mode.hint : mode.hint} className={`supply-mode-option ${settings.supplyMode === mode.id ? 'selected' : ''}`} onClick={() => setSupplyMode(mode.id)}><span>{mode.mark}</span><b>{isErekir ? erekirSupplyModes[mode.id]?.label ?? mode.label : mode.label}</b></button>)}
+        </div>
+        <p className="supply-mode-hint">{supplyModeHint}</p>
+      </section>
+      {showTransportSettings && <section className="setting-section compact-section logic-settings-section">
+        <label className="field-label" htmlFor="transport-item-select"><span>{isErekir ? (isDroneMode ? 'ФИЛЬТР ПРЕДМЕТА' : 'ПРЕДМЕТ ДЛЯ РАЗГРУЗКИ') : isDroneMode ? 'ГРУЗ ДЛЯ ДОСТАВКИ' : 'РЕСУРС ДЛЯ КОНТРОЛЯ'}</span><small>{isErekir ? 'ЭРЕКИР / ФИЛЬТР' : 'MLOG / @ITEM'}</small></label>
+        <div className="select-wrap"><select id="transport-item-select" value={getTransportItem(settings)} onChange={(event) => patch('transportItem', event.target.value)}>{transportOptions.map((item) => <option key={item.id} value={item.id}>{item.name} · @{item.id}</option>)}</select><Icon name="chevron" size={13} /></div>
+        {isErekir ? <p className="microcopy">{isDroneMode ? 'Manifold работает автоматически, без MLOG. Загрузчик должен получать этот предмет; точка выгрузки сохраняет фильтр в .msch.' : 'Наполни усиленный контейнер выбранным предметом: ядро Эрекира нельзя напрямую разгрузить.'}</p> : isDroneMode ? <>
+          <label className="field-label sub-field-label" htmlFor="drone-unit-select"><span>ТИП ЮНИТА</span><small>СЕРПУЛО</small></label>
+          <div className="select-wrap"><select id="drone-unit-select" value={settings.droneUnit} onChange={(event) => patch('droneUnit', event.target.value)}>{droneUnitOptions.map((unit) => <option key={unit.id} value={unit.id}>{unit.label}</option>)}</select><Icon name="chevron" size={13} /></div>
+          <div className="range-heading"><span>ГРУЗ ЗА РЕЙС</span><b>{settings.droneCapacity ?? 50}</b></div>
+          <input className="range-input" style={{ '--range-progress': `${(((settings.droneCapacity ?? 50) - 10) / 140) * 100}%` }} type="range" min="10" max="150" step="10" value={settings.droneCapacity ?? 50} onChange={(event) => patch('droneCapacity', Number(event.target.value))} />
+          <p className="microcopy">Нужен доступный юнит выбранного типа. Для MLOG свяжи целевую фабрику с процессором.</p>
+        </> : <>
+          <Toggle checked={settings.processorControl} onChange={(value) => patch('processorControl', value)} label="Контроль запасов MLOG" detail="Включать фабрику при достаточном запасе в ядре" />
+          {settings.processorControl && <>
+            <div className="range-heading"><span>ПОРОГ ЗАПАСА В ЯДРЕ</span><b>{settings.reserveThreshold ?? 40}</b></div>
+            <input className="range-input" style={{ '--range-progress': `${(((settings.reserveThreshold ?? 40) - 20) / 280) * 100}%` }} type="range" min="20" max="300" step="10" value={settings.reserveThreshold ?? 40} onChange={(event) => patch('reserveThreshold', Number(event.target.value))} />
+          </>}
+        </>}
+      </section>}
+    </>}
+    <section className="setting-section compact-section"><div className="field-label"><span>РАЗМЕР СХЕМЫ</span><small>ДО 128 × 128</small></div><div className="size-options">
+      {Object.entries(canvasPresets).map(([id, preset]) => <button type="button" key={id} className={`size-option ${settings.footprint === id ? 'selected' : ''}`} onClick={() => patch('footprint', id)}><span className={`size-preview ${id}`}><i /></span><span>{preset.label}</span><small>{preset.note}</small></button>)}
+    </div></section>
+    <section className="setting-section compact-section"><div className="field-label"><span>ПЛОТНОСТЬ</span><small>{settings.compactness}%</small></div>
+      <input className="range-input" style={{ '--range-progress': `${((settings.compactness - 25) / 65) * 100}%` }} type="range" min="25" max="90" step="5" value={settings.compactness} onChange={(event) => patch('compactness', Number(event.target.value))} />
+      <div className="range-captions"><span>Свободно</span><span>Компактно</span></div></section>
+    <section className="setting-section option-toggles">
+      <Toggle checked={settings.includePower} onChange={(value) => patch('includePower', value)} label="Подключить питание" detail="Силовые узлы и генераторы" />
+      <Toggle checked={settings.includeDefense} onChange={(value) => patch('includeDefense', value)} label="Добавить защиту" detail="Турели у ключевых точек" />
+      <Toggle checked={settings.includeStorage} onChange={(value) => patch('includeStorage', value)} label="Резервное хранилище" detail="Контейнер рядом с ядром" />
+    </section>
+    <button className="button button-primary generate-button" type="button" onClick={onGenerate}><Icon name="spark" size={17} /><span>Сгенерировать схему</span><kbd>↵</kbd></button>
+    <div className={`generator-hint ${dirty ? 'dirty' : ''}`}><span className="hint-dot" />{dirty ? 'Параметры изменены — пересобери схему' : `Подобраны блоки для ${getPlanetLabel(settings.planet)}`}</div>
+    <div className="sidebar-divider" />
+    <div className="palette-heading"><div><div className="field-label"><span>БЫСТРАЯ ПАЛИТРА</span><small>{filteredPalette.length} / {buildableBlocks.length}</small></div><p>Перетащи блок на сетку</p></div><button className="link-button" type="button" onClick={() => setView('catalog')}>Весь каталог <Icon name="external" size={12} /></button></div>
+    <div className="palette-controls"><div className="search-field palette-search"><Icon name="search" size={14} /><input value={paletteSearch} onChange={(event) => setPaletteSearch(event.target.value)} placeholder="Найти блок..." aria-label="Найти блок" /></div>
+      <div className="select-wrap palette-select-wrap"><select value={paletteCategory} onChange={(event) => setPaletteCategory(event.target.value)} aria-label="Категория блоков"><option value="all">Все категории</option>{categories.filter((category) => buildableBlocks.some((block) => block.category === category.id)).map((category) => <option key={category.id} value={category.id}>{category.label}</option>)}</select><Icon name="chevron" size={12} /></div>
+    </div>
+    <div className="palette-list">
+      {filteredPalette.slice(0, 72).map((block) => <button type="button" key={block.id} draggable onDragStart={(event) => { event.dataTransfer.setData('text/plain', block.id); event.dataTransfer.effectAllowed = 'copy'; }} className={`palette-item ${selectedBlock === block.id && activeTool === 'place' ? 'selected' : ''}`} onClick={() => onSelectBlock(block.id)} title={`${block.name} · ${block.id}`}>
+        <GameGlyph entry={block} size="tiny" /><span className="palette-item-name">{block.name}</span>{block.size > 1 && <small>{block.size}×</small>}
+      </button>)}
+      {filteredPalette.length > 72 && <button className="palette-more" type="button" onClick={() => setView('catalog')}>Ещё {filteredPalette.length - 72} блока в каталоге <Icon name="chevron" size={13} /></button>}
+      {!filteredPalette.length && <div className="empty-palette">Ничего не найдено. Попробуй другой запрос.</div>}
+    </div>
+    <div className="sidebar-credit"><span className="credit-bee">✦</span><span>Каталог Mindustry v146</span><span className="credit-sep">·</span><span>ванильный контент</span></div>
+  </aside>;
+}
+
+function BlockCanvas({ scheme, selectedKey, setSelectedKey, tool, selectedBlock, onPlace, onErase, onSelect, gridVisible, showNames, zoom, svgRef, onDropBlock }) {
+  const width = scheme.width; const height = scheme.height;
+  const entryFor = (id) => buildableBlocks.find((block) => block.id === id) ?? gameBlocks.find((block) => block.id === id) ?? { id, type: 'block', category: 'sandbox', name: id };
+  const color = (id) => categoryColors[entryFor(id).category] ?? '#adb7c3';
+  const iconFor = (id) => markFor(entryFor(id));
+  const nameFor = (id) => entryFor(id).name ?? id;
+  const sizeFor = (id) => entryFor(id).size ?? 1;
+  const makePoint = (event) => {
+    const svg = svgRef.current;
+    if (!svg?.getScreenCTM) return null;
+    const point = svg.createSVGPoint(); point.x = event.clientX; point.y = event.clientY;
+    const transformed = point.matrixTransform(svg.getScreenCTM().inverse());
+    return { x: Math.floor(transformed.x), y: Math.floor(transformed.y) };
+  };
+  const handlePointer = (event) => {
+    event.preventDefault?.();
+    const point = makePoint(event); if (!point) return;
+    const hit = tileAtCell(scheme.tiles, point.x, point.y);
+    if (tool === 'erase') { if (hit) onErase(hit); else setSelectedKey(null); return; }
+    if (tool === 'place') { if (selectedBlock) onPlace(point.x, point.y, selectedBlock); return; }
+    if (hit) onSelect(hit); else setSelectedKey(null);
+  };
+  const gridPath = useMemo(() => { let path = ''; for (let x = 0; x <= width; x += 1) path += `M${x} 0V${height} `; for (let y = 0; y <= height; y += 1) path += `M0 ${y}H${width} `; return path; }, [width, height]);
+  const majorGridPath = useMemo(() => { let path = ''; for (let x = 0; x <= width; x += 4) path += `M${x} 0V${height} `; for (let y = 0; y <= height; y += 4) path += `M0 ${y}H${width} `; return path; }, [width, height]);
+
+  return <div className="canvas-viewport" onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); const id = event.dataTransfer.getData('text/plain'); const point = makePoint(event); if (id && point) onDropBlock(point.x, point.y, id); }}>
+    <div className="canvas-blueprint" /><div className="coordinate-label coord-nw">0,0 <span>GRID / TILE</span></div><div className="coordinate-label coord-ne">{width} × {height} <span>MSCH</span></div>
+    <svg ref={svgRef} className={`schematic-svg ${gridVisible ? '' : 'no-grid'} ${tool === 'place' ? 'placing' : ''} ${tool === 'erase' ? 'erasing' : ''}`} viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid meet" style={{ transform: `scale(${zoom})` }} role="img" aria-label={`Схема Mindustry ${width} на ${height}, ${scheme.tiles.length} построек`} onClick={handlePointer}>
+      <defs><radialGradient id="canvas-vignette"><stop offset="0" stopColor="var(--canvas-vignette-center)" /><stop offset="1" stopColor="var(--canvas-vignette-edge)" /></radialGradient><filter id="selected-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="0.11" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter></defs>
+      <rect width={width} height={height} className="canvas-base" rx="0.5" />
+      {gridVisible && <><path d={gridPath} className="canvas-grid-minor" /><path d={majorGridPath} className="canvas-grid-major" /></>}
+      <ellipse cx={width / 2} cy={height / 2} rx={width * .47} ry={height * .45} fill="url(#canvas-vignette)" pointerEvents="none" />
+      <path d={`M ${width / 2 - .28} ${height / 2} h .56 M ${width / 2} ${height / 2 - .28} v .56`} className="canvas-center-mark" pointerEvents="none" />
+      {scheme.tiles.map((tile) => {
+        const key = `${tile.x}:${tile.y}`; const size = sizeFor(tile.id); const rect = blockRect(tile);
+        const x = rect.startX + .08; const y = rect.startY + .08; const visualSize = Math.max(.78, size - .16);
+        const selected = selectedKey === key; const tone = color(tile.id); const glyph = iconFor(tile.id); const label = nameFor(tile.id);
+        const fontSize = Math.min(.72, Math.max(.32, visualSize * .42));
+        return <g key={key} className={`canvas-block ${selected ? 'selected' : ''} ${size > 1 ? 'large-block' : ''}`} onClick={(event) => { event.stopPropagation(); handlePointer(event); }} onContextMenu={(event) => { event.preventDefault(); onErase(tile); }} style={{ '--block-color': tone }}>
+          <title>{`${label} · ${tile.id} · ${size}×${size} · поворот ${tile.rotation ?? 0}`}</title>
+          <rect x={x} y={y} width={visualSize} height={visualSize} rx={size === 1 ? .14 : .25} className="block-shadow" />
+          <rect x={x} y={y} width={visualSize} height={visualSize} rx={size === 1 ? .14 : .25} className="block-face" />
+          <rect x={x + .08} y={y + .08} width={Math.max(.35, visualSize - .16)} height={Math.max(.35, visualSize - .16)} rx={size === 1 ? .1 : .19} className="block-inner" />
+          <path d={`M ${x + .16} ${y + visualSize - .17} L ${x + visualSize - .16} ${y + .17}`} className="block-bevel" />
+          <text x={rect.startX + size / 2} y={rect.startY + size / 2 + fontSize * .34} textAnchor="middle" className="block-mark" style={{ fontSize: `${fontSize}px` }}>{glyph}</text>
+          {tile.rotation > 0 && <path d={`M ${rect.startX + size / 2} ${rect.startY + .14} l -.12 .21 h .24 z`} className="block-direction" transform={`rotate(${tile.rotation * 90} ${rect.startX + size / 2} ${rect.startY + size / 2})`} />}
+          {showNames && <text x={rect.startX + size / 2} y={rect.endY + .35} textAnchor="middle" className="block-label">{label.length > 17 ? `${label.slice(0, 15)}…` : label}</text>}
+          {selected && <rect x={x - .07} y={y - .07} width={visualSize + .14} height={visualSize + .14} rx={size === 1 ? .18 : .29} className="block-selection" />}
+        </g>;
+      })}
+    </svg>
+    <div className="canvas-legend"><span className="legend-pulse" />{tool === 'place' && selectedBlock ? `Кликни, чтобы поставить: ${buildableBlocks.find((block) => block.id === selectedBlock)?.name ?? selectedBlock}` : tool === 'erase' ? 'Клик по блоку — удалить' : 'Клик по блоку — свойства · правый клик — удалить'}</div>
+    <div className="canvas-coordinates">X {Math.floor(width / 2)} <i /> Y {Math.floor(height / 2)}</div>
+  </div>;
+}
+
+function calculateAnalytics(scheme) {
+  const counts = new Map();
+  for (const tile of scheme.tiles) counts.set(tile.id, (counts.get(tile.id) ?? 0) + 1);
+  const sortedBlocks = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  const materialTotals = new Map();
+  const costs = {
+    'core-shard': { copper: 100, lead: 100 }, 'core-foundation': { copper: 300, lead: 300, silicon: 100 },
+    'core-nucleus': { copper: 800, lead: 800, silicon: 400, thorium: 300 }, 'core-bastion': { beryllium: 400 },
+    'core-citadel': { beryllium: 800, tungsten: 600 }, 'core-acropolis': { beryllium: 1200, tungsten: 900, carbide: 500 },
+    conveyor: { copper: 1, lead: 1 }, 'titanium-conveyor': { titanium: 1, lead: 1 }, 'mechanical-drill': { copper: 12, lead: 6 },
+    'pneumatic-drill': { copper: 18, lead: 10, graphite: 8 }, 'laser-drill': { titanium: 35, silicon: 25, graphite: 20 },
+    'plasma-bore': { beryllium: 30 }, 'large-plasma-bore': { beryllium: 70, tungsten: 40 },
+    'silicon-smelter': { copper: 25, lead: 10, graphite: 5 }, 'graphite-press': { copper: 20, lead: 15 },
+    'solar-panel': { copper: 20, lead: 15 }, 'large-solar-panel': { silicon: 30, metaglass: 20, lead: 40 },
+    'power-node': { copper: 10, lead: 5 }, 'power-node-large': { copper: 20, lead: 10, titanium: 5 },
+    'copper-wall': { copper: 6 }, 'titanium-wall': { titanium: 6 }, 'beryllium-wall': { beryllium: 6 },
+    duo: { copper: 35, graphite: 5 }, breach: { beryllium: 40 }, router: { copper: 3 },
+    'container': { copper: 40, lead: 30 }, vault: { titanium: 100, thorium: 50 },
+  };
+  for (const [id, count] of sortedBlocks) {
+    const recipe = costs[id] ?? { copper: 2, lead: 1 };
+    for (const [material, amount] of Object.entries(recipe)) materialTotals.set(material, (materialTotals.get(material) ?? 0) + amount * count);
+  }
+  const resources = [...materialTotals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([id, amount]) => ({ ...itemById.get(id), id, amount }));
+  const categoryCount = new Set(scheme.tiles.map((tile) => buildableBlocks.find((block) => block.id === tile.id)?.category).filter(Boolean)).size;
+  const generators = scheme.tiles.filter((tile) => /generator|reactor|solar-panel|condenser|power-source/.test(tile.id)).length;
+  return { counts, sortedBlocks, resources, unique: counts.size, total: scheme.tiles.length, categoryCount, generators };
+}
+
+function Inspector({ scheme, analytics, selectedTile, onRotate, onRemove, onSave, savedSchemes, onLoadSaved, onDeleteSaved, onExport, onCopy, onCopyLogic, name, setName }) {
+  const [tab, setTab] = useState('summary');
+  useEffect(() => { setTab(selectedTile ? 'selection' : 'summary'); }, [selectedTile?.id, selectedTile?.x, selectedTile?.y]);
+  const selectedBlock = selectedTile && (buildableBlocks.find((block) => block.id === selectedTile.id) ?? gameBlocks.find((block) => block.id === selectedTile.id));
+  const direction = directionMeta[scheme.settings?.direction] ?? directionMeta.production;
+  const stage = stageMeta[scheme.settings?.stage] ?? stageMeta.mid;
+  const world = getPlanetLabel(scheme.settings?.planet ?? 'serpulo');
+  const product = (productsByDirection[scheme.settings?.direction] ?? []).find((item) => item.id === scheme.settings?.goal);
+  const logicSettings = scheme.settings ?? {};
+  const showLogicProgram = needsLogicProgram(logicSettings);
+  const logicProgram = showLogicProgram ? buildLogicProgram(logicSettings) : '';
+  const showErekirSupplyGuide = logicSettings.planet === 'erekir' && ['core', 'drones', 'hybrid'].includes(logicSettings.supplyMode);
+  const selectedCategory = categoryById.get(selectedBlock?.category);
+  const categoryCount = (category) => scheme.tiles.filter((tile) => buildableBlocks.find((block) => block.id === tile.id)?.category === category).length;
+  const assemblyCount = scheme.tiles.filter((tile) => /factory|fabricator|reconstructor|assembler/.test(tile.id)).length;
+  const outputMetric = {
+    mining: [categoryCount('mining'), 'буровых блоков'], production: [categoryCount('production'), 'переработчиков'],
+    defense: [categoryCount('turret'), 'турелей'], power: [analytics.generators, 'источников энергии'],
+    logistics: [categoryCount('logistics'), 'транспортных блоков'], units: [assemblyCount, 'узлов сборки'],
+    logic: [categoryCount('logic'), 'логических блоков'], campaign: [categoryCount('campaign'), 'пусковых блоков'],
+  }[scheme.settings?.direction] ?? [0, 'блоков'];
+
+  return <aside className="right-sidebar panel-scroll">
+    <div className="inspector-header"><div><div className="section-kicker"><span className="kicker-line" /> СХЕМА / ОБЗОР</div><h2>Параметры</h2></div><span className="ready-badge"><i /> READY</span></div>
+    <div className="inspector-tabs"><button type="button" className={tab === 'summary' ? 'active' : ''} onClick={() => setTab('summary')}>Сводка</button><button type="button" className={tab === 'selection' ? 'active' : ''} onClick={() => setTab('selection')}>Блок{selectedTile ? <i className="tab-dot" /> : ''}</button></div>
+    {tab === 'selection' && selectedTile ? <div className="selection-details">
+      <div className="selected-block-hero"><GameGlyph entry={selectedBlock ?? { category: 'sandbox' }} size="large" /><div><span className="field-label">ВЫБРАННЫЙ ОБЪЕКТ</span><h3>{selectedBlock?.name ?? selectedTile.id}</h3><code>{selectedTile.id}</code></div></div>
+      <div className="selection-props"><div><small>КООРДИНАТЫ</small><b>{selectedTile.x}, {selectedTile.y}</b></div><div><small>РАЗМЕР</small><b>{selectedBlock?.size ?? 1} × {selectedBlock?.size ?? 1}</b></div><div><small>ПОВОРОТ</small><b>{(selectedTile.rotation ?? 0) * 90}°</b></div><div><small>ПЛАНЕТА</small><b>{selectedBlock?.planet === 'erekir' ? 'Эрекир' : selectedBlock?.planet === 'both' ? 'Обе' : 'Серпуло'}</b></div></div>
+      <div className="block-detail-copy">{stripGameMarkup(selectedBlock?.description) || `${selectedCategory?.label ?? 'Блок'} из ванильного набора Mindustry. Внутриигровое имя: ${selectedTile.id}.`}</div>
+      <div className="rotation-row"><span>Направление блока</span><button className="button button-outline" type="button" onClick={onRotate}><Icon name="rotate" size={14} /> Повернуть</button></div>
+      <button className="button button-danger-soft full-width" type="button" onClick={() => onRemove(selectedTile)}><Icon name="trash" size={14} /> Удалить блок</button>
+    </div> : <>
+      <section className="scheme-identity-card"><div className="identity-top"><span className="identity-overline">ТЕКУЩАЯ СХЕМА</span><span className="tiny-tag gold">{stage.number} · {stage.label.toUpperCase()}</span></div>
+        <input className="scheme-name-input" value={name} onChange={(event) => setName(event.target.value)} aria-label="Название схемы" />
+        <div className="identity-meta"><span><i className="meta-world-dot" />{world}</span><span>{direction.short}</span></div>
+        <div className="identity-progress"><span style={{ width: `${Math.min(100, 20 + analytics.unique * 2.6)}%` }} /></div><div className="identity-foot"><span>СЛОЁВ СОБРАНО</span><b>{analytics.categoryCount} / 8</b></div>
+      </section>
+      <div className="stats-grid"><StatCard label="Постройки" value={analytics.total} note="на сетке" icon="box" /><StatCard label="Типы блоков" value={analytics.unique} note="уникальных" icon="layers" /></div>
+      <section className="inspector-section production-summary"><div className="panel-section-heading"><span>ЦЕЛЬ СХЕМЫ</span><i className="live-pill"><b /> ACTIVE</i></div>
+        <div className="production-row"><span className="production-icon" style={{ '--production-color': categoryColors[scheme.settings?.direction === 'power' ? 'power' : scheme.settings?.direction === 'defense' ? 'turret' : scheme.settings?.direction === 'mining' ? 'mining' : 'production'] }}>{direction.icon}</span><div className="production-text"><b>{product?.label ?? direction.goal}</b><small>{direction.label}</small></div><div className="production-rate"><b>{outputMetric[0]}</b><small>{outputMetric[1]}</small></div></div>
+        <div className="production-bar"><i style={{ width: `${Math.max(22, Math.min(100, analytics.total * 2.2))}%` }} /></div><div className="production-foot"><span><i className="green-dot" /> Структура собрана</span><span>{scheme.width}×{scheme.height} тайлов</span></div>
+      </section>
+      <section className="inspector-section resource-section"><div className="panel-section-heading"><span>ОЦЕНКА МАТЕРИАЛОВ</span><button className="mini-icon-button" type="button" title="Оценка по размещённым блокам"><Icon name="info" size={13} /></button></div>
+        <div className="resource-list">{analytics.resources.map((resource) => <div className="resource-row" key={resource.id}><GameGlyph entry={resource} size="tiny" /><span>{resource.name}</span><b>{resource.amount.toLocaleString('ru-RU')}</b><i className="resource-bar"><span style={{ width: `${Math.max(18, Math.min(100, resource.amount / (analytics.resources[0]?.amount || 1) * 100))}%` }} /></i></div>)}</div>
+        <p className="microcopy">Приблизительная смета · уточни требования в игре</p>
+      </section>
+      {showErekirSupplyGuide && <section className="inspector-section logic-program-section cargo-route-guide">
+        <div className="panel-section-heading"><span>ЭРЕКИР / ГРУЗОВОЙ МАРШРУТ</span><i className="logic-live-pill"><b /> MANIFOLD</i></div>
+        {['core', 'hybrid'].includes(logicSettings.supplyMode) && <p className="logic-link-hint">Эрекир не позволяет выгружать ресурсы прямо из ядра. Наполни усиленный контейнер предметом <b>@{getTransportItem(logicSettings)}</b>; канальный разгрузчик в схеме забирает его из контейнера.</p>}
+        {['drones', 'hybrid'].includes(logicSettings.supplyMode) && <p className="logic-link-hint">Unit Cargo Loader создаёт Manifold автоматически. Подай в загрузчик <b>@{getTransportItem(logicSettings)}</b>; точка выгрузки уже настроена на этот предмет. MLOG для Manifold не нужен.</p>}
+        <div className="logic-export-note"><Icon name="info" size={13} /><span>Фильтр точки выгрузки сохраняется в .msch. Проверь подключение предметного конвейера к Unit Cargo Loader и наличие питания и азота для создания Manifold.</span></div>
+      </section>}
+      {showLogicProgram && <section className="inspector-section logic-program-section">
+        <div className="panel-section-heading"><span>MLOG / ПРОЦЕССОР</span><i className="logic-live-pill"><b /> {logicSettings.supplyMode === 'drones' || logicSettings.supplyMode === 'hybrid' ? 'ДРОН' : 'КОНТРОЛЬ'}</i></div>
+        <p className="logic-link-hint">{getLogicLinkInstructions(logicSettings)}</p>
+        <textarea className="logic-program-code" readOnly value={logicProgram} spellCheck="false" aria-label="Программа Mindustry Logic" />
+        <button className="button button-outline full-width copy-logic-button" type="button" onClick={onCopyLogic}><Icon name="copy" size={13} /> Скопировать MLOG</button>
+        <div className="logic-export-note"><Icon name="info" size={13} /><span>Процессор появится в .msch, но код нужно вставить в игре вручную: бинарную конфигурацию MLOG браузерный экспорт не компилирует. {['core', 'hybrid'].includes(logicSettings.supplyMode) && <>Настрой разгрузчик на @<b>{getTransportItem(logicSettings)}</b>.</>}</span></div>
+      </section>}
+      <section className="inspector-section block-list-section"><div className="panel-section-heading"><span>СОСТАВ ПОСТРОЕК</span><span className="subtle-count">{analytics.unique} типов</span></div><div className="building-list">
+        {analytics.sortedBlocks.slice(0, 6).map(([id, count]) => { const block = buildableBlocks.find((item) => item.id === id) ?? { id, name: id, category: 'sandbox' }; return <div className="building-row" key={id}><GameGlyph entry={block} size="tiny" /><span>{block.name}</span><b>×{count}</b></div>; })}
+        {analytics.sortedBlocks.length === 0 && <span className="microcopy">На сетке пока нет блоков.</span>}
+      </div></section>
+      <section className="saved-schemes-section"><div className="panel-section-heading"><span>МОИ СХЕМЫ</span><button className="mini-icon-button" type="button" title="Сохранить текущую схему" onClick={onSave}><Icon name="plus" size={14} /></button></div>
+        {savedSchemes.length === 0 ? <div className="saved-empty"><Icon name="bookmark" size={14} /><span>Сохрани сборку, чтобы быстро вернуться к ней.</span></div> : savedSchemes.slice(0, 3).map((saved) => <div className="saved-scheme-row" key={saved.key}><button type="button" className="saved-load" onClick={() => onLoadSaved(saved)}><span className="saved-scheme-thumb"><Icon name="grid" size={13} /></span><span><b>{saved.name}</b><small>{saved.width}×{saved.height} · {saved.tiles.length} блоков</small></span></button><button className="icon-button saved-delete" type="button" title="Удалить из сохранённых" onClick={() => onDeleteSaved(saved.key)}><Icon name="close" size={13} /></button></div>)}
+      </section>
+      <div className="inspector-actions"><button className="button button-outline full-width" type="button" onClick={onCopy}><Icon name="copy" size={14} /> Копировать код схемы</button><button className="button button-primary full-width" type="button" onClick={onExport}><Icon name="download" size={14} /> Скачать .msch</button></div>
+    </>}
+    <div className="inspector-footer"><span className="footer-hex">⬡</span> Bee Schematic Lab <i /> Mindustry v146</div>
+  </aside>;
+}
+
+function EditorPage({ settings, setSettings, setView, dirty, onGenerate, scheme, setScheme, name, setName, activeTool, setActiveTool, selectedBlock, setSelectedBlock, selectedTileKey, setSelectedTileKey, gridVisible, setGridVisible, showNames, setShowNames, zoom, setZoom, onSave, savedSchemes, onLoadSaved, onDeleteSaved, onExport, onCopy, onCopyLogic, onPaste, notify }) {
+  const svgRef = useRef(null);
+  const [paletteCategory, setPaletteCategory] = useState('all');
+  const [paletteSearch, setPaletteSearch] = useState('');
+  const analytics = useMemo(() => calculateAnalytics(scheme), [scheme]);
+  const selectedTile = scheme.tiles.find((tile) => `${tile.x}:${tile.y}` === selectedTileKey) ?? null;
+  const activeScheme = useMemo(() => ({ ...scheme, name: name.trim() || scheme.name, tags: { ...(scheme.tags ?? {}), name: name.trim() || scheme.name } }), [scheme, name]);
+  const commitTiles = (tiles) => setScheme((current) => ({ ...current, tiles }));
+  const placeBlock = (x, y, id) => {
+    const px = Math.max(0, Math.min(scheme.width - 1, x)); const py = Math.max(0, Math.min(scheme.height - 1, y));
+    if (tileAtCell(scheme.tiles, px, py)) { notify({ type: 'error', message: 'Место занято. Выбери пустую клетку или сначала удали блок.' }); return; }
+    if (!blockFits(scheme.tiles, id, px, py, scheme.width, scheme.height)) { notify({ type: 'error', message: 'Этот блок не помещается здесь или пересекается с другой постройкой.' }); return; }
+    commitTiles([...scheme.tiles, { id, x: px, y: py, rotation: 0, config: null }]);
+    setSelectedTileKey(`${px}:${py}`); setActiveTool('select'); setSelectedBlock(id);
+  };
+  const eraseTile = (tile) => { commitTiles(scheme.tiles.filter((item) => item !== tile)); setSelectedTileKey(null); };
+  const rotateTile = () => { if (!selectedTile) return; commitTiles(scheme.tiles.map((tile) => tile === selectedTile ? { ...tile, rotation: ((tile.rotation ?? 0) + 1) % 4 } : tile)); };
+  const moveZoom = (change) => setZoom((current) => Math.max(.7, Math.min(1.28, Math.round((current + change) * 100) / 100)));
+
+  return <main className="workspace-grid">
+    <GeneratorSidebar settings={settings} setSettings={setSettings} onGenerate={onGenerate} dirty={dirty} paletteCategory={paletteCategory} setPaletteCategory={setPaletteCategory} paletteSearch={paletteSearch} setPaletteSearch={setPaletteSearch} onSelectBlock={(id) => { setSelectedBlock(id); setActiveTool('place'); }} selectedBlock={selectedBlock} activeTool={activeTool} setView={setView} />
+    <section className="editor-column">
+      <div className="editor-heading"><div className="editor-breadcrumb"><span>WORKSPACE</span><b>/</b><span>SCHEMATIC EDITOR</span><TinyTag tone="green">AUTOGENERATED</TinyTag></div>
+        <div className="editor-title-line"><div className="editor-title-copy"><input value={name} onChange={(event) => setName(event.target.value)} aria-label="Название схемы" /><span className="editor-desc">{scheme.description || 'Визуальная схема Mindustry'}</span></div><div className="editor-title-actions"><span className="tiny-tag muted">{getPlanetLabel(settings.planet)}</span><button className="icon-button" type="button" title="Вставить код схемы" onClick={onPaste}><Icon name="copy" size={15} /></button><button className="icon-button" type="button" title="Сохранить схему в браузере" onClick={onSave}><Icon name="bookmark" size={15} /></button></div></div>
+      </div>
+      <div className="editor-window"><div className="editor-toolbar"><div className="editor-tool-group">
+        <button className={`tool-square ${activeTool === 'select' ? 'active' : ''}`} type="button" title="Выбор · V" onClick={() => setActiveTool('select')}><Icon name="cursor" size={15} /></button>
+        <button className={`tool-square ${activeTool === 'place' ? 'active' : ''}`} type="button" title="Размещение блока" onClick={() => selectedBlock ? setActiveTool('place') : notify({ type: 'error', message: 'Сначала выбери блок в палитре слева.' })}><Icon name="plus" size={16} /></button>
+        <button className={`tool-square ${activeTool === 'erase' ? 'active danger' : ''}`} type="button" title="Ластик · клик по блоку удаляет" onClick={() => setActiveTool(activeTool === 'erase' ? 'select' : 'erase')}><Icon name="eraser" size={15} /></button>
+        <span className="tool-separator" /><button className="tool-square" type="button" title="Повернуть выбранный блок · R" disabled={!selectedTile} onClick={rotateTile}><Icon name="rotate" size={15} /></button>
+        <button className={`tool-square ${gridVisible ? 'active-soft' : ''}`} type="button" title="Показать / скрыть сетку" onClick={() => setGridVisible(!gridVisible)}><Icon name="grid" size={15} /></button>
+        <button className={`tool-square ${showNames ? 'active-soft' : ''}`} type="button" title="Подписи блоков" onClick={() => setShowNames(!showNames)}><Icon name="eye" size={15} /></button>
+      </div><div className="editor-toolbar-right"><span className="canvas-size-label"><Icon name="box" size={13} />{scheme.width} × {scheme.height}</span><span className="tool-separator" />
+        <button className="tool-square zoom-button" type="button" title="Уменьшить" onClick={() => moveZoom(-.1)}><Icon name="zoomOut" size={15} /></button><span className="zoom-level">{Math.round(zoom * 100)}%</span><button className="tool-square zoom-button" type="button" title="Увеличить" onClick={() => moveZoom(.1)}><Icon name="zoomIn" size={15} /></button><span className="tool-separator" /><button className="tool-square" type="button" title="Экспортировать схему" onClick={onExport}><Icon name="download" size={15} /></button>
+      </div></div>
+      <div className="canvas-stage"><BlockCanvas scheme={scheme} selectedKey={selectedTileKey} setSelectedKey={setSelectedTileKey} tool={activeTool} selectedBlock={selectedBlock} onPlace={placeBlock} onErase={eraseTile} onSelect={(tile) => setSelectedTileKey(`${tile.x}:${tile.y}`)} gridVisible={gridVisible} showNames={showNames} zoom={zoom} svgRef={svgRef} onDropBlock={(x, y, id) => { setSelectedBlock(id); placeBlock(x, y, id); }} /></div>
+      <div className="editor-statusbar"><div className="status-left"><span className="status-live"><i /> LIVE</span><span><b>{analytics.total}</b> блоков</span><i className="status-separator" /><span>{analytics.unique} типа</span><i className="status-separator" /><span>{scheme.tiles.length ? 'Ванильная схема' : 'Пустая сетка'}</span></div><div className="status-right"><span><Icon name="cursor" size={12} /> {activeTool === 'place' ? 'РАЗМЕЩЕНИЕ' : activeTool === 'erase' ? 'УДАЛЕНИЕ' : 'ВЫБОР'}</span><span className="status-autosave"><i /> локально</span></div></div>
+      </div>
+      <div className="editor-footnote"><span className="footnote-asterisk">✳</span><span>Схема экспортируется в настоящий формат <b>Mindustry .msch</b>. Настройки блоков можно изменить уже в игре.</span><button type="button" onClick={onPaste}>Импортировать по коду <Icon name="chevron" size={12} /></button></div>
+    </section>
+    <Inspector scheme={activeScheme} analytics={analytics} selectedTile={selectedTile} onRotate={rotateTile} onRemove={eraseTile} onSave={onSave} savedSchemes={savedSchemes} onLoadSaved={onLoadSaved} onDeleteSaved={onDeleteSaved} onExport={onExport} onCopy={onCopy} onCopyLogic={onCopyLogic} name={name} setName={setName} />
+  </main>;
+}
+
+function CatalogPage({ onBack, onUseBlock, selectedObject, setSelectedObject }) {
+  const [catalogType, setCatalogType] = useState('buildings');
+  const [catalogCategory, setCatalogCategory] = useState('all');
+  const [planetFilter, setPlanetFilter] = useState('all');
+  const [query, setQuery] = useState('');
+  const [sortBy, setSortBy] = useState('name');
+  const visibleCountByTab = {
+    buildings: buildableBlocks.length, environment: gameBlocks.length - buildableBlocks.length,
+    item: gameCatalog.filter((entry) => entry.type === 'item').length, liquid: gameCatalog.filter((entry) => entry.type === 'liquid').length,
+    unit: gameCatalog.filter((entry) => entry.type === 'unit').length, all: gameCatalog.length,
+  };
+  const filtered = useMemo(() => {
+    const needle = query.trim().toLocaleLowerCase('ru');
+    let rows = gameCatalog.filter((entry) => {
+      const typeMatch = catalogType === 'buildings' ? entry.type === 'block' && entry.buildable : catalogType === 'environment' ? entry.type === 'block' && !entry.buildable : catalogType === 'all' ? true : entry.type === catalogType;
+      const categoryMatch = catalogCategory === 'all' || entry.category === catalogCategory;
+      const planetMatch = planetFilter === 'all' || entry.planet === planetFilter || entry.planet === 'both';
+      const queryMatch = !needle || `${entry.name} ${entry.id} ${entry.description}`.toLocaleLowerCase('ru').includes(needle);
+      return typeMatch && categoryMatch && planetMatch && queryMatch;
+    });
+    rows = [...rows].sort((a, b) => sortBy === 'name' ? a.name.localeCompare(b.name, 'ru') : a.id.localeCompare(b.id));
+    return rows;
+  }, [catalogType, catalogCategory, planetFilter, query, sortBy]);
+  const tabs = [
+    { id: 'buildings', label: 'Постройки', count: visibleCountByTab.buildings }, { id: 'environment', label: 'Окружение', count: visibleCountByTab.environment },
+    { id: 'item', label: 'Предметы', count: visibleCountByTab.item }, { id: 'liquid', label: 'Жидкости', count: visibleCountByTab.liquid },
+    { id: 'unit', label: 'Юниты', count: visibleCountByTab.unit }, { id: 'all', label: 'Все объекты', count: visibleCountByTab.all },
+  ];
+  const typeRows = catalogType === 'buildings' ? buildableBlocks : catalogType === 'environment' ? gameBlocks.filter((entry) => !entry.buildable) : catalogType === 'all' ? gameCatalog : gameCatalog.filter((entry) => entry.type === catalogType);
+  const categoryOptions = [...new Set(typeRows.map((entry) => entry.category))].map((id) => categories.find((category) => category.id === id) ?? { id, label: typeLabels[id] ?? id });
+  const selectedVisible = selectedObject && filtered.some((entry) => entry.id === selectedObject.id && entry.type === selectedObject.type);
+  const active = selectedVisible ? selectedObject : filtered[0] ?? null;
+  const activeCategory = categoryById.get(active?.category);
+  const activeTypeLabel = active?.type === 'block' ? (active.buildable ? 'Постройка' : 'Объект окружения') : typeLabels[active?.type] ?? 'Игровой объект';
+
+  return <main className="catalog-page">
+    <div className="catalog-titlebar"><div><div className="section-kicker"><span className="kicker-line" /> VANILLA DATABASE / MINDUSTRY 146</div><h1>Каталог объектов</h1><p>Все блоки, поверхности, предметы, жидкости и юниты из ванильной игры.</p></div><button className="button button-outline" type="button" onClick={onBack}><Icon name="chevronLeft" size={15} /> Назад в редактор</button></div>
+    <div className="catalog-stat-strip"><div className="catalog-stat-main"><span className="catalog-stat-spark"><Icon name="layers" size={17} /></span><span><b>{gameCatalog.length} объектов</b><small>полная ванильная база v146</small></span></div>
+      <div className="catalog-stat"><b>{buildableBlocks.length}</b><small>построек</small></div><div className="catalog-stat"><b>{gameBlocks.length - buildableBlocks.length}</b><small>поверхностей и руд</small></div><div className="catalog-stat"><b>{materials.length}</b><small>предметов</small></div><div className="catalog-stat"><b>{visibleCountByTab.unit}</b><small>юнитов</small></div><div className="catalog-stat"><b>{visibleCountByTab.liquid}</b><small>жидкостей</small></div>
+    </div>
+    <div className="catalog-tabs">{tabs.map((tab) => <button type="button" key={tab.id} className={catalogType === tab.id ? 'active' : ''} onClick={() => { setCatalogType(tab.id); setCatalogCategory('all'); setSelectedObject(null); }}><span>{tab.label}</span><i>{tab.count}</i></button>)}</div>
+    <div className="catalog-content-grid"><section className="catalog-main-panel">
+      <div className="catalog-controls"><div className="search-field catalog-search"><Icon name="search" size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Название или внутренний ID..." aria-label="Поиск объектов" /><kbd>/</kbd></div>
+        <div className="select-wrap catalog-filter"><Icon name="filter" size={13} /><select value={catalogCategory} onChange={(event) => setCatalogCategory(event.target.value)} aria-label="Категория"><option value="all">Все категории</option>{categoryOptions.map((category) => <option key={category.id} value={category.id}>{category.label}</option>)}</select><Icon name="chevron" size={12} /></div>
+        <div className="select-wrap planet-filter"><select value={planetFilter} onChange={(event) => setPlanetFilter(event.target.value)} aria-label="Планета"><option value="all">Все планеты</option><option value="serpulo">Серпуло</option><option value="erekir">Эрекир</option></select><Icon name="chevron" size={12} /></div>
+        <button className="sort-button" type="button" title="Сортировать по ID" onClick={() => setSortBy(sortBy === 'name' ? 'id' : 'name')}><Icon name="sliders" size={14} />{sortBy === 'name' ? 'А–Я' : 'ID'}</button>
+      </div>
+      <div className="catalog-results-head"><span>РЕЗУЛЬТАТЫ ПОИСКА</span><b>{filtered.length.toLocaleString('ru-RU')} объектов</b><span className="catalog-results-line" /></div>
+      <div className="catalog-grid">{filtered.map((entry) => <button type="button" key={`${entry.type}:${entry.id}`} className={`catalog-card ${selectedObject?.id === entry.id && selectedObject?.type === entry.type ? 'active' : ''}`} onClick={() => setSelectedObject(entry)} title={`${entry.name} · ${entry.id}`}>
+        <GameGlyph entry={entry} size="medium" /><span className="catalog-card-copy"><b>{entry.name}</b><code>{entry.id}</code><small>{entry.type === 'block' ? entry.buildable ? 'Постройка' : entry.category === 'ore' ? 'Руда' : 'Окружение' : typeLabels[entry.type]}</small></span><span className={`catalog-planet-dot ${entry.planet}`} title={getPlanetLabel(entry.planet)} />
+      </button>)}
+        {filtered.length === 0 && <div className="catalog-empty"><span className="empty-search-icon"><Icon name="search" size={22} /></span><b>Ничего не найдено</b><small>Измени запрос или сбрось фильтры.</small><button type="button" onClick={() => { setQuery(''); setCatalogCategory('all'); setPlanetFilter('all'); }}>Сбросить фильтры</button></div>}
+      </div><div className="catalog-grid-footer"><span>Показано {filtered.length.toLocaleString('ru-RU')} из {visibleCountByTab[catalogType].toLocaleString('ru-RU')}</span><span>Справочник: Mindustry v146 · vanilla</span></div>
+    </section>
+    <aside className="catalog-detail-panel"><div className="catalog-detail-head"><span className="field-label">ОБЪЕКТ / ПРОСМОТР</span><span className="catalog-detail-counter">{active ? `${String(filtered.findIndex((entry) => entry.id === active.id && entry.type === active.type) + 1).padStart(2, '0')}` : '—'} <i>/ {String(filtered.length).padStart(2, '0')}</i></span></div>
+      {active ? <><div className="catalog-detail-art"><div className="detail-art-grid" /><div className="detail-art-glow" /><GameGlyph entry={active} size="hero" /></div>
+        <div className="catalog-detail-title"><TinyTag tone={active.buildable ? 'green' : active.type === 'block' ? '' : 'blue'}>{activeTypeLabel}</TinyTag><h2>{active.name}</h2><code>{active.id}</code></div>
+        <p className="catalog-description">{stripGameMarkup(active.description) || `${activeCategory?.label ?? typeLabels[active.type] ?? 'Объект'} из стандартного набора Mindustry v146.`}</p>
+        <div className="detail-meta-grid"><div><small>ТИП</small><b>{activeCategory?.label ?? typeLabels[active.type] ?? 'Объект'}</b></div><div><small>ПЛАНЕТА</small><b>{getPlanetLabel(active.planet)}</b></div>
+          <div><small>ИГРОВОЙ ЭТАП</small><b>{active.type === 'block' ? getStageLabel(active.stage) : active.type === 'unit' ? 'Технологическая ветка' : 'Ресурс'}</b></div><div><small>РАЗМЕР</small><b>{active.type === 'block' ? `${active.size} × ${active.size} тайл.` : '—'}</b></div></div>
+        {active.buildable ? <button className="button button-primary full-width place-catalog-button" type="button" onClick={() => onUseBlock(active)}><Icon name="plus" size={15} /> Выбрать для редактора</button> : <div className="nonbuildable-note"><Icon name="info" size={14} />{active.type === 'block' ? 'Это элемент карты, его нельзя поместить в схему.' : 'Ресурс или юнит. В схеме отображаются связанные с ним постройки.'}</div>}
+        <div className="catalog-detail-foot"><span className="detail-color-dot" style={{ background: categoryColors[active.category] ?? categoryColors.item }} />Ванильное содержимое <span>·</span> Mindustry 146</div>
+      </> : <div className="catalog-select-empty"><GameGlyph entry={{ category: 'storage' }} size="large" /><b>Выбери объект</b><small>Нажми на карточку в каталоге, чтобы посмотреть свойства.</small></div>}
+    </aside></div>
+    <div className="catalog-attribution"><span>Bee Schematic Lab</span><i /> Данные содержимого сверены с ванильным каталогом Mindustry v146. Игра и её товарные знаки принадлежат их правообладателям.</div>
+  </main>;
+}
+
+function ImportPasteDialog({ value, setValue, onClose, onImport }) {
+  const [error, setError] = useState(''); const [busy, setBusy] = useState(false);
+  const submit = async () => { setBusy(true); setError(''); try { onImport(decodeSchematic(value)); } catch (exception) { setError(exception.message || 'Не удалось прочитать код схемы.'); } finally { setBusy(false); } };
+  return <div className="modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}><section className="paste-modal" role="dialog" aria-modal="true" aria-labelledby="paste-title">
+    <div className="modal-heading"><div><span className="section-kicker"><span className="kicker-line" /> IMPORT / BASE64</span><h2 id="paste-title">Импорт схемы по коду</h2><p>Вставь строку Mindustry, начинающуюся с <code>bXNja</code>.</p></div><button className="icon-button" type="button" onClick={onClose} aria-label="Закрыть"><Icon name="close" /></button></div>
+    <textarea value={value} onChange={(event) => setValue(event.target.value)} placeholder="bXNjaAF4n..." spellCheck="false" />
+    {error && <div className="dialog-error"><Icon name="info" size={14} />{error}</div>}
+    <div className="modal-footer"><span>Также можно импортировать файл .msch через кнопку «Импорт».</span><div><button type="button" className="button button-outline" onClick={onClose}>Отмена</button><button type="button" className="button button-primary" onClick={submit} disabled={!value.trim() || busy}><Icon name="upload" size={14} />{busy ? 'Читаю…' : 'Импортировать'}</button></div></div>
+  </section></div>;
+}
+
+function App() {
+  const [settings, setSettings] = useState(initialSettings);
+  const [scheme, setScheme] = useState(() => generateLayout(initialSettings));
+  const [name, setName] = useState(() => generateLayout(initialSettings).name);
+  const [history, setHistory] = useState(() => [generateLayout(initialSettings)]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+  const [view, setView] = useState('editor');
+  const [theme, setTheme] = useState(() => window.localStorage.getItem('bee-schem-theme') ?? 'dark');
+  const [activeTool, setActiveTool] = useState('select');
+  const [selectedBlock, setSelectedBlock] = useState('conveyor');
+  const [selectedTileKey, setSelectedTileKey] = useState(null);
+  const [gridVisible, setGridVisible] = useState(true);
+  const [showNames, setShowNames] = useState(false);
+  const [zoom, setZoom] = useState(1);
+  const [savedSchemes, setSavedSchemes] = useState(() => { try { return JSON.parse(window.localStorage.getItem('bee-schem-saved') ?? '[]'); } catch { return []; } });
+  const [toast, setToast] = useState(null);
+  const [pasteOpen, setPasteOpen] = useState(false);
+  const [pasteValue, setPasteValue] = useState('');
+  const [selectedObject, setSelectedObject] = useState(null);
+  const [updateOpen, setUpdateOpen] = useState(false);
+  const [updateState, setUpdateState] = useState({ status: 'idle', available: false, checking: false });
+  const [seenUpdate, setSeenUpdate] = useState(() => window.localStorage.getItem('bee-schem-update-seen') ?? '');
+  const importRef = useRef(null); const toastTimer = useRef(null);
+  const updateSeenRef = useRef(seenUpdate);
+  const updateCheckRef = useRef({ inFlight: false, lastCheck: 0 });
+  const notify = useCallback((messageOrOptions) => {
+    const next = typeof messageOrOptions === 'string' ? { message: messageOrOptions, type: 'success' } : messageOrOptions;
+    setToast(next); window.clearTimeout(toastTimer.current); toastTimer.current = window.setTimeout(() => setToast(null), 3400);
+  }, []);
+  const checkUpdates = useCallback(async (force = true) => {
+    const tracker = updateCheckRef.current;
+    const now = Date.now();
+    if (tracker.inFlight || (!force && now - tracker.lastCheck < 5 * 60 * 1000)) return;
+    tracker.inFlight = true;
+    setUpdateState((current) => ({ ...current, checking: true, error: '' }));
+    try {
+      const result = await checkForUpdates({ buildInfo: appBuildInfo });
+      const next = { ...result, checking: false };
+      setUpdateState(next);
+      if (result.available && result.targetId && result.targetId !== updateSeenRef.current) {
+        notify(result.status === 'deployed-update'
+          ? `Доступна новая веб-сборка · ${formatCommit(result.deployedCommit)}. Открой «Обновления».`
+          : `На GitHub есть новый коммит · ${formatCommit(result.latestSha)}. Ожидается публикация сайта.`);
+      }
+    } catch (error) {
+      setUpdateState({ status: 'unavailable', available: false, checking: false, error: error.message || 'Не удалось проверить обновления.' });
+    } finally {
+      tracker.inFlight = false;
+      tracker.lastCheck = Date.now();
+    }
+  }, [notify]);
+  useEffect(() => { updateSeenRef.current = seenUpdate; window.localStorage.setItem('bee-schem-update-seen', seenUpdate); }, [seenUpdate]);
+  useEffect(() => {
+    const initialCheck = window.setTimeout(() => checkUpdates(false), 1800);
+    const interval = window.setInterval(() => checkUpdates(false), 30 * 60 * 1000);
+    const onFocus = () => checkUpdates(false);
+    window.addEventListener('focus', onFocus);
+    return () => { window.clearTimeout(initialCheck); window.clearInterval(interval); window.removeEventListener('focus', onFocus); };
+  }, [checkUpdates]);
+  useEffect(() => { document.documentElement.dataset.theme = theme; window.localStorage.setItem('bee-schem-theme', theme); }, [theme]);
+  useEffect(() => { window.localStorage.setItem('bee-schem-saved', JSON.stringify(savedSchemes)); }, [savedSchemes]);
+  useEffect(() => { if (scheme.name && scheme.name !== name) setName(scheme.name); }, [scheme.name]);
+  useEffect(() => () => window.clearTimeout(toastTimer.current), []);
+  const settingsDirty = useMemo(() => {
+    const lastSettings = scheme.settings ?? {};
+    return ['direction', 'stage', 'planet', 'goal', 'footprint', 'compactness', 'includePower', 'includeDefense', 'includeStorage', 'supplyMode', 'processorControl', 'droneUnit', 'transportItem', 'reserveThreshold', 'droneCapacity'].some((key) => settings[key] !== lastSettings[key]);
+  }, [settings, scheme.settings]);
+  const commitScheme = (nextScheme, resetHistory = false) => {
+    setScheme(nextScheme);
+    if (resetHistory) { setHistory([nextScheme]); setHistoryIndex(0); }
+    else { const nextHistory = [...history.slice(0, historyIndex + 1), nextScheme].slice(-60); setHistory(nextHistory); setHistoryIndex(nextHistory.length - 1); }
+    setName(nextScheme.name || nextScheme.tags?.name || 'Новая схема'); setSelectedTileKey(null);
+  };
+  const generateNow = () => { const next = generateLayout({ ...settings, variant: Math.floor(Math.random() * 3) }); commitScheme(next, true); setView('editor'); notify(`Готово: ${next.tiles.length} блоков · ${next.width}×${next.height}`); };
+  const undo = () => { if (historyIndex <= 0) return; const index = historyIndex - 1; setHistoryIndex(index); setScheme(history[index]); setSelectedTileKey(null); };
+  const redo = () => { if (historyIndex >= history.length - 1) return; const index = historyIndex + 1; setHistoryIndex(index); setScheme(history[index]); setSelectedTileKey(null); };
+  const setSchemeWithHistory = (updater) => {
+    const next = typeof updater === 'function' ? updater(scheme) : updater;
+    const currentName = name.trim() || next.name;
+    commitScheme({ ...next, name: currentName, tags: { ...(next.tags ?? {}), name: currentName } }, false);
+  };
+  const activeScheme = useMemo(() => ({ ...scheme, name: name.trim() || scheme.name, tags: { ...(scheme.tags ?? {}), name: name.trim() || scheme.name } }), [scheme, name]);
+  const saveCurrent = () => {
+    const record = { ...activeScheme, key: `${Date.now()}-${Math.random().toString(16).slice(2, 7)}`, savedAt: new Date().toISOString() };
+    setSavedSchemes((current) => [record, ...current.filter((item) => item.name !== record.name)].slice(0, 12)); notify(`«${record.name}» сохранена в этом браузере.`);
+  };
+  const loadSaved = (record) => { const next = { width: record.width, height: record.height, tiles: record.tiles, name: record.name, description: record.description, tags: record.tags, settings: record.settings }; commitScheme(next, true); if (record.settings) setSettings((current) => ({ ...current, ...record.settings })); setView('editor'); notify(`Открыта схема «${record.name}».`); };
+  const deleteSaved = (key) => setSavedSchemes((current) => current.filter((item) => item.key !== key));
+  const exportFile = () => { try { downloadSchematic(activeScheme); notify('Файл схемы .msch скачан.'); } catch (error) { notify({ type: 'error', message: error.message || 'Не удалось экспортировать схему.' }); } };
+  const copyCode = async () => {
+    try { const code = schematicToBase64(activeScheme); await navigator.clipboard.writeText(code); notify(`Код схемы скопирован · ${code.length.toLocaleString('ru-RU')} знаков`); }
+    catch {
+      try { const code = schematicToBase64(activeScheme); const textarea = document.createElement('textarea'); textarea.value = code; textarea.style.position = 'fixed'; textarea.style.opacity = '0'; document.body.appendChild(textarea); textarea.select(); document.execCommand('copy'); textarea.remove(); notify('Код схемы скопирован в буфер обмена.'); }
+      catch (error) { notify({ type: 'error', message: error.message || 'Не удалось скопировать код.' }); }
+    }
+  };
+  const copyLogic = async () => {
+    const code = buildLogicProgram(activeScheme.settings ?? {});
+    if (!code) return notify({ type: 'error', message: 'Для этой схемы MLOG-программа не задана.' });
+    try {
+      await navigator.clipboard.writeText(code);
+    } catch {
+      const textarea = document.createElement('textarea');
+      textarea.value = code; textarea.style.position = 'fixed'; textarea.style.opacity = '0';
+      document.body.appendChild(textarea); textarea.select(); document.execCommand('copy'); textarea.remove();
+    }
+    notify(`Программа MLOG скопирована · ${code.split('\n').length} команд`);
+  };
+  const applyImport = (next) => { commitScheme(next, true); if (next.settings?.planet) setSettings((current) => ({ ...current, ...next.settings })); setSelectedBlock(null); setView('editor'); setPasteOpen(false); setPasteValue(''); notify(`Схема «${next.name}» импортирована · ${next.tiles.length} построек.`); };
+  const importFile = async (event) => { const file = event.target.files?.[0]; if (!file) return; try { applyImport(await decodeSchematicFile(file)); } catch (error) { notify({ type: 'error', message: error.message || 'Не удалось прочитать файл схемы.' }); } event.target.value = ''; };
+
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      const target = event.target;
+      if (target instanceof HTMLElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) return;
+      const modifier = event.ctrlKey || event.metaKey;
+      if (modifier && event.key.toLowerCase() === 'z') { event.preventDefault(); if (event.shiftKey) redo(); else undo(); }
+      else if (modifier && event.key.toLowerCase() === 'y') { event.preventDefault(); redo(); }
+      else if (event.key.toLowerCase() === 'r' && view === 'editor' && selectedTileKey) {
+        event.preventDefault(); setSchemeWithHistory((current) => ({ ...current, tiles: current.tiles.map((tile) => `${tile.x}:${tile.y}` === selectedTileKey ? { ...tile, rotation: ((tile.rotation ?? 0) + 1) % 4 } : tile) }));
+      } else if ((event.key === 'Delete' || event.key === 'Backspace') && selectedTileKey && view === 'editor') {
+        event.preventDefault(); const selected = scheme.tiles.find((tile) => `${tile.x}:${tile.y}` === selectedTileKey); if (selected) setSchemeWithHistory((current) => ({ ...current, tiles: current.tiles.filter((tile) => tile !== selected) })); setSelectedTileKey(null);
+      } else if (event.key === '+' || event.key === '=') setZoom((current) => Math.min(1.28, current + .1));
+      else if (event.key === '-') setZoom((current) => Math.max(.7, current - .1));
+      else if (event.key === 'Escape') { setSelectedTileKey(null); setActiveTool('select'); setPasteOpen(false); }
+      else if (event.key === '/' && view === 'catalog') { event.preventDefault(); document.querySelector('.catalog-search input')?.focus(); }
+    };
+    window.addEventListener('keydown', onKeyDown); return () => window.removeEventListener('keydown', onKeyDown);
+  }, [history, historyIndex, selectedTileKey, scheme, view, name]);
+  const selectCatalogBlock = (block) => { setSelectedBlock(block.id); setActiveTool('place'); setView('editor'); notify(`${block.name} выбрана — кликни по свободной клетке сетки.`); };
+  const displayCatalogCount = gameCatalog.length;
+  const updateAttention = Boolean(updateState.available && updateState.targetId && updateState.targetId !== seenUpdate);
+  const openUpdates = () => { setUpdateOpen(true); checkUpdates(false); };
+  const closeUpdates = () => {
+    setUpdateOpen(false);
+    if (updateState.available && updateState.targetId) {
+      updateSeenRef.current = updateState.targetId;
+      setSeenUpdate(updateState.targetId);
+    }
+  };
+
+  return <div className="app-shell">
+    <Header view={view} setView={setView} canUndo={historyIndex > 0} canRedo={historyIndex < history.length - 1} onUndo={undo} onRedo={redo} theme={theme} setTheme={setTheme} onImport={() => importRef.current?.click()} onExport={exportFile} onCopy={copyCode} onPaste={() => setPasteOpen(true)} onSave={saveCurrent} savedCount={savedSchemes.length} catalogCount={displayCatalogCount} onOpenUpdates={openUpdates} updateState={updateState} updateAttention={updateAttention} />
+    <input ref={importRef} type="file" accept=".msch,.txt,application/octet-stream,text/plain" className="visually-hidden" onChange={importFile} />
+    {view === 'editor' ? <EditorPage settings={settings} setSettings={setSettings} setView={setView} dirty={settingsDirty} onGenerate={generateNow} scheme={scheme} setScheme={setSchemeWithHistory} name={name} setName={setName} activeTool={activeTool} setActiveTool={setActiveTool} selectedBlock={selectedBlock} setSelectedBlock={setSelectedBlock} selectedTileKey={selectedTileKey} setSelectedTileKey={setSelectedTileKey} gridVisible={gridVisible} setGridVisible={setGridVisible} showNames={showNames} setShowNames={setShowNames} zoom={zoom} setZoom={setZoom} onSave={saveCurrent} savedSchemes={savedSchemes} onLoadSaved={loadSaved} onDeleteSaved={deleteSaved} onExport={exportFile} onCopy={copyCode} onCopyLogic={copyLogic} onPaste={() => setPasteOpen(true)} notify={notify} /> : <CatalogPage onBack={() => setView('editor')} onUseBlock={selectCatalogBlock} selectedObject={selectedObject} setSelectedObject={setSelectedObject} />}
+    <Toast toast={toast} onClose={() => setToast(null)} />
+    {pasteOpen && <ImportPasteDialog value={pasteValue} setValue={setPasteValue} onClose={() => setPasteOpen(false)} onImport={applyImport} />}
+    {updateOpen && <UpdateDialog state={updateState} onCheck={() => checkUpdates(true)} onReload={() => window.location.reload()} onClose={closeUpdates} repositoryUrl={UPDATE_REPOSITORY_URL} branch={UPDATE_BRANCH} />}
+  </div>;
+}
+
+createRoot(document.getElementById('root')).render(<React.StrictMode><App /></React.StrictMode>);
