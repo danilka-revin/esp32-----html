@@ -241,21 +241,35 @@ function addSolarField(frame, demand, anchor, { reserveRatio = 1.1 } = {}) {
     // Arrange panels in near-square blocks; try wider shapes when the square does not fit.
     const shapes = [];
     for (let columns = Math.ceil(Math.sqrt(count)); columns <= count; columns += 1) shapes.push({ columns, rows: Math.ceil(count / columns) });
+    // A field that only half fits would leave the blueprint short of power, so every shape and spot is tried
+    // until one takes the whole count; only the fullest attempt is kept when none does.
+    let best = null;
     for (const shape of shapes.slice(0, 5)) {
-      const spot = findFreeRect(board, shape.columns * size, shape.rows * size, anchor, { margin: 1, region: frame.soft })
-        ?? findFreeRect(board, shape.columns * size, shape.rows * size, anchor, { margin: 0, region: frame.soft })
-        ?? findFreeRect(board, shape.columns * size, shape.rows * size, anchor, { margin: 0 });
-      if (!spot) continue;
-      let placed = 0;
-      for (let index = 0; index < count; index += 1) {
-        const column = index % shape.columns;
-        const row = Math.floor(index / shape.columns);
-        if (board.placeAtStart(id, spot.startX + column * size, spot.startY + row * size, 0, null, { role: 'generator' })) placed += 1;
+      const spots = [
+        findFreeRect(board, shape.columns * size, shape.rows * size, anchor, { margin: 1, region: frame.soft }),
+        findFreeRect(board, shape.columns * size, shape.rows * size, anchor, { margin: 0, region: frame.soft }),
+        findFreeRect(board, shape.columns * size, shape.rows * size, anchor, { margin: 0 }),
+      ].filter(Boolean);
+      for (const spot of spots) {
+        const tiles = [];
+        for (let index = 0; index < count; index += 1) {
+          const column = index % shape.columns;
+          const row = Math.floor(index / shape.columns);
+          const tile = board.placeAtStart(id, spot.startX + column * size, spot.startY + row * size, 0, null, { role: 'generator' });
+          if (tile) tiles.push(tile);
+        }
+        if (tiles.length >= count) {
+          frame.note(`Энергия: ${tiles.length} × ${blockName(id)} дают около ${Math.round(tiles.length * perPanel)} ед./с.`);
+          return { id, count: tiles.length, supply: tiles.length * perPanel };
+        }
+        if (!best || tiles.length > best.tiles.length) best = { id, tiles, perPanel };
+        for (const tile of tiles) board.remove(tile);
       }
-      if (placed) {
-        frame.note(`Энергия: ${placed} × ${blockName(id)} дают около ${Math.round(placed * perPanel)} ед./с.`);
-        return { id, count: placed, supply: placed * perPanel };
-      }
+    }
+    if (best?.tiles.length) {
+      const tiles = best.tiles.map(tile => board.placeAtStart(best.id, footprint(tile).startX, footprint(tile).startY, 0, null, { role: 'generator' })).filter(Boolean);
+      frame.note(`Энергия: ${tiles.length} × ${blockName(best.id)} дают около ${Math.round(tiles.length * best.perPanel)} ед./с — этого меньше запроса (${Math.round(demand)} ед./с), добавь генераторы.`);
+      return { id: best.id, count: tiles.length, supply: tiles.length * best.perPanel };
     }
   }
   return null;

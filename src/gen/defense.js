@@ -5,6 +5,7 @@ import { buildSpine, itemConfig } from './frame.js';
 import { addStorage, turretsAccepting } from './extras.js';
 import { addDroneDock } from './dock.js';
 import { addExternalPort, addPlant, connectPower, powerDemand, writeNodeLinks } from './power.js';
+import { planCount, rateTarget, reportRate } from './rate.js';
 import { blockName, itemName, stageTier } from './profile.js';
 import { buildSupply } from './supply.js';
 
@@ -147,7 +148,12 @@ export function buildDefense(frame) {
   const belt = frame.belt(2);
   const maxRows = Math.min(yc - frame.soft.minY, frame.soft.maxY - yc) - 1;
   const fill = 0.4 + 0.6 * ((settings.compactness ?? 68) - 25) / 65;
-  const rows = Math.max(3, Math.min(maxRows, Math.ceil(maxRows * fill)));
+  // The defence target counts turrets, not items: a spine arm holds ceil(rows / 2) + 1 of them, two arms per line.
+  const target = rateTarget(settings, 'defense');
+  const plan = planCount({ target, per: 1, min: 2, max: 24 });
+  const rows = plan.count == null
+    ? Math.max(3, Math.min(maxRows, Math.ceil(maxRows * fill)))
+    : Math.max(3, Math.min(maxRows, 2 * (Math.ceil(plan.count / 2) - 1)));
 
   const supply = importAmmo ? null : buildSupply(frame, ammo, { anchorY: yc });
   const placedTurrets = [];
@@ -188,8 +194,9 @@ export function buildDefense(frame) {
     lineRouter = first.router;
     headCell = { x: spineX, y: yc };
     if (supply?.start) frame.connect({ start: supply.start, end: { x: spineX + 1, y: yc }, endRotation: 2, rate: 1, label: `боеприпас «${itemName(ammo)}»` });
-    if (frame.variant === 1) {
-      // Defence in depth: the first router's western output feeds a second line.
+    // Defence in depth: the first router's western output feeds a second line. A target that the first line
+    // already reaches is not doubled - the player asked for a number, not for the biggest wall we can build.
+    if (frame.variant === 1 && (plan.count == null || placedTurrets.length < plan.count)) {
       const extent = turretExtent(first.turrets, headCell);
       const secondX = extent.westX - sizeEast - 3;
       if (secondX - sizeWest - 1 >= frame.soft.minX - 2) {
@@ -269,6 +276,7 @@ export function buildDefense(frame) {
   if (settings.includeStorage) addStorage(frame);
   const labels = [...new Set(turrets.map(id => blockName(id)))].join(' + ');
   frame.note(`Оборона: ${labels}; общий боеприпас «${itemName(ammo)}» подаётся одной линией через маршрутизаторы.`);
+  reportRate(frame, { direction: 'defense', target, per: 1, count: placedTurrets.length, noun: 'обороны', blocks: '× турель' });
   if (data.turrets[turrets[0]]?.ground === false) frame.note('Эти турели бьют только по воздуху.');
   return { goalId: goal, label: goalLabels[goal] ?? 'Оборона', turrets: placedTurrets, ammo };
 }

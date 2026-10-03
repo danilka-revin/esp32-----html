@@ -71,7 +71,7 @@ const round = (value, digits = 2) => Number(value.toFixed(digits));
 export function reportRate(frame, { direction, target, per, count, noun = '', blocks = 'блоков' }) {
   if (target == null || !(per > 0) || !Number.isFinite(count)) return;
   const meta = rateMetaFor(direction) ?? {};
-  const unit = meta.unit ?? 'ед./с';
+  const unit = (meta.unit ?? 'ед./с').replace(/\.$/, '');
   const reached = displayRate(count * per, meta);
   const wantedPerSecond = meta.perMinute ? target / 60 : target;
   const short = count * per + 1e-9 < wantedPerSecond;
