@@ -237,7 +237,7 @@ function addSolarField(frame, demand, anchor, { reserveRatio = 1.1 } = {}) {
     const size = blockSize(id);
     const perPanel = generatorInfo(id).power;
     const count = Math.max(1, Math.ceil(demand * reserveRatio / perPanel));
-    if (count > 36) continue;
+    if (count > 64) continue;
     // Arrange panels in near-square blocks; try wider shapes when the square does not fit.
     const shapes = [];
     for (let columns = Math.ceil(Math.sqrt(count)); columns <= count; columns += 1) shapes.push({ columns, rows: Math.ceil(count / columns) });
@@ -314,5 +314,11 @@ function addCondensers(frame, demand, anchor) {
 
 /** Add enough fuel-free generation for `demand` near `anchor`. Returns null when nothing fits. */
 export function addPlant(frame, demand, anchor) {
-  return frame.planet === 'erekir' ? addCondensers(frame, demand, anchor) : addSolarField(frame, demand, anchor);
+  const result = frame.planet === 'erekir' ? addCondensers(frame, demand, anchor) : addSolarField(frame, demand, anchor);
+  // A station that cannot cover the demand is not a silent failure: say how much is missing and how to fix it.
+  if (!(demand > 0)) return result;
+  if (!result || result.supply + 1e-9 < demand) {
+    frame.require(`Генерации не хватает: нужно ≈${Math.round(demand)} ед./с, в схеме ≈${Math.round(result?.supply ?? 0)} ед./с. Увеличь холст, выключи «Питание» (тогда схема ждёт внешнюю сеть) или подключи её к силовому узлу.`);
+  }
+  return result;
 }

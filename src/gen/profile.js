@@ -1,4 +1,4 @@
-import { blockById, campaignBlockById, itemById } from '../catalog.js';
+import { blockById, campaignBlockById, itemById, liquids } from '../catalog.js';
 import facts from '../block-facts.json' with { type: 'json' };
 import { describeBlock, drillInfo, itemProperties } from '../flow.js';
 
@@ -163,3 +163,5 @@ export function rawItems(planet) {
 export function itemName(id) { return itemById.get(id)?.name ?? id; }
 export function blockName(id) { return blockById.get(id)?.name ?? id; }
 export function powerOf(id) { return describeBlock(id).powerUse; }
+const liquidById = new Map(liquids.map(entry => [entry.id, entry]));
+export function liquidName(id) { return liquidById.get(id)?.name ?? id; }
