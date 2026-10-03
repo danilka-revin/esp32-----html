@@ -77,6 +77,33 @@ test('the interface renders every generated blueprint: picker, flow report, canv
     }
     const catalogPage = renderToString(h(ui.CatalogPage, { onBack() {}, onUseBlock() {}, selectedObject: null, setSelectedObject() {}, initialPlanet: 'erekir' }));
     assert.ok(catalogPage.length > 1000, 'the catalog renders');
+
+    const updateDialogMod = await server.ssrLoadModule('/src/update-dialog.jsx');
+    const UpdateDialog = updateDialogMod.default;
+    const availableHtml = renderToString(h(UpdateDialog, {
+      state: {
+        status: 'source-ahead',
+        available: true,
+        localBuild: { commit: '1111111111111111' },
+        latestSha: '2222222222222222',
+      },
+      installState: {
+        active: true,
+        step: 'download',
+        progress: 48,
+        bytesLoaded: 740_000,
+        bytesTotal: 1_540_000,
+        speedBps: 620_000,
+        stageStatus: { check: 'done', download: 'active', install: 'pending', reload: 'pending' },
+        logs: [{ id: '1', time: '12:00:00', step: 'download', level: 'info', text: 'Скачивание пакета обновления…' }],
+      },
+      repositoryUrl: 'https://github.com/danilka-revin/esp32-----html',
+      branch: 'main',
+    }));
+    assert.ok(availableHtml.includes('role="progressbar"'), 'update dialog renders interactive progressbar');
+    assert.ok(availableHtml.includes('48%'), 'update dialog displays current download percentage');
+    assert.ok(!availableHtml.includes('Скачать ZIP'), 'update dialog no longer asks user to download a ZIP archive manually');
+
     assert.deepEqual(consoleErrors, [], 'React reported no warnings or errors while rendering');
   } finally {
     console.error = originalError;
