@@ -80,3 +80,17 @@ export function getLogicProgramMode(settings = {}) {
 export function isKnownTransportItem(id) {
   return itemById.has(id);
 }
+
+/** Mindustry `LogicBlock.getLinkName`: the variable prefix a processor gives to a linked building. */
+export function linkPrefix(blockId) {
+  if (!blockId.includes('-')) return blockId;
+  const parts = blockId.split('-');
+  const last = parts[parts.length - 1];
+  if (parts.length >= 2 && (last === 'large' || (last !== '' && !Number.isNaN(Number(last))))) return parts[parts.length - 2];
+  return last;
+}
+
+/** Processor config: MLOG source plus links; `x`/`y` are offsets from the processor to each linked building. */
+export function logicConfig(code, links) {
+  return { type: 'logic', code, links };
+}

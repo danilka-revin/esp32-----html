@@ -3369,7 +3369,7 @@
     "buildable": true,
     "campaignBuildable": true,
     "visibility": "shown",
-    "planet": "erekir",
+    "planet": "serpulo",
     "stage": "early",
     "size": 1,
     "mark": null
@@ -3594,7 +3594,7 @@
     "buildable": true,
     "campaignBuildable": true,
     "visibility": "shown",
-    "planet": "erekir",
+    "planet": "serpulo",
     "stage": "mid",
     "size": 1,
     "mark": null
@@ -3609,7 +3609,7 @@
     "buildable": true,
     "campaignBuildable": true,
     "visibility": "shown",
-    "planet": "erekir",
+    "planet": "serpulo",
     "stage": "early",
     "size": 2,
     "mark": null
@@ -3624,7 +3624,7 @@
     "buildable": true,
     "campaignBuildable": true,
     "visibility": "shown",
-    "planet": "erekir",
+    "planet": "serpulo",
     "stage": "mid",
     "size": 2,
     "mark": null
@@ -3639,7 +3639,7 @@
     "buildable": true,
     "campaignBuildable": true,
     "visibility": "shown",
-    "planet": "erekir",
+    "planet": "serpulo",
     "stage": "early",
     "size": 3,
     "mark": null
@@ -3654,7 +3654,7 @@
     "buildable": true,
     "campaignBuildable": true,
     "visibility": "shown",
-    "planet": "erekir",
+    "planet": "serpulo",
     "stage": "early",
     "size": 3,
     "mark": null
@@ -3669,7 +3669,7 @@
     "buildable": true,
     "campaignBuildable": true,
     "visibility": "shown",
-    "planet": "erekir",
+    "planet": "serpulo",
     "stage": "early",
     "size": 1,
     "mark": null
@@ -4119,7 +4119,7 @@
     "buildable": true,
     "campaignBuildable": true,
     "visibility": "shown",
-    "planet": "serpulo",
+    "planet": "erekir",
     "stage": "late",
     "size": 1,
     "mark": null
@@ -4134,7 +4134,7 @@
     "buildable": true,
     "campaignBuildable": true,
     "visibility": "shown",
-    "planet": "serpulo",
+    "planet": "erekir",
     "stage": "late",
     "size": 1,
     "mark": null
@@ -5904,9 +5904,9 @@
     "buildable": true,
     "campaignBuildable": true,
     "visibility": "shown",
-    "planet": "erekir",
+    "planet": "serpulo",
     "stage": "early",
-    "size": 1,
+    "size": 3,
     "mark": null
   },
   {
@@ -5919,9 +5919,9 @@
     "buildable": true,
     "campaignBuildable": true,
     "visibility": "shown",
-    "planet": "erekir",
+    "planet": "serpulo",
     "stage": "early",
-    "size": 1,
+    "size": 3,
     "mark": null
   },
   {
@@ -5936,7 +5936,7 @@
     "visibility": "shown",
     "planet": "erekir",
     "stage": "early",
-    "size": 1,
+    "size": 3,
     "mark": null
   },
   {
@@ -5951,7 +5951,7 @@
     "visibility": "shown",
     "planet": "erekir",
     "stage": "early",
-    "size": 1,
+    "size": 3,
     "mark": null
   },
   {
@@ -6234,7 +6234,7 @@
     "buildable": true,
     "campaignBuildable": true,
     "visibility": "shown",
-    "planet": "serpulo",
+    "planet": "erekir",
     "stage": "early",
     "size": 2,
     "mark": null
@@ -6264,7 +6264,7 @@
     "buildable": true,
     "campaignBuildable": true,
     "visibility": "shown",
-    "planet": "serpulo",
+    "planet": "erekir",
     "stage": "early",
     "size": 1,
     "mark": null

@@ -89,6 +89,58 @@ class Reader {
   }
 }
 
+/** Java `DataOutputStream.writeUTF` for the (short) names stored inside processor configs. */
+function modifiedUtf(text) {
+  const out = [];
+  for (let index = 0; index < text.length; index += 1) {
+    const code = text.charCodeAt(index);
+    if (code >= 0x0001 && code <= 0x007f) out.push(code);
+    else if (code <= 0x07ff) out.push(0xc0 | ((code >> 6) & 0x1f), 0x80 | (code & 0x3f));
+    else out.push(0xe0 | ((code >> 12) & 0x0f), 0x80 | ((code >> 6) & 0x3f), 0x80 | (code & 0x3f));
+  }
+  return [(out.length >> 8) & 0xff, out.length & 0xff, ...out];
+}
+
+/** Processor configuration exactly as `LogicBlock.compress`: zlib of version, code, and relative links. */
+export function encodeLogicConfig(code, links = []) {
+  const body = new TextEncoder().encode(code ?? '');
+  const writer = new Writer();
+  writer.byte(1);
+  writer.int(body.length);
+  writer.bytes(body);
+  writer.int(links.length);
+  for (const link of links) {
+    for (const byte of modifiedUtf(String(link.name ?? ''))) writer.byte(byte);
+    writer.short(link.x);
+    writer.short(link.y);
+  }
+  return zlibSync(writer.finish(), { level: 9 });
+}
+
+/** Inverse of `encodeLogicConfig`; returns null when the bytes are not a processor config. */
+export function decodeLogicConfig(bytes) {
+  try {
+    const reader = new Reader(unzlibSync(bytes));
+    const version = reader.byte();
+    const length = reader.int();
+    if (length < 0 || length > 102400) return null;
+    const raw = reader.bytes.subarray(reader.offset, reader.offset + length);
+    reader.skip(length);
+    const total = Math.min(reader.int(), 6000);
+    const links = [];
+    if (version === 0) { for (let index = 0; index < total; index += 1) reader.int(); return { type: 'logic', code: new TextDecoder().decode(raw), links: [] }; }
+    for (let index = 0; index < total; index += 1) {
+      const name = reader.utf();
+      const x = reader.short();
+      const y = reader.short();
+      links.push({ name, x, y });
+    }
+    return { type: 'logic', code: new TextDecoder().decode(raw), links };
+  } catch {
+    return null;
+  }
+}
+
 function writeMindustryObject(writer, config) {
   if (config == null) {
     writer.byte(0);
@@ -109,15 +161,48 @@ function writeMindustryObject(writer, config) {
     writer.short(contentId);
     return;
   }
+  if (config?.type === 'point2') {
+    writer.byte(7);
+    writer.int(config.x);
+    writer.int(config.y);
+    return;
+  }
+  if (config?.type === 'point2[]') {
+    const points = (config.points ?? []).slice(0, 255);
+    writer.byte(8);
+    writer.byte(points.length);
+    for (const point of points) writer.int((((point.x & 0xffff) << 16) | (point.y & 0xffff)) >>> 0);
+    return;
+  }
+  if (config?.type === 'logic') {
+    const bytes = encodeLogicConfig(config.code, config.links);
+    if (bytes.length > 40000) throw new Error('Программа процессора слишком длинная для схемы.');
+    writer.byte(14);
+    writer.int(bytes.length);
+    writer.bytes(bytes);
+    return;
+  }
+  if (config?.type === 'raw' && typeof config.base64 === 'string') {
+    // An unknown configuration kept byte for byte from an imported schematic.
+    writer.bytes(bytesFromBase64(config.base64));
+    return;
+  }
+  if (typeof config === 'boolean') {
+    writer.byte(10);
+    writer.byte(config ? 1 : 0);
+    return;
+  }
   if (typeof config === 'number' && Number.isInteger(config)) {
     writer.byte(1);
     writer.int(config);
     return;
   }
   if (typeof config === 'string') {
+    const encoded = new TextEncoder().encode(config);
     writer.byte(4);
     writer.byte(1);
-    writer.utf(config);
+    writer.short(encoded.length);
+    writer.bytes(encoded);
     return;
   }
   // Untyped / unsupported configs are intentionally exported as null. The game
@@ -125,17 +210,55 @@ function writeMindustryObject(writer, config) {
   writer.byte(0);
 }
 
+function skipMindustryObject(reader, type) {
+  switch (type) {
+    case 0: return;
+    case 1: reader.skip(4); return;
+    case 2: reader.skip(8); return;
+    case 3: reader.skip(4); return;
+    case 4: { const exists = reader.byte(); if (exists) reader.skip(reader.unsignedShort()); return; }
+    case 5: reader.skip(3); return;
+    case 6: { const count = reader.short(); if (count < 0) throw new Error('Некорректный массив в конфигурации блока.'); reader.skip(count * 4); return; }
+    case 7: reader.skip(8); return;
+    case 8: { const count = reader.byte(); reader.skip(count * 4); return; }
+    case 9: reader.skip(3); return;
+    case 10: reader.skip(1); return;
+    case 11: reader.skip(8); return;
+    case 12: reader.skip(4); return;
+    case 13: reader.skip(2); return;
+    case 14: { const count = reader.int(); if (count < 0 || count > reader.bytes.length) throw new Error('Некорректные данные блока.'); reader.skip(count); return; }
+    case 15: reader.skip(1); return;
+    case 16: { const count = reader.int(); if (count < 0 || count > reader.bytes.length) throw new Error('Некорректные данные блока.'); reader.skip(count); return; }
+    case 17: reader.skip(4); return;
+    case 18: { const count = reader.short(); if (count < 0) throw new Error('Некорректный массив координат.'); reader.skip(count * 8); return; }
+    case 19: reader.skip(8); return;
+    case 20: reader.skip(1); return;
+    case 21: { const count = reader.short(); if (count < 0) throw new Error('Некорректный массив целых чисел.'); reader.skip(count * 4); return; }
+    case 22: {
+      const count = reader.int();
+      if (count < 0 || count > 10000) throw new Error('Слишком большой массив конфигурации.');
+      for (let index = 0; index < count; index += 1) skipMindustryObject(reader, reader.byte());
+      return;
+    }
+    case 23: reader.skip(2); return;
+    default: throw new Error(`Неизвестный тип конфигурации в схеме (${type}).`);
+  }
+}
+
 function readMindustryObject(reader) {
+  const start = reader.offset;
   const type = reader.byte();
   switch (type) {
     case 0: return null;
-    case 1: reader.skip(4); return null;
-    case 2: reader.skip(8); return null;
-    case 3: reader.skip(4); return null;
+    case 1: return reader.int();
     case 4: {
       const exists = reader.byte();
-      if (exists) reader.utf();
-      return null;
+      if (!exists) return null;
+      const length = reader.unsignedShort();
+      reader.ensure(length);
+      const text = new TextDecoder().decode(reader.bytes.subarray(reader.offset, reader.offset + length));
+      reader.skip(length);
+      return text;
     }
     case 5: {
       const contentType = reader.byte();
@@ -145,30 +268,33 @@ function readMindustryObject(reader) {
       }
       return { type: 'content', contentType, id: contentId };
     }
-    case 6: { const count = reader.short(); if (count < 0) throw new Error('Некорректный массив в конфигурации блока.'); reader.skip(count * 4); return null; }
-    case 7: reader.skip(8); return null;
-    case 8: { const count = reader.byte(); reader.skip(count * 4); return null; }
-    case 9: reader.skip(3); return null;
-    case 10: reader.skip(1); return null;
-    case 11: reader.skip(8); return null;
-    case 12: reader.skip(4); return null;
-    case 13: reader.skip(2); return null;
-    case 14: { const count = reader.int(); if (count < 0 || count > reader.bytes.length) throw new Error('Некорректные данные блока.'); reader.skip(count); return null; }
-    case 15: reader.skip(1); return null;
-    case 16: { const count = reader.int(); if (count < 0 || count > reader.bytes.length) throw new Error('Некорректные данные блока.'); reader.skip(count); return null; }
-    case 17: reader.skip(4); return null;
-    case 18: { const count = reader.short(); if (count < 0) throw new Error('Некорректный массив координат.'); reader.skip(count * 8); return null; }
-    case 19: reader.skip(8); return null;
-    case 20: reader.skip(1); return null;
-    case 21: { const count = reader.short(); if (count < 0) throw new Error('Некорректный массив целых чисел.'); reader.skip(count * 4); return null; }
-    case 22: {
-      const count = reader.int();
-      if (count < 0 || count > 10000) throw new Error('Слишком большой массив конфигурации.');
-      for (let index = 0; index < count; index += 1) readMindustryObject(reader);
-      return null;
+    case 7: return { type: 'point2', x: reader.int(), y: reader.int() };
+    case 8: {
+      const count = reader.byte();
+      const points = [];
+      for (let index = 0; index < count; index += 1) {
+        const packed = reader.int() >>> 0;
+        const x = (packed >>> 16) > 0x7fff ? (packed >>> 16) - 0x10000 : (packed >>> 16);
+        const rawY = packed & 0xffff;
+        points.push({ x, y: rawY > 0x7fff ? rawY - 0x10000 : rawY });
+      }
+      return { type: 'point2[]', points };
     }
-    case 23: reader.skip(2); return null;
-    default: throw new Error(`Неизвестный тип конфигурации в схеме (${type}).`);
+    case 10: return reader.byte() !== 0;
+    case 14: {
+      const count = reader.int();
+      if (count < 0 || count > reader.bytes.length) throw new Error('Некорректные данные блока.');
+      const payload = reader.bytes.slice(reader.offset, reader.offset + count);
+      reader.skip(count);
+      const logic = decodeLogicConfig(payload);
+      if (logic) return logic;
+      return { type: 'raw', base64: base64FromBytes(reader.bytes.subarray(start, reader.offset)) };
+    }
+    default: {
+      reader.offset = start + 1;
+      skipMindustryObject(reader, type);
+      return { type: 'raw', base64: base64FromBytes(reader.bytes.subarray(start, reader.offset)) };
+    }
   }
 }
 
@@ -197,10 +323,30 @@ function bytesFromBase64(value) {
   return bytes;
 }
 
+/**
+ * Mindustry saves the tight bounding box of the buildings and centres a pasted schematic on it, so the exported
+ * size and origin follow the blocks, not the editor canvas.
+ */
+function tightBounds(tiles, fallbackWidth, fallbackHeight) {
+  if (!tiles.length) return { x: 0, y: 0, width: fallbackWidth, height: fallbackHeight };
+  let minX = Infinity; let minY = Infinity; let maxX = -Infinity; let maxY = -Infinity;
+  for (const tile of tiles) {
+    const size = blockById.get(tile.id)?.size ?? 1;
+    const offset = Math.floor((size - 1) / 2);
+    minX = Math.min(minX, tile.x - offset);
+    minY = Math.min(minY, tile.y - offset);
+    maxX = Math.max(maxX, tile.x - offset + size - 1);
+    maxY = Math.max(maxY, tile.y - offset + size - 1);
+  }
+  return { x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1 };
+}
+
 export function encodeSchematic(scheme) {
   if (!scheme || !Array.isArray(scheme.tiles)) throw new Error('Нет данных схемы для экспорта.');
-  if (scheme.width > 128 || scheme.height > 128) throw new Error('Mindustry поддерживает схемы не больше 128 × 128.');
-  const tiles = scheme.tiles.filter((tile) => tile?.id && tile.id !== 'air');
+  const present = scheme.tiles.filter((tile) => tile?.id && tile.id !== 'air');
+  const bounds = tightBounds(present, scheme.width, scheme.height);
+  if (bounds.width > 128 || bounds.height > 128) throw new Error('Mindustry поддерживает схемы не больше 128 × 128.');
+  const tiles = present.map((tile) => ({ ...tile, x: tile.x - bounds.x, y: tile.y - bounds.y }));
   const dictionary = [...new Set(tiles.map((tile) => tile.id))];
   if (dictionary.length > 255) throw new Error('В схеме слишком много уникальных типов блоков.');
   if (tiles.length > 128 * 128) throw new Error('В схеме слишком много построек.');
@@ -236,8 +382,8 @@ export function encodeSchematic(scheme) {
   if (campaignLink !== undefined) tags.campaignLink = String(campaignLink);
 
   const writer = new Writer();
-  writer.short(scheme.width);
-  writer.short(scheme.height);
+  writer.short(bounds.width);
+  writer.short(bounds.height);
   const entries = Object.entries(tags);
   writer.byte(entries.length);
   for (const [key, value] of entries) { writer.utf(key); writer.utf(value); }

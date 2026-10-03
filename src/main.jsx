@@ -4,14 +4,16 @@ import {
   buildableBlocks, categories, categoryById, directionMeta, gameBlocks, gameCatalog,
   getPlanetLabel, getStageLabel, getProductsForDirection, itemById, visibleMaterials, stageMeta, typeLabels,
 } from './catalog.js';
-import { blockFits, blockRect, canvasPresets, generateLayout, generateLayoutVariants, initialSettings, supplyModes, tileAtCell } from './generator.js';
+import { blockFits, blockRect, canvasPresets, generateLayout, generateLayoutVariants, initialSettings, supplyModes, tileAtCell, withManualEdit } from './generator.js';
 import { buildLogicProgram, getLogicLinkInstructions, getTransportItem, needsLogicProgram } from './logic.js';
 import { appBuildInfo, checkForUpdates, formatCommit, UPDATE_BRANCH, UPDATE_REPOSITORY_URL } from './update-checker.js';
 import UpdateDialog from './update-dialog.jsx';
 import { decodeSchematicFile, decodeSchematic, downloadSchematic, schematicToBase64 } from './schematic-io.js';
 import './styles.css';
 import sprites from './sprite-manifest.json';
-import { analyzeMechanics, blockFacts } from './mechanics.js';
+import { analyzeMechanics } from './mechanics.js';
+import { rotatesBlock } from './flow.js';
+import { suggestTransportItem } from './gen/hints.js';
 import { GAME_VERSION } from './game-version.js';
 
 const iconPaths = {
@@ -53,6 +55,8 @@ function Icon({ name, size = 16, className = '' }) {
   return <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{iconPaths[name] ?? iconPaths.box}</svg>;
 }
 
+const turretLike = (id) => buildableBlocks.find((block) => block.id === id)?.category === 'turret';
+
 const categoryColors = {
   mining: '#e7a444', production: '#bd8df0', logistics: '#51c4cb', power: '#ffc233',
   defense: '#f07474', turret: '#fb806d', storage: '#92be70', liquid: '#58b7ec',
@@ -88,8 +92,31 @@ function CanvasTexture({ id, x, y, size, rotation, glyph }) {
   const [failed, setFailed] = useState(false);
   useEffect(() => setFailed(false), [id]);
   if (!sprite || failed) return <text x={x + size / 2} y={y + size / 2} textAnchor="middle" className="block-mark" style={{ fontSize: '.45px' }}>{glyph}</text>;
-  const directional = blockFacts[id]?.rotate || /conveyor|duct|conduit/.test(id);
+  const directional = rotatesBlock(id) && !turretLike(id);
   return <image className="canvas-texture" href={sprite.file} x={x} y={y} width={size} height={size} preserveAspectRatio="xMidYMid meet" transform={directional ? `rotate(${-rotation * 90} ${x + size / 2} ${y + size / 2})` : undefined} onError={() => setFailed(true)} />;
+}
+
+const issueLabel = { error: 'Ошибка', warn: 'Внимание', info: 'Подключить' };
+
+function FlowReport({ scheme, flow, onSelectIssue }) {
+  const [expanded, setExpanded] = useState(false);
+  if (!flow) return null;
+  const order = { error: 0, warn: 1, info: 2 };
+  const issues = [...flow.issues].sort((a, b) => order[a.level] - order[b.level]);
+  const shown = expanded ? issues : issues.slice(0, 5);
+  const problems = scheme.problems ?? [];
+  const notes = Array.isArray(scheme.notes) ? scheme.notes : [];
+  const requirements = Array.isArray(scheme.requirements) ? scheme.requirements : [];
+  const ok = flow.errors === 0 && problems.length === 0;
+  return <section className="inspector-section flow-report">
+    <div className="panel-section-heading"><span>ПРОВЕРКА СХЕМЫ</span><i className={`flow-pill ${ok ? 'ok' : 'bad'}`}>{ok ? 'ПОТОКИ СХОДЯТСЯ' : `ОШИБОК: ${flow.errors + problems.length}`}</i></div>
+    <p className="microcopy">Ленты, подача предметов, питание и жидкости проверены по механике Mindustry {GAME_VERSION}.{flow.warnings > 0 ? ` Предупреждений: ${flow.warnings}.` : ''}</p>
+    {problems.map((text) => <div key={text} className="flow-issue error"><b>{issueLabel.error}</b><span>{text}</span></div>)}
+    {shown.map((issue, index) => <button type="button" key={`${issue.code}-${index}`} className={`flow-issue ${issue.level}`} onClick={() => onSelectIssue?.(issue)} title="Показать блок на схеме"><b>{issueLabel[issue.level]}</b><span>{issue.text}</span></button>)}
+    {issues.length > 5 && <button type="button" className="link-button flow-more" onClick={() => setExpanded(!expanded)}>{expanded ? 'Свернуть' : `Показать все (${issues.length})`}</button>}
+    {requirements.length > 0 && <div className="flow-block"><span className="field-label">ПОДКЛЮЧИ СНАРУЖИ</span><ul>{requirements.map((text) => <li key={text}>{text}</li>)}</ul></div>}
+    {notes.length > 0 && <div className="flow-block"><span className="field-label">КАК ЭТО РАБОТАЕТ</span><ul>{notes.map((text) => <li key={text}>{text}</li>)}</ul></div>}
+  </section>;
 }
 
 function MechanicsReport({ mechanics }) {
@@ -159,7 +186,7 @@ function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCat
   const minimalModule = (settings.minimal || (settings.campaignLink && settings.direction === 'production')) && settings.direction === 'production';
   const productOptions = getProductsForDirection(settings.direction, settings.planet, settings.stage);
   const product = productOptions.find((item) => item.id === settings.goal) ?? productOptions[0];
-  const hasSupplySettings = ['production', 'defense', 'units', 'logistics'].includes(settings.direction);
+  const hasSupplySettings = ['production', 'defense', 'units'].includes(settings.direction);
   const isErekir = settings.planet === 'erekir';
   const isDroneMode = ['drones', 'hybrid'].includes(settings.supplyMode);
   const campaignDefenseImport = settings.campaignLink && settings.direction === 'defense' && !isErekir;
@@ -183,18 +210,18 @@ function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCat
     return matchesCategory && (!query || `${block.name} ${block.id}`.toLocaleLowerCase('ru').includes(query));
   }), [planetBlocks, paletteCategory, paletteSearch]);
   const paletteCategories = categories.filter((category) => planetBlocks.some((block) => block.category === category.id));
-  const patch = (field, value) => setSettings((current) => ({ ...current, [field]: value }));
+  // The item to watch or deliver follows the setup (recipe ingredient, turret ammo, unit ingredient) until the player picks one.
+  const withSuggestion = (next) => ({ ...next, transportItem: suggestTransportItem(next) });
+  const patch = (field, value) => setSettings((current) => (['goal', 'stage'].includes(field) ? withSuggestion({ ...current, [field]: value }) : { ...current, [field]: value }));
   const setDirection = (direction) => setSettings((current) => {
     const options = getProductsForDirection(direction, current.planet, current.stage);
-    return options.length ? { ...current, direction, goal: options.some(option => option.id === current.goal) ? current.goal : options[0].id } : current;
+    return options.length ? withSuggestion({ ...current, direction, goal: options.some(option => option.id === current.goal) ? current.goal : options[0].id }) : current;
   });
   const setPlanet = (planet) => setSettings((current) => {
-    const fallbackItem = planet === 'erekir' ? 'beryllium' : 'copper';
-    const currentItem = visibleMaterials.find((item) => item.id === current.transportItem && (item.planet === planet || item.planet === 'both'))?.id;
     const processorControl = planet === 'erekir' ? false : current.planet === 'erekir' ? true : current.processorControl;
     const productChoices = getProductsForDirection(current.direction, planet, current.stage);
     const goal = productChoices.some(option => option.id === current.goal) ? current.goal : productChoices[0]?.id ?? current.goal;
-    return { ...current, planet, goal, processorControl, campaignLink: planet === 'serpulo' ? current.campaignLink : false, droneUnit: planet === 'erekir' ? 'manifold' : 'mono', transportItem: currentItem ?? fallbackItem };
+    return withSuggestion({ ...current, planet, goal, processorControl, campaignLink: planet === 'serpulo' ? current.campaignLink : false, droneUnit: planet === 'erekir' ? 'manifold' : 'mono' });
   });
   const setSupplyMode = (supplyMode) => setSettings((current) => ({
     ...current,
@@ -289,7 +316,7 @@ function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCat
   </aside>;
 }
 
-function BlockCanvas({ scheme, selectedKey, setSelectedKey, tool, selectedBlock, onPlace, onErase, onMove, onSelect, gridVisible, showNames, zoom, svgRef, onDropBlock }) {
+function BlockCanvas({ scheme, issues = [], selectedKey, setSelectedKey, tool, selectedBlock, onPlace, onErase, onMove, onSelect, gridVisible, showNames, zoom, svgRef, onDropBlock }) {
   const width = scheme.width; const height = scheme.height;
   const viewportRef = useRef(null);
   const panRef = useRef(null);
@@ -395,10 +422,19 @@ function BlockCanvas({ scheme, selectedKey, setSelectedKey, tool, selectedBlock,
           <title>{`${label} · ${tile.id} · ${size}×${size} · поворот ${tile.rotation ?? 0}`}</title>
           <rect x={x} y={y} width={visualSize} height={visualSize} rx=".08" className="block-shadow" />
           <CanvasTexture id={tile.id} x={rect.startX} y={rect.startY} size={size} rotation={tile.rotation ?? 0} glyph={glyph} />
-          {(blockFacts[tile.id]?.rotate || /conveyor|duct|conduit/.test(tile.id)) && <path d={`M ${rect.startX + size - .08} ${rect.startY + size / 2} l -.24 -.12 v .24 z`} className="block-direction" transform={`rotate(${-tile.rotation * 90} ${rect.startX + size / 2} ${rect.startY + size / 2})`} />}
+          {rotatesBlock(tile.id) && !turretLike(tile.id) && <path d={`M ${rect.startX + size - .08} ${rect.startY + size / 2} l -.24 -.12 v .24 z`} className="block-direction" transform={`rotate(${-tile.rotation * 90} ${rect.startX + size / 2} ${rect.startY + size / 2})`} />}
           {showNames && <text x={rect.startX + size / 2} y={rect.endY + .35} textAnchor="middle" className="block-label">{label.length > 17 ? `${label.slice(0, 15)}…` : label}</text>}
           {selected && <rect x={x - .07} y={y - .07} width={visualSize + .14} height={visualSize + .14} rx={size === 1 ? .18 : .29} className="block-selection" />}
         </g>;
+      })}
+      {issues.filter((issue) => issue.level !== 'info' && issue.x != null).map((issue, index) => {
+        const hit = tileAtCell(scheme.tiles, issue.x, issue.y); if (!hit) return null;
+        const worldRect = blockRect(hit); const top = height - 1 - worldRect.endY; const size = worldRect.size;
+        return <rect key={`issue-${index}`} x={worldRect.startX + .02} y={top + .02} width={size - .04} height={size - .04} rx=".1" className={`flow-marker ${issue.level}`} pointerEvents="none" />;
+      })}
+      {(scheme.inlets ?? []).map((inlet, index) => {
+        const color = { item: '#ffc233', liquid: '#58b7ec', power: '#fff176' }[inlet.kind] ?? '#ffffff';
+        return <g key={`inlet-${index}`} className="inlet-marker" pointerEvents="none"><circle cx={inlet.x + .5} cy={height - 1 - inlet.y + .5} r=".2" fill={color} /><circle cx={inlet.x + .5} cy={height - 1 - inlet.y + .5} r=".34" fill="none" stroke={color} strokeWidth=".06" strokeDasharray=".1 .1" /><title>{inlet.kind === 'power' ? 'Вход внешней энергии' : `Вход снаружи: ${inlet.id ? (itemById.get(inlet.id)?.name ?? inlet.id) : inlet.kind === 'liquid' ? 'жидкость' : 'предметы'}`}</title></g>;
       })}
     </svg>
     <div className="canvas-legend"><span className="legend-pulse" />{tool === 'place' && selectedBlock ? `Поставить: ${buildableBlocks.find((block) => block.id === selectedBlock)?.name ?? selectedBlock}` : tool === 'erase' ? 'Клик — удалить' : 'Клик — выбрать · правый клик — удалить'}<small>Space + перетаскивание или средняя кнопка — панорама · перетащи блок, чтобы переместить</small></div>
@@ -418,7 +454,7 @@ function calculateAnalytics(scheme) {
   return { mechanics, counts, sortedBlocks, resources, unique: counts.size, total: scheme.tiles.length, generators };
 }
 
-function Inspector({ scheme, analytics, selectedTile, onRotate, onRemove, onSave, savedSchemes, onLoadSaved, onDeleteSaved, onExport, onCopy, onCopyLogic, name, setName }) {
+function Inspector({ scheme, analytics, selectedTile, onRotate, onRemove, onSave, savedSchemes, onLoadSaved, onDeleteSaved, onExport, onCopy, onCopyLogic, onSelectIssue, name, setName }) {
   const [tab, setTab] = useState('summary');
   useEffect(() => { setTab(selectedTile ? 'selection' : 'summary'); }, [selectedTile?.id, selectedTile?.x, selectedTile?.y]);
   const selectedBlock = selectedTile && (buildableBlocks.find((block) => block.id === selectedTile.id) ?? gameBlocks.find((block) => block.id === selectedTile.id));
@@ -427,8 +463,10 @@ function Inspector({ scheme, analytics, selectedTile, onRotate, onRemove, onSave
   const world = getPlanetLabel(scheme.settings?.planet ?? 'serpulo');
   const product = getProductsForDirection(scheme.settings?.direction, scheme.settings?.planet, scheme.settings?.stage).find((item) => item.id === scheme.settings?.goal);
   const logicSettings = scheme.settings ?? {};
-  const showLogicProgram = needsLogicProgram(logicSettings);
-  const logicProgram = showLogicProgram ? buildLogicProgram(logicSettings) : '';
+  // Processors in the blueprint carry their own MLOG and links; older or imported schemes fall back to the generic program.
+  const embeddedLogic = scheme.tiles.find((tile) => tile.config?.type === 'logic')?.config ?? null;
+  const showLogicProgram = Boolean(embeddedLogic) || needsLogicProgram(logicSettings);
+  const logicProgram = embeddedLogic?.code ?? (needsLogicProgram(logicSettings) ? buildLogicProgram(logicSettings) : '');
   const showErekirSupplyGuide = logicSettings.planet === 'erekir' && ['core', 'drones', 'hybrid'].includes(logicSettings.supplyMode);
   const selectedCategory = categoryById.get(selectedBlock?.category);
   const categoryCount = (category) => scheme.tiles.filter((tile) => buildableBlocks.find((block) => block.id === tile.id)?.category === category).length;
@@ -463,6 +501,7 @@ function Inspector({ scheme, analytics, selectedTile, onRotate, onRemove, onSave
         <div className="resource-list">{analytics.resources.map((resource) => <div className="resource-row" key={resource.id}><GameGlyph entry={resource} size="tiny" /><span>{resource.name}</span><b>{resource.amount.toLocaleString('ru-RU')}</b><i className="resource-bar"><span style={{ width: `${Math.max(18, Math.min(100, resource.amount / (analytics.resources[0]?.amount || 1) * 100))}%` }} /></i></div>)}</div>
         <p className="microcopy">Топ-5 ресурсов{analytics.mechanics.unknownCosts > 0 && ` · нет данных: ${analytics.mechanics.unknownCosts}`}</p>
       </section>
+      <FlowReport scheme={scheme} flow={analytics.mechanics.flow} onSelectIssue={onSelectIssue} />
       <MechanicsReport mechanics={analytics.mechanics} />
       {showErekirSupplyGuide && <section className="inspector-section logic-program-section cargo-route-guide">
         <div className="panel-section-heading"><span>ЭРЕКИР / ГРУЗОВОЙ МАРШРУТ</span><i className="logic-live-pill"><b /> MANIFOLD</i></div>
@@ -471,11 +510,11 @@ function Inspector({ scheme, analytics, selectedTile, onRotate, onRemove, onSave
         <div className="logic-export-note"><Icon name="info" size={13} /><span>Фильтр точки выгрузки сохраняется в .msch. Проверь подключение предметного конвейера к Unit Cargo Loader и наличие питания и азота для создания Manifold.</span></div>
       </section>}
       {showLogicProgram && <section className="inspector-section logic-program-section">
-        <div className="panel-section-heading"><span>MLOG / ПРОЦЕССОР</span><i className="logic-live-pill"><b /> {logicSettings.supplyMode === 'drones' || logicSettings.supplyMode === 'hybrid' ? 'ДРОН' : 'КОНТРОЛЬ'}</i></div>
-        <p className="logic-link-hint">{getLogicLinkInstructions(logicSettings)}</p>
+        <div className="panel-section-heading"><span>MLOG / ПРОЦЕССОР</span><i className="logic-live-pill"><b /> {embeddedLogic ? 'ГОТОВ' : logicSettings.supplyMode === 'drones' || logicSettings.supplyMode === 'hybrid' ? 'ДРОН' : 'КОНТРОЛЬ'}</i></div>
+        <p className="logic-link-hint">{embeddedLogic ? `Код и ${embeddedLogic.links.length} связей уже записаны в процессор: после вставки в игру он работает без ручной настройки.` : getLogicLinkInstructions(logicSettings)}</p>
         <textarea className="logic-program-code" readOnly value={logicProgram} spellCheck="false" aria-label="Программа Mindustry Logic" />
         <button className="button button-outline full-width copy-logic-button" type="button" onClick={onCopyLogic}><Icon name="copy" size={13} /> Скопировать MLOG</button>
-        <div className="logic-export-note"><Icon name="info" size={13} /><span>Процессор появится в .msch, но код нужно вставить в игре вручную: бинарную конфигурацию MLOG браузерный экспорт не компилирует. {['core', 'hybrid'].includes(logicSettings.supplyMode) && <>Настрой разгрузчик на @<b>{getTransportItem(logicSettings)}</b>.</>}</span></div>
+        <div className="logic-export-note"><Icon name="info" size={13} /><span>{embeddedLogic ? 'Программа и связи сохраняются в .msch в формате самой игры (сжатая конфигурация процессора). Если поменяешь блоки рядом, проверь связи в игре.' : <>Процессор появится в .msch, но код нужно вставить в игре вручную. {['core', 'hybrid'].includes(logicSettings.supplyMode) && <>Настрой разгрузчик на @<b>{getTransportItem(logicSettings)}</b>.</>}</>}</span></div>
       </section>}
       <section className="inspector-section block-list-section"><div className="panel-section-heading"><span>СОСТАВ ПОСТРОЕК</span><span className="subtle-count">{analytics.unique} типов</span></div><div className="building-list">
         {analytics.sortedBlocks.slice(0, 6).map(([id, count]) => { const block = buildableBlocks.find((item) => item.id === id) ?? { id, name: id, category: 'sandbox' }; return <div className="building-row" key={id}><GameGlyph entry={block} size="tiny" /><span>{block.name}</span><b>×{count}</b></div>; })}
@@ -520,6 +559,7 @@ function EditorPage({ settings, setSettings, setView, dirty, onGenerate, scheme,
     commitTiles(scheme.tiles.map((item) => item === tile ? { ...item, x: nextX, y: nextY } : item));
     setSelectedTileKey(`${nextX}:${nextY}`);
   };
+  const selectIssue = (issue) => { const hit = tileAtCell(scheme.tiles, issue.x, issue.y); if (hit) setSelectedTileKey(`${hit.x}:${hit.y}`); };
   const rotateTile = () => { if (!selectedTile) return; commitTiles(scheme.tiles.map((tile) => tile === selectedTile ? { ...tile, rotation: ((tile.rotation ?? 0) + 1) % 4 } : tile)); };
   const moveZoom = (change) => setZoom((current) => Math.max(.7, Math.min(1.28, Math.round((current + change) * 100) / 100)));
 
@@ -539,11 +579,11 @@ function EditorPage({ settings, setSettings, setView, dirty, onGenerate, scheme,
       </div><div className="editor-toolbar-right"><span className="canvas-size-label"><Icon name="box" size={13} />{scheme.width} × {scheme.height}</span><span className="tool-separator" />
         <button className="tool-square zoom-button" type="button" title="Уменьшить" onClick={() => moveZoom(-.1)}><Icon name="zoomOut" size={15} /></button><span className="zoom-level">{Math.round(zoom * 100)}%</span><button className="tool-square zoom-button" type="button" title="Увеличить" onClick={() => moveZoom(.1)}><Icon name="zoomIn" size={15} /></button><button className="tool-square zoom-button" type="button" title="Сбросить масштаб до 100%" onClick={() => setZoom(1)}><Icon name="refresh" size={14} /></button><span className="tool-separator" /><button className="tool-square" type="button" title="Экспортировать схему" onClick={onExport}><Icon name="download" size={15} /></button>
       </div></div>
-      <div className="canvas-stage"><BlockCanvas scheme={scheme} selectedKey={selectedTileKey} setSelectedKey={setSelectedTileKey} tool={activeTool} selectedBlock={selectedBlock} onPlace={placeBlock} onErase={eraseTile} onMove={moveBlock} onSelect={(tile) => setSelectedTileKey(`${tile.x}:${tile.y}`)} gridVisible={gridVisible} showNames={showNames} zoom={zoom} svgRef={svgRef} onDropBlock={(x, y, id) => { setSelectedBlock(id); placeBlock(x, y, id); }} /></div>
+      <div className="canvas-stage"><BlockCanvas scheme={scheme} issues={analytics.mechanics.flow?.issues ?? []} selectedKey={selectedTileKey} setSelectedKey={setSelectedTileKey} tool={activeTool} selectedBlock={selectedBlock} onPlace={placeBlock} onErase={eraseTile} onMove={moveBlock} onSelect={(tile) => setSelectedTileKey(`${tile.x}:${tile.y}`)} gridVisible={gridVisible} showNames={showNames} zoom={zoom} svgRef={svgRef} onDropBlock={(x, y, id) => { setSelectedBlock(id); placeBlock(x, y, id); }} /></div>
       <div className="editor-statusbar"><div className="status-left"><span><b>{analytics.total}</b> блоков</span><i className="status-separator" /><span>{analytics.unique} типов</span></div><div className="status-right"><span><Icon name="cursor" size={12} /> {activeTool === 'place' ? 'РАЗМЕСТИТЬ' : activeTool === 'erase' ? 'УДАЛИТЬ' : 'ВЫБРАТЬ'}</span></div></div>
       </div>
     </section>
-    <Inspector scheme={activeScheme} analytics={analytics} selectedTile={selectedTile} onRotate={rotateTile} onRemove={eraseTile} onSave={onSave} savedSchemes={savedSchemes} onLoadSaved={onLoadSaved} onDeleteSaved={onDeleteSaved} onExport={onExport} onCopy={onCopy} onCopyLogic={onCopyLogic} name={name} setName={setName} />
+    <Inspector scheme={activeScheme} analytics={analytics} selectedTile={selectedTile} onRotate={rotateTile} onRemove={eraseTile} onSave={onSave} savedSchemes={savedSchemes} onLoadSaved={onLoadSaved} onDeleteSaved={onDeleteSaved} onExport={onExport} onCopy={onCopy} onCopyLogic={onCopyLogic} onSelectIssue={selectIssue} name={name} setName={setName} />
   </main>;
 }
 
@@ -634,7 +674,7 @@ function BlueprintPreview({ scheme }) {
         const top = height - 1 - rect.endY;
         const sprite = sprites[`block:${tile.id}`];
         const color = categoryColors[entry?.category] ?? '#b7c2cd';
-        const directional = blockFacts[tile.id]?.rotate || /conveyor|duct|conduit/.test(tile.id);
+        const directional = rotatesBlock(tile.id) && !turretLike(tile.id);
         return <g key={`${tile.id}:${tile.x}:${tile.y}:${index}`}>
           <rect x={rect.startX + .06} y={top + .06} width={size - .12} height={size - .12} rx=".08" fill={color} fillOpacity=".2" stroke={color} strokeOpacity=".8" strokeWidth=".055" />
           {sprite && !sprite.invisible && <image href={sprite.file} x={rect.startX} y={top} width={size} height={size} preserveAspectRatio="xMidYMid meet" transform={directional ? `rotate(${-((tile.rotation ?? 0) * 90)} ${rect.startX + size / 2} ${top + size / 2})` : undefined} />}
@@ -649,7 +689,7 @@ function BlueprintPicker({ candidates, onClose, onSelect }) {
   return <div className="modal-backdrop blueprint-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
     <section className="blueprint-modal" role="dialog" aria-modal="true" aria-labelledby="blueprint-picker-title">
       <div className="modal-heading blueprint-modal-heading">
-        <div><span className="section-kicker"><span className="kicker-line" /> {GAME_VERSION} / AUTO LAYOUT</span><h2 id="blueprint-picker-title">Выбери чертёж</h2><p>Сравни три компоновки, затем вставь подходящую в редактор. После вставки её можно менять вручную.</p></div>
+        <div><span className="section-kicker"><span className="kicker-line" /> {GAME_VERSION} / AUTO LAYOUT</span><h2 id="blueprint-picker-title">Выбери чертёж</h2><p>{candidates.length === 1 ? 'Для этих настроек другой компоновки нет: вставь её в редактор и при необходимости поправь вручную.' : `Сравни ${candidates.length === 2 ? 'две' : 'три'} компоновки, затем вставь подходящую в редактор. После вставки её можно менять вручную.`}</p></div>
         <button className="icon-button" type="button" onClick={onClose} aria-label="Закрыть"><Icon name="close" /></button>
       </div>
       <div className="blueprint-candidates">
@@ -663,10 +703,11 @@ function BlueprintPicker({ candidates, onClose, onSelect }) {
           ] : [];
           const recipeLine = requirements ? `${recipeInputs.join(' · ') || 'Без предметного сырья'} → ${requirements.output.map(output => `${gameCatalog.find(entry => entry.type === 'item' && entry.id === output.id)?.name ?? output.id} ${output.rate.toLocaleString('ru-RU', { maximumFractionDigits: 2 })}/с`).join(' · ')}` : `${scheme.tiles.length} блоков · компоновка для ${getPlanetLabel(scheme.settings?.planet)}`;
           return <article className="blueprint-candidate" key={`${candidate.label}-${index}`}>
-            <div className="blueprint-candidate-top"><span className="blueprint-number">0{index + 1}</span><span className="tiny-tag muted">{scheme.width} × {scheme.height}</span></div>
+            <div className="blueprint-candidate-top"><span className="blueprint-number">0{index + 1}</span>{candidate.recommended && <span className="tiny-tag gold">РЕКОМЕНДУЕМ</span>}<span className="tiny-tag muted">{scheme.width} × {scheme.height}</span></div>
             <BlueprintPreview scheme={scheme} />
             <div className="blueprint-candidate-copy"><h3>{candidate.label}</h3><p>{candidate.note}</p></div>
             <div className="blueprint-stats"><span><b>{scheme.tiles.length}</b> блоков</span><span><b>{mechanics.unknownCosts ? '—' : mechanics.costs.size}</b> ресурсов в смете</span></div>
+            <div className={`blueprint-verdict ${mechanics.flow.errors || scheme.problems?.length ? 'bad' : 'ok'}`}><Icon name={mechanics.flow.errors || scheme.problems?.length ? 'info' : 'check'} size={12} />{mechanics.flow.errors || scheme.problems?.length ? `Ошибок в потоках: ${mechanics.flow.errors + (scheme.problems?.length ?? 0)}` : 'Потоки, питание и подача сходятся'}{mechanics.flow.warnings > 0 && ` · предупреждений: ${mechanics.flow.warnings}`}</div>
             <p className="blueprint-recipe">{recipeLine}</p>
             <div className="blueprint-checks">{mechanics.warnings.slice(0, 2).map((warning, warningIndex) => <span key={warningIndex}><Icon name="info" size={12} />{warning}</span>)}</div>
             <button className="button button-primary full-width blueprint-insert-button" type="button" onClick={() => onSelect(candidate)}><Icon name="check" size={14} /> Вставить в редактор</button>
@@ -785,7 +826,7 @@ function App() {
   const undo = () => { if (historyIndex <= 0) return; const index = historyIndex - 1; setHistoryIndex(index); setScheme(history[index]); setSelectedTileKey(null); };
   const redo = () => { if (historyIndex >= history.length - 1) return; const index = historyIndex + 1; setHistoryIndex(index); setScheme(history[index]); setSelectedTileKey(null); };
   const setSchemeWithHistory = (updater) => {
-    const next = typeof updater === 'function' ? updater(scheme) : updater;
+    const next = withManualEdit(scheme, typeof updater === 'function' ? updater(scheme) : updater);
     const currentName = name.trim() || next.name;
     commitScheme({ ...next, name: currentName, tags: { ...(next.tags ?? {}), name: currentName } }, false);
   };
@@ -805,7 +846,7 @@ function App() {
     }
   };
   const copyLogic = async () => {
-    const code = buildLogicProgram(activeScheme.settings ?? {});
+    const code = activeScheme.tiles.find((tile) => tile.config?.type === 'logic')?.config.code ?? buildLogicProgram(activeScheme.settings ?? {});
     if (!code) return notify({ type: 'error', message: 'Для этой схемы MLOG-программа не задана.' });
     try {
       await navigator.clipboard.writeText(code);

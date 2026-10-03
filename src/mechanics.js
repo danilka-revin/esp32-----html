@@ -1,15 +1,10 @@
 import { blockById, buildableBlocks, campaignBlockById, getProductionMachine, itemById } from './catalog.js';
 import facts from './block-facts.json' with { type: 'json' };
 import { GAME_VERSION } from './game-version.js';
-export { facts as blockFacts };
-
-// Mindustry Block.sizeOffset: -((size - 1) / 2), integer division.
-export function footprint(tile) {
-  const size = blockById.get(tile.id)?.size ?? 1;
-  const startX = tile.x - Math.floor((size - 1) / 2);
-  const startY = tile.y - Math.floor((size - 1) / 2);
-  return { startX, startY, endX: startX + size - 1, endY: startY + size - 1, size };
-}
+import { footprint } from './geometry.js';
+import { analyzeFlow } from './flow.js';
+import { stageTier, techTier } from './gen/profile.js';
+export { facts as blockFacts, footprint };
 
 export function trimLayout(scheme) {
   if (!scheme.tiles.length) return scheme;
@@ -22,6 +17,8 @@ export function trimLayout(scheme) {
     height: Math.max(...rects.map(r => r.endY)) - y + 1,
     // Relative block configs are preserved; do not relocate individual machines.
     tiles: scheme.tiles.map(t => ({ ...t, x: t.x - x, y: t.y - y })),
+    ...(scheme.inlets ? { inlets: scheme.inlets.map(inlet => ({ ...inlet, x: inlet.x - x, y: inlet.y - y })) } : {}),
+    ...(scheme.outlets ? { outlets: scheme.outlets.map(outlet => ({ ...outlet, x: outlet.x - x, y: outlet.y - y })) } : {}),
   };
 }
 
@@ -162,6 +159,14 @@ export function minimalProduction(settings = {}) {
     auxiliaryPorts.forEach(port => add(port.block, port));
   }
 
+  // The module's lanes are open on purpose: they connect to supplies outside the blueprint.
+  const inlets = [
+    ...plan.inputPorts.map(port => ({ x: port.x, y: port.y, kind: 'item', id: port.id })),
+    ...plan.liquidPorts.map(port => ({ x: port.x, y: port.y, kind: 'liquid', id: port.id })),
+    ...(plan.powerPort ? [{ x: plan.powerPort.x, y: plan.powerPort.y, kind: 'power', id: null }] : []),
+  ];
+  const outlets = plan.outputs.map(port => ({ x: port.x, y: port.y, kind: 'item', id: port.id }));
+
   const moduleName = productName(settings.goal);
   const exported = Boolean(settings.campaignLink && settings.planet === 'serpulo');
   const name = `${moduleName} · ${exported ? 'экспорт' : 'минимальный модуль'}`;
@@ -169,7 +174,7 @@ export function minimalProduction(settings = {}) {
     ? `Одна фабрика и пусковая площадка Mindustry ${GAME_VERSION}. Назначь сектор-получатель на карте кампании; площадка отправляет накопленный груз автоматически.`
     : `Одна фабрика, раздельные входы и внешние линии сырья/энергии. Mindustry ${GAME_VERSION}.`;
   return trimLayout({
-    width: 2 * size + 4, height: 2 * size + 4, tiles, name, description,
+    width: 2 * size + 4, height: 2 * size + 4, tiles, name, description, inlets, outlets,
     settings: { ...settings, processorControl: false, supplyMode: 'external', minimal: true },
     tags: {
       name, planet: settings.planet, direction: 'production', goal: settings.goal,
@@ -185,6 +190,7 @@ export function analyzeMechanics(scheme) {
   const requirements = [];
   let power = 0;
   const costs = new Map();
+  const lateBlocks = new Set();
   let unknownCosts = 0;
 
   for (const tile of scheme.tiles) {
@@ -202,9 +208,8 @@ export function analyzeMechanics(scheme) {
         liquids: fact.liquids ?? {}, heat: fact.heatRequirement ?? 0,
       });
     }
-    if (block && (stageRank[block.stage] ?? 0) > (stageRank[scheme.settings?.stage] ?? 1)) {
-      warnings.add('Часть блоков обычно открывается позже выбранного этапа; проверь исследования и строительные ресурсы в секторе.');
-    }
+    // The catalog's stage labels are hand-made; the materials a block costs tell reliably how far into the game it is.
+    if (block && techTier(tile.id, scheme.settings?.planet === 'erekir' ? 'erekir' : 'serpulo') > stageTier(scheme.settings?.stage)) lateBlocks.add(block.name);
     if (/drill|bore|crusher/.test(tile.id)) warnings.add('Добыча зависит от карты: проверь руду/стену под буром, покрытие и требуемый атрибут поверхности.');
     if (/thermal-generator|condenser/.test(tile.id)) warnings.add('Тепловые генераторы и конденсаторы требуют подходящей поверхности; выход зависит от карты.');
     if (/reactor/.test(tile.id)) warnings.add('Реактор: подключи топливо, охлаждение и пусковое питание по требованиям блока.');
@@ -213,6 +218,13 @@ export function analyzeMechanics(scheme) {
     if (tile.id === 'landing-pad') warnings.add('Посадочная площадка принимает экспорт выбранного предмета: настрой её фильтр после вставки и направь импорт в конвейер.');
   }
 
+  if (lateBlocks.size) {
+    const names = [...lateBlocks].slice(0, 4).map(name => `«${name}»`).join(', ');
+    const rest = lateBlocks.size > 4 ? ` и ещё ${lateBlocks.size - 4}` : '';
+    const verb = lateBlocks.size === 1 ? 'открывается и строится' : 'открываются и строятся';
+    warnings.add(`Для выбранного этапа это дорого: ${names}${rest} обычно ${verb} позже; проверь исследования и ресурсы сектора.`);
+  }
+  const flow = analyzeFlow(scheme);
   const minimal = scheme.settings?.minimal && scheme.settings?.supplyMode === 'external';
   if (minimal) {
     warnings.add('Минимальный режим — один рецепт и внешние линии. Сырьё/жидкости подаются напрямую к отмеченным соседним портам.');
@@ -244,12 +256,14 @@ export function analyzeMechanics(scheme) {
       warnings.add('Один модуль, без ядра и склада. Это минимум среди поддерживаемых одиночных рецептов, не доказательство глобального оптимума.');
     }
   } else if (scheme.tiles.length) {
-    warnings.add(`Эскиз Mindustry ${GAME_VERSION}: баланс потоков и все маршруты не подтверждены симуляцией. Проверь схему в игре.`);
-    if (power) warnings.add('Проверь генерацию мощности, дальность силовых связей и подключение каждого потребителя.');
+    warnings.add(flow.errors
+      ? `Статическая проверка нашла ошибки потоков: ${flow.errors} (см. раздел «Проверка схемы»). Исправь их или перегенерируй схему.`
+      : `Статическая проверка Mindustry ${GAME_VERSION}: ленты, подача ингредиентов и боеприпасов, питание и жидкости сходятся. Это не игровая симуляция: рельеф карты и баланс производительности проверь в игре.`);
+    if (power && flow.warnings) warnings.add('Проверь мощность: дальность силовых связей и покрытие потребителей отмечены в разделе «Проверка схемы».');
     if (scheme.settings?.planet === 'erekir') warnings.add('Эрекир: ядро нельзя разгружать напрямую; лучевые узлы соединяются по прямой.');
     if (scheme.settings?.direction === 'production' && !productionMachines[scheme.settings?.planet]?.[scheme.settings?.goal]) {
       warnings.add('Для выбранного продукта нет подтверждённого одно-продуктового рецепта на этой планете; схема может быть неполной.');
     }
   }
-  return { warnings: [...warnings], requirements, power, costs, unknownCosts };
+  return { warnings: [...warnings], requirements, power, costs, unknownCosts, flow };
 }
