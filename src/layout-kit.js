@@ -183,10 +183,16 @@ export class Board {
    * Find a path for a lane (conveyor, duct, conduit) from `start` (first lane cell) to `end` (last lane cell,
    * which must face `endRotation`). Lanes never run along hazard cells, never reverse into the source, and may
    * cross another lane of the same kind through a junction (`junction` id) when `cross` is set.
+   *
+   * `jumps` adds bridge and phase links: `[{ id, range, cost }]`. A jump leaves the lane at one cell and
+   * reappears further along the same line, so a lane can fly over machines, walls and other lanes instead of
+   * taking a long detour. The two ends of a jump are ordinary 1x1 blocks: the entry (which carries the link
+   * for point-linked bridges) and the exit, which always faces the direction of the jump — so the lane has to
+   * continue straight after landing, or end there.
    */
   route({
     start, end, endRotation, lane = 'conveyor', junction = null, hazard = 'item', allow = [], avoid = [],
-    turnCost = 1.6, crossCost = 9, maxCells = 200,
+    turnCost = 1.6, crossCost = 9, maxCells = 200, jumps = [],
   }) {
     const laneKind = describeBlock(lane).kind;
     const hazardMap = hazard === 'liquid' ? this.liquidHazard : this.itemHazard;
@@ -217,6 +223,55 @@ export class Board {
       if (!(describeBlock(behind.id).kind === laneKind && behind.rotation === tile.rotation)) return false;
       return true;
     };
+    /**
+     * Can a lane stepping from `node` into `dir` instead jump? The entry sits on the next cell
+     * (`entryX`, `entryY`); the exit lands `span` cells further along the same line. Both ends need a free
+     * cell, the gap between them has to hold something worth jumping over, and the exit must be able to
+     * keep going straight with empty flanks so it does not leak into unrelated neighbours.
+     */
+    const startKey = cellKey(start.x, start.y);
+    const jumpList = jumps.filter(entry => entry && entry.id && entry.range >= 2);
+    const tryJump = (entryX, entryY, dir) => {
+      if (!jumpList.length) return null;
+      const step = DIRS[dir];
+      if (!usable(entryX, entryY)) return null;
+      for (const jump of jumpList) {
+        const linkKind = describeBlock(jump.id).kind;
+        const rotationLinked = linkKind === 'ductBridge';
+        for (let span = 2; span <= jump.range; span += 1) {
+          const exit = { x: entryX + step.x * span, y: entryY + step.y * span };
+          const isEnd = cellKey(exit.x, exit.y) === endKey;
+          if (isEnd) { if (endRotation !== dir) break; }
+          else if (!usable(exit.x + step.x, exit.y + step.y)) break;
+          if (!usable(exit.x, exit.y)) continue;
+          const sideA = { x: exit.x + DIRS[(dir + 1) % 4].x, y: exit.y + DIRS[(dir + 1) % 4].y };
+          const sideB = { x: exit.x + DIRS[(dir + 3) % 4].x, y: exit.y + DIRS[(dir + 3) % 4].y };
+          if (!this.isFree(sideA.x, sideA.y) || !this.isFree(sideB.x, sideB.y)) continue;
+          let obstacle = false;
+          let clean = true;
+          for (let offset = 1; offset < span; offset += 1) {
+            const cx = entryX + step.x * offset;
+            const cy = entryY + step.y * offset;
+            if (!usable(cx, cy)) obstacle = true;
+            if (cellKey(cx, cy) === endKey) clean = false;
+            const tile = this.tileAt(cx, cy);
+            // A rotation-linked bridge links to the first of its own kind ahead of it: another one in the
+            // gap would steal the link, and so would one right behind the exit.
+            if (tile && (tile.id === jump.id || (rotationLinked && describeBlock(tile.id).kind === 'ductBridge'))) clean = false;
+          }
+          if (rotationLinked) {
+            for (let offset = 1; offset <= 4; offset += 1) {
+              const tile = this.tileAt(exit.x + step.x * offset, exit.y + step.y * offset);
+              if (tile && describeBlock(tile.id).kind === 'ductBridge') { clean = false; break; }
+            }
+          }
+          if (!obstacle || !clean) continue;
+          return { entry: { x: entryX, y: entryY }, exit, jump, span };
+        }
+      }
+      return null;
+    };
+
     if (!usable(start.x, start.y) || !usable(end.x, end.y)) return null;
 
     const open = new Heap();
@@ -236,13 +291,17 @@ export class Board {
       if (node.cost > maxCells * 3) continue;
       for (let dir = 0; dir < 4; dir += 1) {
         if (node.dir >= 0 && dir === opposite(node.dir)) continue;
+        // A lane that arrived on a bridge exit faces that way and has to keep going the same way.
+        if (node.lockDir != null && dir !== node.lockDir) continue;
         const nx = node.x + DIRS[dir].x;
         const ny = node.y + DIRS[dir].y;
-        let target = null;
-        let extra = 0;
-        if (usable(nx, ny)) {
-          target = { x: nx, y: ny, crossings: [] };
-        } else if (junction) {
+        const turn = node.dir >= 0 && node.dir !== dir ? turnCost : 0;
+        // Every direction offers up to three moves, and A* picks the cheapest: walk to the next cell, cross a
+        // lane with junctions, or jump the gap with a bridge. The bridge entry goes on the next cell even when
+        // that cell is free — the obstacle it flies over is further along the line.
+        const moves = [];
+        if (usable(nx, ny)) moves.push({ target: { x: nx, y: ny, crossings: [] }, extra: 0 });
+        else if (junction) {
           // Cross one lane, or several lanes side by side, with a chain of junctions.
           const crossed = [];
           let cx = nx;
@@ -253,18 +312,24 @@ export class Board {
             cy += DIRS[dir].y;
           }
           if (crossed.length && usable(cx, cy) && !(cx === end.x && cy === end.y && endRotation === opposite(dir))) {
-            target = { x: cx, y: cy, crossings: crossed };
-            extra = crossCost * crossed.length;
+            moves.push({ target: { x: cx, y: cy, crossings: crossed }, extra: crossCost * crossed.length });
           }
         }
-        if (!target) continue;
-        const turn = node.dir >= 0 && node.dir !== dir ? turnCost : 0;
-        const cost = node.cost + 1 + target.crossings.length + turn + extra;
-        const nextKey = stateKey(target.x, target.y, dir);
-        if (cost >= (best.get(nextKey) ?? Infinity)) continue;
-        best.set(nextKey, cost);
-        parents.set(nextKey, { from: key, crossings: target.crossings });
-        open.push(cost + heuristic(target.x, target.y), { x: target.x, y: target.y, dir, cost });
+        const jump = tryJump(nx, ny, dir);
+        if (jump) moves.push({ target: { x: jump.exit.x, y: jump.exit.y, crossings: [], jump }, extra: jump.jump.cost + (jump.span - 2) * 0.05 });
+        for (const move of moves) {
+          const target = move.target;
+          // The search knows (cell, direction) pairs, so it can walk back onto a cell it already used — a lane
+          // that loops onto its own entrance. Nothing needs that, and a bridge placed on a cell the lane is
+          // already standing on would lose half of its link.
+          if (cellKey(target.x, target.y) === startKey) continue;
+          const cost = node.cost + 1 + target.crossings.length + turn + move.extra;
+          const nextKey = stateKey(target.x, target.y, dir);
+          if (cost >= (best.get(nextKey) ?? Infinity)) continue;
+          best.set(nextKey, cost);
+          parents.set(nextKey, { from: key, crossings: target.crossings, jump: target.jump ?? null });
+          open.push(cost + heuristic(target.x, target.y), { x: target.x, y: target.y, dir, cost, lockDir: target.jump ? dir : null });
+        }
       }
     }
     if (!goal) return null;
@@ -286,23 +351,46 @@ export class Board {
         crossings.push({ x: cross.x, y: cross.y });
         cells.push({ x: cross.x, y: cross.y, junction: true, dir });
       }
-      cells.push({ x, y, junction: false, dir });
+      if (parent?.jump) {
+        // Both ends of the link: the entry keeps the relative offset to the exit, the exit just faces forward.
+        const { entry, exit, jump } = parent.jump;
+        cells.push({ x: entry.x, y: entry.y, bridge: 'entry', dir, jumpId: jump.id, dx: exit.x - entry.x, dy: exit.y - entry.y });
+        cells.push({ x: exit.x, y: exit.y, bridge: 'exit', dir, jumpId: jump.id });
+        crossings.push({ x: entry.x, y: entry.y });
+      } else {
+        cells.push({ x, y, junction: false, dir });
+      }
     }
     if (cells.length > maxCells) return null;
     // Rotation of each plain cell points at the next cell (a junction counts as the next cell); the last cell faces the target.
     for (let index = 0; index < cells.length; index += 1) {
-      if (cells[index].junction) continue;
+      if (cells[index].junction || cells[index].bridge) continue;
       const next = cells[index + 1];
       if (!next) cells[index].rotation = endRotation;
       else cells[index].rotation = DIRS.findIndex(dir => cells[index].x + dir.x === next.x && cells[index].y + dir.y === next.y);
     }
-    return { cells, crossings, cost: goal.cost };
+    return { cells, crossings, cost: goal.cost, jumps: cells.filter(cell => cell.bridge === 'entry').length };
   }
 
-  /** Place the lane returned by `route`. Crossed belts become junctions. */
+  /** Place the lane returned by `route`. Crossed belts become junctions, jumps become linked bridge pairs. */
   commitRoute(path, { lane = 'conveyor', junction = 'junction', config = null, meta = {} } = {}) {
     const placed = [];
     for (const cell of path.cells) {
+      if (cell.bridge) {
+        const id = cell.jumpId ?? lane;
+        const kind = describeBlock(id).kind;
+        // A lane may cross its own earlier cells; the tile standing there is part of this very lane, so the
+        // bridge takes the cell over instead of leaving an unlinked half-pair behind.
+        const previous = this.tileAt(cell.x, cell.y);
+        if (previous && ['belt', 'armored', 'stack', 'junction', 'router', 'gate'].includes(describeBlock(previous.id).kind)) this.remove(previous);
+        // Point-linked bridges (`bridge-conveyor`, `phase-conveyor`, conduits) carry the offset to their exit;
+        // rotation-linked ones (`duct-bridge`) find it by looking along their own facing.
+        const link = cell.bridge === 'entry' && ['bridge', 'liquidBridge'].includes(kind)
+          ? { type: 'point2', x: cell.dx, y: cell.dy }
+          : null;
+        placed.push(this.place(id, cell.x, cell.y, cell.dir, link, { ...meta, lane: true, jump: true, ignoreReservation: true }));
+        continue;
+      }
       if (cell.junction) {
         const old = this.tileAt(cell.x, cell.y);
         if (old && describeBlock(old.id).kind === describeBlock(lane).kind) this.remove(old);

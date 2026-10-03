@@ -1,4 +1,4 @@
-import { describeBlock, reconstructorInfo, unitFactoryInfo } from '../flow.js';
+import { analyzeFlow, describeBlock, reconstructorInfo, unitFactoryInfo } from '../flow.js';
 import { blockSize, footprint } from '../geometry.js';
 import { buildLogicProgram } from '../logic.js';
 import { addDroneDock, addProcessor } from './dock.js';
@@ -7,7 +7,11 @@ import { itemConfig } from './frame.js';
 import { routeLanes } from './lanes.js';
 import { addLiquidSupply } from './machines.js';
 import { addExternalPort, addPlant, connectPower, findFreeRect, powerDemand, writeNodeLinks } from './power.js';
+import { planCount, rateTarget, reportRate } from './rate.js';
 import { blockName, itemName } from './profile.js';
+
+/** Flow complaints that only mean "the grid is not built yet", so a mid-build probe ignores them. */
+const powerOnlyCodes = new Set(['power-source', 'power-external', 'power-deficit', 'power-missing']);
 
 const chains = {
   serpulo: {
@@ -69,31 +73,22 @@ export function sharedIngredient(frame, goal) {
  * The ingredient shared by most blocks (silicon) uses one such lane on the near side; every other ingredient gets
  * its own lane to a port on the far side.
  */
-export function buildUnits(frame) {
+/**
+ * One row of the chain: the blocks, the shared-ingredient lane along them, a pipe or a port for every other
+ * ingredient, and the drone docks. Rows are independent, so the outer builder can repeat them for a target.
+ */
+function placeUnitChain(frame, { chain, core, flip, spaced, gap, payloadId, rowSpine, edge, useHub }) {
   const settings = frame.settings;
   const board = frame.board;
   const planet = frame.planet;
-  const table = chains[planet];
-  const goal = table[settings.goal] ? settings.goal : Object.keys(table)[0];
-  frame.placeCore({ marginEast: 3 });
-  const core = frame.coreRect;
-  const flip = frame.variant === 1;
-  const spaced = frame.variant === 2;
-  const available = table[goal].filter(id => frame.has(id));
-  const chain = available.slice(0, Math.max(1, Math.min(available.length, frame.tier + 1)));
-  const payloadId = planet === 'erekir' ? 'reinforced-payload-conveyor' : 'payload-conveyor';
-  const rowSpine = flip ? core.startY : core.endY;       // lane row, level with the core's outer row
-  const edge = flip ? rowSpine + 1 : rowSpine - 1;        // blocks hug the lane: top (or bottom) edge aligned
-  // A single block has nothing to space out, so the third candidate moves it further from the core instead.
-  const gap = spaced && chain.length < 2 ? 5 : 2;
-
   const placed = [];
+  let failed = 0;
   let cursor = core.startX - 1 - gap;
   for (const [index, id] of chain.entries()) {
     const size = blockSize(id);
     const startY = flip ? edge : edge - size + 1;
     const tile = board.placeAtStart(id, cursor - size + 1, startY, 2, null, { role: index === 0 ? 'factory' : 'reconstructor' });
-    if (!tile) { frame.fail(`Не нашлось места для «${blockName(id)}».`); break; }
+    if (!tile) { frame.fail(`Не нашлось места для «${blockName(id)}».`); failed += 1; break; }
     if (unitFactoryInfo(id) && planet === 'serpulo') tile.config = 0;
     placed.push(tile);
     cursor -= size;
@@ -104,7 +99,7 @@ export function buildUnits(frame) {
       if (conveyor) cursor -= psize;
     }
   }
-  if (!placed.length) return { goalId: goal, label: goalLabels[goal] ?? 'Юниты' };
+  if (!placed.length) return null;
 
   // Shared ingredient: the one used by most blocks.
   const demands = placed.map(tile => demandOf(tile.id));
@@ -117,14 +112,15 @@ export function buildUnits(frame) {
   const laneDir = 2;
 
   if (shared && mode !== 'drones') {
-    // Supply of the shared lane: Serpulo unloader on the core, Erekir buffer container above the lane start.
+    // Supply of the shared lane: Serpulo unloader on the core, or a buffer container beside the lane start.
+    // Every row past the first is too far from the core face for an unloader, so it gets its own container.
     const startX = core.startX - 2;
     let fed = false;
-    if (planet === 'serpulo') {
+    if (planet === 'serpulo' && !useHub) {
       const slot = { x: core.startX - 1, y: rowSpine };
       fed = Boolean(board.place(frame.profile.unloader, slot.x, slot.y, 0, itemConfig(shared), { role: 'unloader', item: shared }));
     } else {
-      const hubId = frame.has('reinforced-container') ? 'reinforced-container' : null;
+      const hubId = frame.has('reinforced-container') ? 'reinforced-container' : frame.has('container') ? 'container' : null;
       if (hubId) {
         const hubSize = blockSize(hubId);
         const unloaderY = flip ? rowSpine - 1 : rowSpine + 1;
@@ -148,7 +144,7 @@ export function buildUnits(frame) {
         else board.place(belt, x, rowSpine, laneDir, null, { role: 'spine', lane: true });
       }
       void westX;
-    } else frame.fail('Не удалось подать общий ингредиент вдоль цепочки.');
+    } else { frame.fail('Не удалось подать общий ингредиент вдоль цепочки.'); failed += 1; }
   }
 
   // Every other ingredient: a lane of its own to a port on the far face.
@@ -168,7 +164,7 @@ export function buildUnits(frame) {
     if (Object.keys(demands[index].liquids).length) addLiquidSupply(frame, tile, { liquids: demands[index].liquids });
   }
   board.releaseReservation(portCells);
-  if (mode !== 'drones' && jobs.length) routeLanes(frame, jobs);
+  if (mode !== 'drones' && jobs.length) failed += routeLanes(frame, jobs);
 
   // Drone / processor extras.
   if (['drones', 'hybrid'].includes(mode)) {
@@ -181,18 +177,76 @@ export function buildUnits(frame) {
     const program = buildLogicProgram({ ...settings, direction: 'units' });
     if (program) addProcessor(frame, { links: [frame.core, placed[0]], program, anchor: placed[0] });
   }
+  return { placed, demands, shared, failed };
+}
 
+export function buildUnits(frame) {
+  const settings = frame.settings;
+  const board = frame.board;
+  const planet = frame.planet;
+  const table = chains[planet];
+  const goal = table[settings.goal] ? settings.goal : Object.keys(table)[0];
+  frame.placeCore({ marginEast: 3 });
+  const core = frame.coreRect;
+  const flip = frame.variant === 1;
+  const spaced = frame.variant === 2;
+  const available = table[goal].filter(id => frame.has(id));
+  const chain = available.slice(0, Math.max(1, Math.min(available.length, frame.tier + 1)));
+  const payloadId = planet === 'erekir' ? 'reinforced-payload-conveyor' : 'payload-conveyor';
+  // A single block has nothing to space out, so the third candidate moves it further from the core instead.
+  const gap = spaced && chain.length < 2 ? 5 : 2;
+
+  // A target in units/minute becomes a number of parallel chains: one factory line makes `perFactory` of them.
+  const firstPlan = unitFactoryInfo(chain[0] ?? '')?.plans?.[0];
+  const perFactory = firstPlan?.time ? 60 / firstPlan.time : 0;
+  const target = rateTarget(settings, 'units');
+  // Two chains is the ceiling: the core has one free face above and one below, and a chain is fed from the face it
+  // hugs, so a third line would have to cross a built one. A target past that is reported as a shortfall.
+  // Erekir cores cannot be unloaded, so every line there needs its own buffer container beside the core; only the
+  // first one has room for it. Serpulo unloads both faces, so it can run two.
+  const plan = planCount({ target, per: perFactory, min: 1, max: planet === 'erekir' ? 1 : 2, perMinute: true });
+  const chainCount = plan.count ?? 1;
+
+  // A second line sits one block-height beyond the first and faces the other way: its ports (and so its lanes)
+  // point away from the first row, so the two never have to cross. Further rows would need a corridor through a
+  // built line, so two is where this stops - a bigger target is reported as a shortfall instead.
+  const maxSize = Math.max(...chain.map(blockSize));
+  const spines = [flip ? core.startY : core.endY, flip ? core.startY - maxSize : core.endY + maxSize];
+  // Every extra line is built on a throw-away copy and only kept when it really runs: a second line that cannot
+  // be fed would leave the whole blueprint broken, and one working line is a better answer than two broken ones.
+  const broken = frameLike => { try { const a = analyzeFlow(frameLike.scheme({ name: 'probe', description: '' })); return a.issues.filter(issue => issue.level !== 'info' && !powerOnlyCodes.has(issue.code)).length; } catch { return 0; } };
+  const rows = [];
+  for (let row = 0; row < chainCount; row += 1) {
+    const rowFlip = row % 2 === 0 ? flip : !flip;
+    const rowSpine = spines[row] ?? spines.at(-1);
+    const host = row === 0 ? frame : frame.fork();
+    const before = row === 0 ? 0 : broken(host);
+    const built = placeUnitChain(host, { chain, core, flip: rowFlip, spaced, gap, payloadId, rowSpine, edge: rowFlip ? rowSpine + 1 : rowSpine - 1, useHub: row > 0 || planet === 'erekir' });
+    if (!built?.placed?.length) break;
+    if (row > 0) {
+      if (built.failed || broken(host) > before) break;
+      frame.adopt(host);
+    }
+    rows.push(built);
+  }
+  const placed = rows.flatMap(row => row.placed);
+  if (!placed.length) return { goalId: goal, label: goalLabels[goal] ?? 'Юниты' };
+  const demands = rows.flatMap(row => row.demands);
+  const shared = rows[0].shared;
   // Power.
   const nodeId = frame.pick(frame.profile.node);
-  if (board.tiles.some(tile => describeBlock(tile.id).powerUse > 0)) {
-    if (settings.includePower) addPlant(frame, powerDemand(board.tiles), { x: core.startX - 6, y: flip ? core.endY + 10 : core.startY - 8 });
+  // Read the board fresh: adopting an extra line replaced it, and a captured one would leave the plant short.
+  if (frame.board.tiles.some(tile => describeBlock(tile.id).powerUse > 0)) {
+    if (settings.includePower) addPlant(frame, powerDemand(frame.board.tiles), { x: core.startX - 6, y: flip ? core.endY + 10 : core.startY - 8 });
     connectPower(frame, { nodeId });
-    if (!settings.includePower) { addExternalPort(frame, { nodeId }); frame.require(`Подключи внешнее питание: до ${Math.round(powerDemand(board.tiles))} ед./с.`); }
+    if (!settings.includePower) { addExternalPort(frame, { nodeId }); frame.require(`Подключи внешнее питание: до ${Math.round(powerDemand(frame.board.tiles))} ед./с.`); }
     writeNodeLinks(frame);
   }
   if (settings.includeStorage) addStorage(frame);
   const names = upgradeNames(chain);
-  frame.note(`Цепочка юнитов: ${placed.map(tile => blockName(tile.id)).join(' → ')} (${names.join(' → ')}). Блоки стоят вплотную по направлению стрелки: юнит переезжает из одного в другой, последний выпускает его на свободное место.`);
+  const lines = rows.length > 1 ? ` ${rows.length} параллельные линии;` : '';
+  frame.note(`Цепочка юнитов:${lines} ${chain.map(id => blockName(id)).join(' → ')} (${names.join(' → ')}). Блоки стоят вплотную по направлению стрелки: юнит переезжает из одного в другой, последний выпускает его на свободное место.`);
+  reportRate(frame, { direction: 'units', target, per: perFactory, count: rows.length, noun: names.at(-1) ?? 'юнитов', blocks: '× линия' });
   if (shared) frame.note(`Общий ингредиент «${itemName(shared)}» идёт одной линией вдоль блоков: маршрутизаторы касаются каждого потребителя; остальное — отдельные линии с другой стороны.`);
   if (planet === 'serpulo') frame.note('План завода сохранён в схеме: производится первый юнит списка; сменить его можно в игре.');
   void findFreeRect;

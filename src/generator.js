@@ -3,7 +3,8 @@ import { blockById, getProductsForDirection } from './catalog.js';
 import { GAME_VERSION } from './game-version.js';
 import { analyzeFlow, describeBlock } from './flow.js';
 import { Frame, normalizeSettings } from './gen/frame.js';
-import { canvasPresets, initialSettings, supplyModes } from './gen/settings.js';
+import { rateMetaFor } from './gen/rate.js';
+import { canvasPresets, initialSettings, liquidSources, rateModes, supplyModes } from './gen/settings.js';
 import { buildMining } from './gen/mining.js';
 import { buildDefense } from './gen/defense.js';
 import { buildProduction } from './gen/production.js';
@@ -14,7 +15,7 @@ import { buildLogic } from './gen/logicdemo.js';
 import { buildCampaign } from './gen/campaign.js';
 import { getStageLabel } from './catalog.js';
 
-export { canvasPresets, initialSettings, supplyModes };
+export { canvasPresets, initialSettings, liquidSources, rateModes, rateMetaFor, supplyModes };
 
 export function blockRect(tile) {
   return footprint(tile);

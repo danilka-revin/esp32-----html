@@ -2,6 +2,7 @@ import { blockSize, footprint, DIRS } from '../geometry.js';
 import { addStorage } from './extras.js';
 import { itemConfig } from './frame.js';
 import { addExternalPort, addPlant, connectPower, powerDemand, writeNodeLinks } from './power.js';
+import { lanesForBelt, rateTarget, reportRate } from './rate.js';
 import { blockName, itemName, rawItems } from './profile.js';
 import { coreUnloader } from './supply.js';
 import { describeBlock } from '../flow.js';
@@ -25,25 +26,35 @@ function trunkSpec(frame) {
 function mergeBus(frame, variant) {
   const board = frame.board;
   const { yc, xEnd, xStart } = trunkSpec(frame);
+  const core = frame.coreRect;
   const items = sampleItems(frame, 3);
   const feeders = Math.min(2, items.length - 1);
   const rate = frame.planet === 'erekir' ? Math.min(15, items.length * 4) : items.length * 4.2;
-  const trunk = frame.belt(rate);
+  // A throughput target is carried by parallel trunk lines: one belt tops out at its own rate, and every extra
+  // line needs its own row of the core face to end in, so the core size is the ceiling.
+  const target = rateTarget(frame.settings, 'logistics');
+  const wantedLanes = target == null ? 1 : lanesForBelt(frame, target).lanes;
+  const rows = [yc, yc + 1, yc - 1, yc + 2, yc - 2, yc + 3, yc - 3]
+    .filter(row => row >= core.startY && row <= core.endY)
+    .slice(0, Math.max(1, Math.min(wantedLanes, core.size)));
+  const trunk = frame.belt(target == null ? rate : target / rows.length);
   const feeder = frame.belt(4.2);
   const bridgeAt = variant === 2 ? Math.floor((xStart + xEnd) / 2) - 2 : null;
   const bridgeId = frame.planet === 'erekir' ? 'duct-bridge' : 'bridge-conveyor';
-  for (let x = xStart; x <= xEnd; x += 1) {
-    if (bridgeAt != null && x > bridgeAt && x < bridgeAt + 4) continue;
-    if (bridgeAt != null && (x === bridgeAt || x === bridgeAt + 4) && frame.has(bridgeId)) {
-      const start = x === bridgeAt;
-      const config = frame.planet === 'erekir' ? null : (start ? { type: 'point2', x: 4, y: 0 } : null);
-      board.place(bridgeId, x, yc, 0, config, { role: 'bridge' });
-    } else board.place(trunk, x, yc, 0, null, { role: 'trunk', lane: true });
+  for (const row of rows) {
+    for (let x = xStart; x <= xEnd; x += 1) {
+      if (bridgeAt != null && x > bridgeAt && x < bridgeAt + 4) continue;
+      if (bridgeAt != null && (x === bridgeAt || x === bridgeAt + 4) && frame.has(bridgeId)) {
+        const start = x === bridgeAt;
+        const config = frame.planet === 'erekir' ? null : (start ? { type: 'point2', x: 4, y: 0 } : null);
+        board.place(bridgeId, x, row, 0, config, { role: 'bridge' });
+      } else board.place(trunk, x, row, 0, null, { role: 'trunk', lane: true });
+    }
+    frame.inlet({ x: xStart, y: row, kind: 'item', id: items[0] });
   }
-  frame.inlet({ x: xStart, y: yc, kind: 'item', id: items[0] });
   if (bridgeAt != null) {
     // Walls in the gap the bridge hops over.
-    for (let x = bridgeAt + 1; x < bridgeAt + 4; x += 1) board.place(frame.profile.wall, x, yc, 0, null, { role: 'wall' });
+    for (const row of rows) for (let x = bridgeAt + 1; x < bridgeAt + 4; x += 1) board.place(frame.profile.wall, x, row, 0, null, { role: 'wall' });
     frame.note('Мост перепрыгивает препятствие: три клетки стены под ним остаются свободными для постройки.');
   }
   const gap = Math.max(4, Math.floor((xEnd - xStart) / (feeders + 1)));
@@ -65,7 +76,9 @@ function mergeBus(frame, variant) {
       frame.note('Транзитная линия пересекает магистраль через перекрёсток и входит в ядро снизу — потоки не смешиваются.');
     }
   }
-  frame.note(`Магистраль: ${blockName(trunk)} несёт до ${items.length} потоков (${items.map(itemName).join(', ')}) в ядро; каждый вход — отдельная лента-притока.`);
+  frame.note(`Магистраль: ${blockName(trunk)} × ${rows.length} несёт до ${items.length} потоков (${items.map(itemName).join(', ')}) в ядро; каждый вход — отдельная лента-притока.`);
+  const capacity = frame.profile.belts.filter(entry => frame.has(entry.id)).at(-1)?.rate ?? 0;
+  reportRate(frame, { direction: 'logistics', target, per: Math.min(capacity, target == null ? capacity : target / rows.length), count: rows.length, noun: 'предметов', blocks: '× линия магистрали' });
   return { items };
 }
 
@@ -73,7 +86,9 @@ function mergeBus(frame, variant) {
 function sortingStation(frame) {
   const board = frame.board;
   const { yc, xEnd, xStart } = trunkSpec(frame);
-  const trunk = frame.belt(8);
+  // A target sizes the belt the mixed stream rides on: sorting does not split the trunk into lanes.
+  const target = rateTarget(frame.settings, 'logistics');
+  const trunk = frame.belt(target ?? 8);
   const branch = frame.belt(4.2);
   const containerId = frame.planet === 'erekir' ? 'reinforced-container' : 'container';
   const csize = blockSize(containerId);
@@ -96,6 +111,8 @@ function sortingStation(frame) {
   });
   frame.note(`Сортировка: инвертированные сортировщики вытаскивают ${items.map(itemName).join(', ')} в контейнеры; остальное идёт дальше в ядро.`);
   frame.note('На вход подай смешанный поток: сортировщик отдаёт «свой» предмет вбок, остальные пропускает вперёд.');
+  const carrying = frame.profile.belts.find(entry => entry.id === trunk)?.rate ?? 0;
+  reportRate(frame, { direction: 'logistics', target, per: carrying, count: 1, noun: 'предметов', blocks: `× ${blockName(trunk)}` });
   return { items };
 }
 

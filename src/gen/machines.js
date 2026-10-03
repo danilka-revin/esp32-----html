@@ -1,6 +1,6 @@
 import { describeBlock } from '../flow.js';
 import { blockSize, footprint, rectCenter, ringCells } from '../geometry.js';
-import { blockName } from './profile.js';
+import { blockName, liquidName } from './profile.js';
 
 const rectOf = (startX, startY, size) => ({ startX, startY, endX: startX + size - 1, endY: startY + size - 1, size });
 const key = cell => `${cell.x},${cell.y}`;
@@ -28,22 +28,68 @@ export function adjacentSpot(frame, rect, size, { avoid = [], prefer = null } = 
   return spots;
 }
 
-/** Liquids: a water extractor right next to the machine, or a labelled pipe inlet for anything else. */
-export function addLiquidSupply(frame, machine, recipe) {
+/**
+ * Blocks that make a liquid inside the blueprint. Anything absent from this table can only arrive by pipe,
+ * because the game has no block that produces it on its own (cryofluid, slag and the synthesised gases).
+ */
+const liquidProducers = {
+  water: ['water-extractor', 'impulse-pump', 'rotary-pump', 'mechanical-pump'],
+  oil: ['oil-extractor'],
+  spores: ['cultivator'],
+};
+
+/** Liquid per second one producer makes. Only the extractor figure is one the game publishes; the pumps are
+ *  quoted for the best ground water tile, so the plan stays on the safe side and asks for a whole block. */
+const producerOutput = { 'water-extractor': 6.6, 'impulse-pump': 6.6, 'rotary-pump': 4.3, 'mechanical-pump': 4.3, 'oil-extractor': 6, cultivator: 3 };
+
+/** The block that would make `liquid` here, or null when the liquid has to be piped in. */
+export function liquidProducer(frame, liquid) {
+  return (liquidProducers[liquid] ?? []).find(id => frame.has(id)) ?? null;
+}
+
+/** One block's share of a liquid demand, so a note can say how many were worth placing. */
+export function liquidProducerRate(id, rate) {
+  const per = producerOutput[id] ?? 0;
+  return per > 0 ? per : rate;
+}
+
+/**
+ * Liquids: either made inside the blueprint by an extractor/pump/cultivator, or a labelled pipe inlet.
+ * The `liquidSource` setting decides which: 'internal' asks for a producer whenever the game has one,
+ * 'external' always pipes it in, and 'auto' keeps the old habit — water is dug inside when the schematic
+ * brings its own power to run the extractor, everything else arrives by pipe.
+ */
+export function addLiquidSupply(frame, machine, recipe, { depth = 0 } = {}) {
   const board = frame.board;
   const rect = footprint(machine);
+  const mode = frame.settings.liquidSource ?? 'auto';
   for (const [liquid, rate] of Object.entries(recipe.liquids ?? {})) {
-    const extractor = 'water-extractor';
-    if (liquid === 'water' && frame.planet === 'serpulo' && frame.has(extractor) && frame.settings.includePower) {
-      const perExtractor = describeBlock(extractor).fact.output ? 0 : 6.6;
-      const count = Math.min(3, Math.max(1, Math.ceil(rate / perExtractor)));
+    const wantProducer = mode === 'internal' || (mode !== 'external' && liquid === 'water' && frame.settings.includePower);
+    const producer = wantProducer ? liquidProducer(frame, liquid) : null;
+    if (producer) {
+      const per = liquidProducerRate(producer, rate);
+      const count = Math.min(3, Math.max(1, Math.ceil(rate / per)));
       let placed = 0;
+      const produceTiles = [];
       for (let index = 0; index < count; index += 1) {
-        const spot = adjacentSpot(frame, rect, blockSize(extractor), { prefer: rectCenter(rect) })[0];
+        const spot = adjacentSpot(frame, rect, blockSize(producer), { prefer: rectCenter(rect) })[0];
         if (!spot) break;
-        if (board.placeAtStart(extractor, spot.startX, spot.startY, 0, null, { role: 'water-extractor' })) placed += 1;
+        const tile = board.placeAtStart(producer, spot.startX, spot.startY, 0, null, { role: 'liquid-source' });
+        if (tile) { placed += 1; produceTiles.push(tile); }
       }
-      if (placed) { frame.note(`Вода: ${placed} × Водяной экстрактор рядом с «${blockName(machine.id)}» подаёт воду без труб.`); continue; }
+      if (placed) {
+        const needs = describeBlock(producer).powerUse > 0;
+        frame.note(`${liquidName(liquid)}: ${placed} × ${blockName(producer)} рядом с «${blockName(machine.id)}» добывают жидкость внутри схемы (≈${(placed * per).toFixed(1)}/с из ${rate.toFixed(1)}/с).`);
+        if (needs && !frame.settings.includePower) frame.require(`${blockName(producer)} нужна энергия: подключи внешнее питание, иначе жидкость не пойдёт.`);
+        if (placed * per + 1e-9 < rate) frame.require(`Жидкости «${liquidName(liquid)}» не хватает: ${placed} × ${blockName(producer)} дают ≈${(placed * per).toFixed(1)}/с, нужно ${rate.toFixed(1)}/с — долей по трубе снаружи.`);
+        // A producer can be thirsty itself (an oil rig drinks water): feed it the same way, one level deep.
+        for (const tile of produceTiles) {
+          const own = describeBlock(producer).liquidsRequired ?? {};
+          if (depth < 1 && Object.keys(own).length) addLiquidSupply(frame, tile, { liquids: own }, { depth: depth + 1 });
+        }
+        continue;
+      }
+      if (mode === 'internal') frame.note(`«${liquidName(liquid)}» добыть внутри не вышло: рядом с «${blockName(machine.id)}» нет места — жидкость придёт по трубе снаружи.`);
     }
     // Pipe inlet touching the machine, pointing into it.
     const conduit = frame.profile.conduits.find(entry => frame.has(entry.id))?.id;
@@ -52,8 +98,8 @@ export function addLiquidSupply(frame, machine, recipe) {
     if (conduit && cell) {
       board.place(conduit, cell.x, cell.y, cell.toward, null, { role: 'inlet', lane: true });
       frame.inlet({ x: cell.x, y: cell.y, kind: 'liquid', id: liquid });
-      frame.require(`Подай «${liquid}» (${rate.toLocaleString('ru-RU', { maximumFractionDigits: 1 })}/с) в трубу у «${blockName(machine.id)}».`);
-    } else frame.fail(`Нет места для входа жидкости «${liquid}».`);
+      frame.require(`Подай «${liquidName(liquid)}» (${rate.toLocaleString('ru-RU', { maximumFractionDigits: 1 })}/с) в трубу у «${blockName(machine.id)}».`);
+    } else frame.fail(`Нет места для входа жидкости «${liquidName(liquid)}».`);
   }
 }
 

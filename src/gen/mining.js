@@ -4,6 +4,7 @@ import { blockSize } from '../geometry.js';
 import { addStorage, turretsAccepting } from './extras.js';
 import { liquidRow } from './liquids.js';
 import { addExternalPort, addPlant, connectPower, powerDemand, writeNodeLinks } from './power.js';
+import { lanesForBelt, planCount, rateTarget, reportRate } from './rate.js';
 import { blockName, drillRate, drillsFor, itemName, rawItems, techTier } from './profile.js';
 
 /**
@@ -230,8 +231,12 @@ export function buildMining(frame) {
   const capacity = laneCapacity(frame);
   const area = frame.width * frame.height;
   const fill = 0.55 + 0.45 * ((settings.compactness ?? 68) - 25) / 65;
-  let maxDrills = Math.max(2, Math.min(Math.floor(capacity / rate1), Math.floor(area / (blockSize(drill) ** 2 * 5) * fill)));
-  if (frame.variant === 2) maxDrills = Math.min(maxDrills * 2, Math.floor(capacity * 2 / rate1));
+  // A target asks for a number of drills outright; without one the canvas decides. The ceiling is four trunk
+  // belts' worth: past that no style here can carry the ore away and the plan would only look bigger.
+  const target = rateTarget(settings, 'mining');
+  const plan = planCount({ target, per: rate1, min: 2, max: Math.max(6, Math.floor(capacity * 4 / rate1)) });
+  let maxDrills = plan.count ?? Math.max(2, Math.min(Math.floor(capacity / rate1), Math.floor(area / (blockSize(drill) ** 2 * 5) * fill)));
+  if (plan.count == null && frame.variant === 2) maxDrills = Math.min(maxDrills * 2, Math.floor(capacity * 2 / rate1));
   if (powered && settings.includePower) {
     const per = describeBlock(drill).powerUse;
     const supply = plantBudget(frame);
@@ -248,7 +253,9 @@ export function buildMining(frame) {
   const styles = lineDrills
     ? [buildTrunk, (...args) => buildComb(args[0], args[1], args[2], { ...args[3], gap: 1 }), (...args) => buildTrunk(args[0], args[1], args[2], { ...args[3], oneSided: true })]
     : [buildTrunk, buildComb, buildDouble];
-  const style = needsLiquid ? buildTrunk : styles[frame.variant % styles.length];
+  // More ore than one collector belt can carry needs the two-trunk style, whatever the variant would pick.
+  let style = needsLiquid ? buildTrunk : styles[frame.variant % styles.length];
+  if (!needsLiquid && !lineDrills && plan.count != null && plan.count * rate1 > capacity) style = buildDouble;
   const result = style(frame, drill, item, { maxDrills, escort, oneSided: needsLiquid ? false : undefined });
   const board = frame.board;
   if (powered) {
@@ -263,6 +270,11 @@ export function buildMining(frame) {
     writeNodeLinks(frame);
   }
   if (settings.includeStorage) addStorage(frame);
+  reportRate(frame, { direction: 'mining', target, per: rate1, count: result.drills.length, noun: itemName(item), blocks: `× ${blockName(drill)}` });
+  const trunks = lanesForBelt(frame, result.rate);
+  if (trunks.lanes > (style === buildDouble ? 2 : 1)) {
+    frame.require(`Магистраль не вывезет: ${result.drills.length} буров дают ≈${result.rate.toFixed(2)} «${itemName(item)}»/с, а коллектор тянет ${trunks.capacity}/с. Нужен больший холст или несколько линий.`);
+  }
   frame.note(`Добыча: ${result.drills.length} × ${blockName(drill)} → ≈${result.rate.toFixed(2)} «${itemName(item)}»/с по полному покрытию рудой (${(result.rate * 60).toFixed(0)}/мин).`);
   frame.note('Поставь схему так, чтобы буры стояли на руде (для лучевых буров — стена с рудой впереди).');
   return { goalId: item, item, label: itemName(item), drill, ...result, facts: facts[drill] };

@@ -3,21 +3,28 @@ import { itemById } from '../catalog.js';
 import { describeBlock } from '../flow.js';
 import { DIRS, cellKey, footprint, opposite, ringCells, blockSize } from '../geometry.js';
 import { getTransportItem } from '../logic.js';
-import { PROFILES, availableOn, chooseBelt, coreIdFor, pickBlock, profileFor, stageTier } from './profile.js';
-import { canvasPresets, initialSettings, supplyModes } from './settings.js';
+import { PROFILES, availableOn, blockName, chooseBelt, coreIdFor, laneJumps, pickBlock, profileFor, stageTier } from './profile.js';
+import { canvasPresets, initialSettings, liquidSources, rateModes, supplyModes } from './settings.js';
 
 export const itemConfig = id => ({ type: 'content', contentType: 'item', id });
 
 export function normalizeSettings(input = {}) {
   const settings = { ...initialSettings, ...input };
   if (!supplyModes.some(mode => mode.id === settings.supplyMode)) settings.supplyMode = 'core';
-  settings.transportItem = getTransportItem(settings);
+  if (!rateModes.some(mode => mode.id === settings.rateMode)) settings.rateMode = 'auto';
+  if (!liquidSources.some(mode => mode.id === settings.liquidSource)) settings.liquidSource = 'auto';
+  settings.rateTarget = clamp(Number(settings.rateTarget), 0.1, 100000) || initialSettings.rateTarget;
   if (settings.planet === 'erekir') {
     settings.processorControl = false;
     settings.droneUnit = 'manifold';
+    // Phase links are a Serpulo endgame block; Erekir has nothing to jump with beyond its duct bridge.
+    settings.allowPhase = false;
   }
+  settings.transportItem = getTransportItem(settings);
   return settings;
 }
+
+const clamp = (value, min, max) => (Number.isFinite(value) ? Math.max(min, Math.min(max, value)) : NaN);
 
 /** Small deterministic PRNG so variants differ but stay reproducible. */
 export function seeded(seed) {
@@ -74,6 +81,22 @@ export class Frame {
     return copy;
   }
 
+  /**
+   * Take over a throw-away copy made by `fork()` — its board and everything it said. A design is often tried
+   * on a copy first and only kept when it really delivers what was asked for; adopting is cheaper and safer
+   * than running the same builder twice.
+   */
+  adopt(trial) {
+    this.board = trial.board;
+    this.notes = trial.notes;
+    this.requirements = trial.requirements;
+    this.inlets = trial.inlets;
+    this.failures = trial.failures;
+    this.core = this.core ? (trial.board.tileAt(this.core.x, this.core.y) ?? trial.board.tiles.find(tile => tile.meta?.role === 'core') ?? null) : null;
+    if (this.core) this.coreRect = footprint(this.core);
+    return this;
+  }
+
   note(text) { if (text && !this.notes.includes(text)) this.notes.push(text); }
   require(text) { if (text && !this.requirements.includes(text)) this.requirements.push(text); }
   fail(text) { this.failures.push(text); }
@@ -85,7 +108,23 @@ export class Frame {
   /** The block exists in the campaign palette *and* can be built on this planet. */
   has(id) { return Boolean(id) && availableOn(id, this.planet); }
   belt(rate) { return chooseBelt(this.planet, this.stage, rate); }
+  /**
+   * Bridge/phase links a lane may use, in the order they should be tried (cheap short bridge first).
+   * Bridges are on by default; phase links only when the player allowed them, because they cost phase
+   * fabric and draw power that the layout then has to supply.
+   */
+  jumps(kind = 'item') {
+    return laneJumps(this.planet, kind, {
+      allowPhase: Boolean(this.settings.allowPhase),
+      bridges: this.settings.useBridges !== false,
+    });
+  }
   get tier() { return stageTier(this.stage); }
+  /** Gate that feeds its sides first and only then lets items through — the right block for a spine. */
+  spineGate() {
+    const id = this.profile.spineGate;
+    return this.settings.useGates === false ? null : (this.has(id) ? id : null);
+  }
   /** Preferred room between modules; the density slider trades space for compactness. */
   get gap() { return this.settings.compactness >= 75 ? 1 : this.settings.compactness <= 40 ? 3 : 2; }
 
@@ -118,7 +157,7 @@ export class Frame {
    * Route one lane from `start` to the face of a consumer. `end` is the last lane cell, `endRotation` points into the block.
    * Returns the placed tiles or null (a failure note is recorded).
    */
-  connect({ start, end, endRotation, rate = 1, kind = 'item', label = '', allow = [], avoid = [], crossCost }) {
+  connect({ start, end, endRotation, rate = 1, kind = 'item', label = '', allow = [], avoid = [], crossCost, jumps }) {
     const liquid = kind === 'liquid';
     // A lane may always use its own start, the cell in front of the start and its final cell.
     const escape = start.dir != null ? { x: start.x + DIRS[start.dir].x, y: start.y + DIRS[start.dir].y } : null;
@@ -127,7 +166,9 @@ export class Frame {
     const junction = liquid ? this.profile.liquidJunction : this.profile.junction;
     const path = this.board.route({
       start, end, endRotation, lane, junction: junction && this.has(junction) ? junction : null,
-      hazard: liquid ? 'liquid' : 'item', allow, avoid, ...(crossCost != null ? { crossCost } : {}),
+      hazard: liquid ? 'liquid' : 'item', allow, avoid,
+      jumps: jumps ?? this.jumps(liquid ? 'liquid' : 'item'),
+      ...(crossCost != null ? { crossCost } : {}),
     });
     if (!path) { this.fail(`Не удалось провести линию${label ? ` «${label}»` : ''}: нет свободного пути.`); return null; }
     const placed = this.board.commitRoute(path, { lane, junction: junction ?? 'junction' });
@@ -230,17 +271,23 @@ export function buildSpine(frame, {
     row += extent + (extent === 1 ? 1 : 0);
   }
   const lastRow = routerRows.length ? routerRows[routerRows.length - 1] : -1;
+  // A spine feeds the blocks hanging off it: an underflow gate does that in the right order — it fills the
+  // side consumers first and only lets the surplus travel on. A router splits blindly in three directions,
+  // so the far end of the line starves while the near end overflows.
+  const gate = frame.spineGate?.() ?? null;
+  const branchId = gate ?? router;
   const routers = [];
   for (let index = 0; index <= lastRow; index += 1) {
     const cell = cells[index];
     if (routerRows.includes(index)) {
-      const tile = board.place(router, cell.x, cell.y, describeBlock(router).rotates ? dir : 0, null, { role: 'router', ignoreReservation: true });
+      const tile = board.place(branchId, cell.x, cell.y, describeBlock(branchId).rotates ? dir : 0, null, { role: gate ? 'gate' : 'router', ignoreReservation: true });
       if (tile) routers.push(tile);
     } else {
       board.place(belt, cell.x, cell.y, dir, null, { role: 'spine', lane: true, ignoreReservation: true });
     }
   }
-  return { cells: cells.slice(0, lastRow + 1), consumers: placed, routers, queueLeft, queueRight };
+  if (gate) frame.note(`Шлюз в линии: ${blockName(gate)} сперва наполняет блоки по бокам и только потом пропускает излишек дальше.`);
+  return { cells: cells.slice(0, lastRow + 1), consumers: placed, routers, queueLeft, queueRight, gate };
 }
 
 /**

@@ -4,7 +4,7 @@ import {
   buildableBlocks, categories, categoryById, directionMeta, gameBlocks, gameCatalog,
   getPlanetLabel, getStageLabel, getProductsForDirection, itemById, visibleMaterials, stageMeta, typeLabels,
 } from './catalog.js';
-import { blockFits, blockRect, canvasPresets, generateLayout, generateLayoutVariants, initialSettings, supplyModes, tileAtCell, withManualEdit } from './generator.js';
+import { blockFits, blockRect, canvasPresets, generateLayout, generateLayoutVariants, initialSettings, liquidSources, rateMetaFor, rateModes, supplyModes, tileAtCell, withManualEdit } from './generator.js';
 import { buildLogicProgram, getLogicLinkInstructions, getTransportItem, needsLogicProgram } from './logic.js';
 import {
   appBuildInfo,
@@ -213,6 +213,8 @@ function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCat
     drones: { label: 'Грузовой дрон', hint: `Unit Cargo Loader создаёт Manifold автоматически. Подай @${getTransportItem(settings)} в загрузчик; точка выгрузки настроена на тот же предмет.` },
     hybrid: { label: 'Гибрид', hint: `Линия от складского буфера плюс Manifold. Наполни контейнер ресурсом @${getTransportItem(settings)} и подай его в загрузчик.` },
   };
+  const rateMeta = rateMetaFor(settings.direction);
+  const showRateTarget = Boolean(rateMeta) && !minimalModule;
   const transportOptions = visibleMaterials.filter((item) => item.planet === settings.planet || item.planet === 'both');
   const droneUnitOptions = settings.planet === 'erekir'
     ? [{ id: 'manifold', label: 'Manifold · грузовой дрон' }]
@@ -229,7 +231,11 @@ function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCat
   const patch = (field, value) => setSettings((current) => (['goal', 'stage'].includes(field) ? withSuggestion({ ...current, [field]: value }) : { ...current, [field]: value }));
   const setDirection = (direction) => setSettings((current) => {
     const options = getProductsForDirection(direction, current.planet, current.stage);
-    return options.length ? withSuggestion({ ...current, direction, goal: options.some(option => option.id === current.goal) ? current.goal : options[0].id }) : current;
+    if (!options.length) return current;
+    // Every direction measures its target in its own unit, so keep the number inside the new slider's range.
+    const meta = rateMetaFor(direction);
+    const rateTarget = meta ? Math.min(meta.max, Math.max(meta.min, current.rateTarget ?? meta.min)) : current.rateTarget;
+    return withSuggestion({ ...current, direction, rateTarget, goal: options.some(option => option.id === current.goal) ? current.goal : options[0].id });
   });
   const setPlanet = (planet) => setSettings((current) => {
     const processorControl = planet === 'erekir' ? false : current.planet === 'erekir' ? true : current.processorControl;
@@ -307,10 +313,32 @@ function GeneratorSidebar({ settings, setSettings, onGenerate, dirty, paletteCat
     <section className="setting-section compact-section"><div className="field-label"><span>ПЛОТНОСТЬ</span><small>{settings.compactness}%</small></div>
       <input className="range-input" style={{ '--range-progress': `${((settings.compactness - 25) / 65) * 100}%` }} type="range" min="25" max="90" step="5" value={settings.compactness} onChange={(event) => patch('compactness', Number(event.target.value))} />
       <div className="range-captions"><span>Свободно</span><span>Компактно</span></div></section>
+    {showRateTarget && <section className="setting-section compact-section rate-section">
+      <div className="field-label"><span>СКОЛЬКО НУЖНО</span><small>{rateMeta.label.toUpperCase()}</small></div>
+      <div className="rate-mode-switch" role="group" aria-label="Откуда берётся число блоков">
+        {rateModes.map((mode) => <button type="button" key={mode.id} title={mode.hint} className={`rate-mode-option ${(settings.rateMode ?? 'auto') === mode.id ? 'selected' : ''}`} onClick={() => patch('rateMode', mode.id)}><b>{mode.label}</b></button>)}
+      </div>
+      {(settings.rateMode ?? 'auto') === 'manual' && <>
+        <div className="range-heading"><span>{rateMeta.label.toUpperCase()}</span><b>{settings.rateTarget} {rateMeta.unit}</b></div>
+        <input className="range-input" style={{ '--range-progress': `${((settings.rateTarget - rateMeta.min) / (rateMeta.max - rateMeta.min)) * 100}%` }} type="range" min={rateMeta.min} max={rateMeta.max} step={rateMeta.step} value={settings.rateTarget} onChange={(event) => patch('rateTarget', Number(event.target.value))} aria-label={rateMeta.label} />
+        <div className="range-captions"><span>{rateMeta.min} {rateMeta.unit}</span><span>{rateMeta.max} {rateMeta.unit}</span></div>
+        <p className="microcopy">Схема посчитает, сколько блоков даёт такой выход, и честно скажет, если цель в холст не влезает.</p>
+      </>}
+    </section>}
+    {!minimalModule && <section className="setting-section compact-section">
+      <label className="field-label" htmlFor="liquid-source-select"><span>ОТКУДА ЖИДКОСТЬ</span></label>
+      <div className="select-wrap"><select id="liquid-source-select" value={settings.liquidSource ?? 'auto'} onChange={(event) => patch('liquidSource', event.target.value)}>{liquidSources.map((source) => <option key={source.id} value={source.id}>{source.label}</option>)}</select><Icon name="chevron" size={13} /></div>
+      <p className="microcopy">{liquidSources.find((source) => source.id === (settings.liquidSource ?? 'auto'))?.hint}</p>
+    </section>}
     <section className="setting-section option-toggles">
       <Toggle checked={settings.includePower} onChange={(value) => patch('includePower', value)} label="Подключить питание" detail="Силовые узлы и генераторы" />
       <Toggle checked={settings.includeDefense} onChange={(value) => patch('includeDefense', value)} label="Добавить защиту" detail="Турели у ключевых точек" />
       <Toggle checked={settings.includeStorage} onChange={(value) => patch('includeStorage', value)} label="Резервное хранилище" detail="Контейнер рядом с ядром" />
+      {!minimalModule && <>
+        <Toggle checked={settings.useBridges} onChange={(value) => patch('useBridges', value)} label="Мосты в маршрутах" detail="Линия перепрыгивает чужую ленту мостом вместо обхода" />
+        <Toggle checked={settings.useGates} onChange={(value) => patch('useGates', value)} label="Гейты на разветвлениях" detail="Разгрузчик-гейт сначала кормит потребителя, излишек идёт дальше" />
+        <Toggle checked={settings.allowPhase} onChange={(value) => patch('allowPhase', value)} label="Разрешить фазу" detail="Фазовые конвейеры и фазовые трубы: дальний прыжок без проводов" />
+      </>}
     </section>
     </>}
     <button className="button button-primary generate-button" type="button" onClick={onGenerate}><Icon name="spark" size={17} /><span>Сгенерировать схему</span><kbd>↵</kbd></button>

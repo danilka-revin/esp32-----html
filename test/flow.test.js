@@ -117,13 +117,13 @@ test('inverted sorters divert their item sideways and pass the rest on', () => {
   assert.equal(errors(result).includes('item-stuck'), false);
 });
 
-test('bridges follow their relative link and end bridges hand items to neighbours', () => {
+test('bridges follow their relative link; the far end carries on forward and an unlinked one only spills sideways', () => {
   const result = analyzeFlow(scheme([
     tile('core-shard', 20, 5),
     tile('unloader', 18, 5, 0, item('copper')),
     tile('conveyor', 17, 5, 2),
     tile('bridge-conveyor', 16, 5, 0, { type: 'point2', x: -4, y: 0 }),
-    tile('bridge-conveyor', 12, 5, 0),
+    tile('bridge-conveyor', 12, 5, 2),
     tile('conveyor', 11, 5, 2),
     tile('core-nucleus', 8, 5),
   ]));
