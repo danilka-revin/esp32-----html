@@ -194,6 +194,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .supply-mode-option.selected { color: var(--accent-text); border-color: var(--accent-line); background: var(--accent-soft); }
 .supply-mode-option.selected > span { color: var(--accent-text); }
 .supply-mode-hint { margin: 7px 1px 0; color: var(--muted); font-size: 8px; line-height: 1.45; }
+.rate-section .rate-mode-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 8px; }
+.rate-mode-option { min-height: 28px; padding: 0 7px; color: var(--text-2); background: var(--surface-2); border: 1px solid var(--line-soft); border-radius: 7px; font-size: 9px; font-weight: 700; cursor: pointer; transition: .14s ease; }
+.rate-mode-option:hover { color: var(--text); border-color: var(--line); background: var(--hover); }
+.rate-mode-option.selected { color: var(--accent-text); border-color: var(--accent-line); background: var(--accent-soft); }
+.rate-section .range-heading b { color: var(--accent-text); }
 .logic-settings-section { padding: 9px 8px 7px; margin: 0 -7px 14px; background: var(--surface-2); border: 1px solid var(--line-soft); border-radius: 9px; }
 .logic-settings-section .select-wrap { margin-top: 6px; }
 .sub-field-label { margin-top: 10px; }
