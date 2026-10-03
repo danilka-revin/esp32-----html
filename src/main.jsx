@@ -6,7 +6,16 @@ import {
 } from './catalog.js';
 import { blockFits, blockRect, canvasPresets, generateLayout, generateLayoutVariants, initialSettings, supplyModes, tileAtCell, withManualEdit } from './generator.js';
 import { buildLogicProgram, getLogicLinkInstructions, getTransportItem, needsLogicProgram } from './logic.js';
-import { appBuildInfo, checkForUpdates, formatCommit, UPDATE_BRANCH, UPDATE_REPOSITORY_URL } from './update-checker.js';
+import {
+  appBuildInfo,
+  checkForUpdates,
+  createInitialInstallState,
+  formatCommit,
+  getLocalBuildInfo,
+  installUpdate,
+  UPDATE_BRANCH,
+  UPDATE_REPOSITORY_URL,
+} from './update-checker.js';
 import UpdateDialog from './update-dialog.jsx';
 import { decodeSchematicFile, decodeSchematic, downloadSchematic, schematicToBase64 } from './schematic-io.js';
 import './styles.css';
@@ -156,7 +165,9 @@ function StatCard({ label, value, icon }) {
   return <div className="stat-card"><span className="stat-icon"><Icon name={icon} size={15} /></span><span className="stat-copy"><small>{label}</small><b>{value}</b></span></div>;
 }
 
-function Header({ view, setView, canUndo, canRedo, onUndo, onRedo, theme, setTheme, onImport, onExport, onCopy, onPaste, onSave, savedCount, catalogCount, onOpenUpdates, updateState, updateAttention }) {
+function Header({ view, setView, canUndo, canRedo, onUndo, onRedo, theme, setTheme, onImport, onExport, onCopy, onPaste, onSave, savedCount, catalogCount, onOpenUpdates, updateState, installState, updateAttention }) {
+  const isInstalling = Boolean(installState?.active);
+  const progressPct = Math.round(installState?.progress ?? 0);
   return <header className="toolbar">
     <button className="brand" type="button" onClick={() => setView('editor')} aria-label="На главную"><span className="brandmark"><img src="/logo.png" alt="" /></span><span className="brandtext"><b>BEE <em>SCHEM</em></b></span></button>
     <nav className="top-nav" aria-label="Разделы приложения">
@@ -168,8 +179,11 @@ function Header({ view, setView, canUndo, canRedo, onUndo, onRedo, theme, setThe
       <button className="tool-btn" type="button" title="Повторить · Ctrl+Shift+Z" disabled={!canRedo} onClick={onRedo}><Icon name="redo" /></button>
     </div>
     <div className="toolbar-spacer" />
-    <button className={`tool-btn update-check-button ${updateAttention ? 'available' : ''} ${updateState?.checking ? 'checking' : ''}`} type="button" onClick={onOpenUpdates} title={updateAttention ? 'Доступно обновление приложения' : 'Проверить обновления'} aria-label="Проверить обновления">
-      <Icon name="refresh" size={15} /><span className="button-label">Обновления</span>{updateAttention && <i className="update-badge-dot" />}
+    <button className={`tool-btn update-check-button ${updateAttention || isInstalling ? 'available' : ''} ${updateState?.checking || (isInstalling && !installState?.paused) ? 'checking' : ''}`} type="button" onClick={onOpenUpdates} title={isInstalling ? `Установка обновления · ${progressPct}%` : updateAttention ? 'Доступно обновление приложения' : 'Автообновление и проверка версии'} aria-label="Проверить обновления">
+      <Icon name="refresh" size={15} />
+      <span className="button-label">{isInstalling ? `Обновление ${progressPct}%` : 'Обновления'}</span>
+      {isInstalling && <span className="toolbar-mini-progress" aria-hidden="true"><i style={{ width: `${progressPct}%` }} /></span>}
+      {updateAttention && !isInstalling && <i className="update-badge-dot" />}
     </button>
     <div className="vanilla-badge"><span className="status-dot" /> STEAM <b>{GAME_VERSION}</b></div>
     <div className="toolbar-group file-group">
@@ -752,13 +766,99 @@ function App() {
   const [selectedObject, setSelectedObject] = useState(null);
   const [updateOpen, setUpdateOpen] = useState(false);
   const [updateState, setUpdateState] = useState({ status: 'idle', available: false, checking: false });
+  const [installState, setInstallState] = useState(() => createInitialInstallState());
+  const [autoInstall, setAutoInstall] = useState(() => window.localStorage.getItem('bee-schem-auto-install') !== '0');
+  const [autoReload, setAutoReload] = useState(() => window.localStorage.getItem('bee-schem-auto-reload') !== '0');
+  const [reloadCountdownMs, setReloadCountdownMs] = useState(null);
   const [seenUpdate, setSeenUpdate] = useState(() => window.localStorage.getItem('bee-schem-update-seen') ?? '');
   const importRef = useRef(null); const toastTimer = useRef(null);
   const updateSeenRef = useRef(seenUpdate);
   const updateCheckRef = useRef({ inFlight: false, lastCheck: 0 });
+  const installPausedRef = useRef(false);
+  const installRunningRef = useRef(false);
+  const autoInstallRef = useRef(autoInstall);
+  const autoReloadRef = useRef(autoReload);
+  const reloadTimerRef = useRef(null);
   const notify = useCallback((messageOrOptions) => {
     const next = typeof messageOrOptions === 'string' ? { message: messageOrOptions, type: 'success' } : messageOrOptions;
     setToast(next); window.clearTimeout(toastTimer.current); toastTimer.current = window.setTimeout(() => setToast(null), 3400);
+  }, []);
+  const performReload = useCallback(() => {
+    window.clearInterval(reloadTimerRef.current);
+    setReloadCountdownMs(null);
+    try {
+      const backup = JSON.stringify({
+        scheme,
+        name: name.trim() || scheme.name,
+        settings,
+        view,
+        reloadedAt: Date.now(),
+      });
+      window.sessionStorage?.setItem('bee-schem-reload-backup', backup);
+    } catch {
+      // ignore storage quota errors
+    }
+    window.location.reload();
+  }, [scheme, name, settings, view]);
+  const cancelReloadCountdown = useCallback(() => {
+    window.clearInterval(reloadTimerRef.current);
+    setReloadCountdownMs(null);
+  }, []);
+  const startReloadCountdown = useCallback((durationMs = 2200) => {
+    window.clearInterval(reloadTimerRef.current);
+    const deadline = Date.now() + durationMs;
+    setReloadCountdownMs(durationMs);
+    reloadTimerRef.current = window.setInterval(() => {
+      const remaining = Math.max(0, deadline - Date.now());
+      setReloadCountdownMs(remaining);
+      if (remaining <= 0) {
+        window.clearInterval(reloadTimerRef.current);
+        performReload();
+      }
+    }, 100);
+  }, [performReload]);
+  const startUpdateInstall = useCallback(async (targetRef) => {
+    if (installRunningRef.current) return;
+    installRunningRef.current = true;
+    installPausedRef.current = false;
+    cancelReloadCountdown();
+    setUpdateOpen(true);
+    try {
+      const resolvedRef = targetRef || updateState.targetId || updateState.latestSha || getLocalBuildInfo()?.commit || UPDATE_BRANCH;
+      const result = await installUpdate({
+        targetRef: resolvedRef,
+        buildInfo: getLocalBuildInfo(),
+        shouldPause: () => installPausedRef.current,
+        onProgress: (snapshot) => setInstallState(snapshot),
+      });
+      if (result.completed) {
+        const finalTarget = updateState.targetId || result.buildInfo?.buildId || result.buildInfo?.commit || resolvedRef;
+        if (finalTarget) {
+          updateSeenRef.current = finalTarget;
+          setSeenUpdate(finalTarget);
+          try {
+            window.sessionStorage?.setItem('bee-schem-auto-installed', finalTarget);
+          } catch {}
+        }
+        setUpdateState((current) => ({
+          ...current,
+          status: 'current',
+          available: false,
+          localBuild: result.buildInfo || current.localBuild,
+        }));
+        if (autoReloadRef.current) {
+          startReloadCountdown(2200);
+        } else {
+          notify('Обновление установлено · нажмите «Перезагрузить страницу».');
+        }
+      }
+    } finally {
+      installRunningRef.current = false;
+    }
+  }, [cancelReloadCountdown, notify, startReloadCountdown, updateState.latestSha, updateState.targetId]);
+  const toggleInstallPause = useCallback(() => {
+    installPausedRef.current = !installPausedRef.current;
+    setInstallState((current) => ({ ...current, paused: installPausedRef.current }));
   }, []);
   const checkUpdates = useCallback(async (force = true) => {
     const tracker = updateCheckRef.current;
@@ -767,13 +867,20 @@ function App() {
     tracker.inFlight = true;
     setUpdateState((current) => ({ ...current, checking: true, error: '' }));
     try {
-      const result = await checkForUpdates({ buildInfo: appBuildInfo });
+      const result = await checkForUpdates({ buildInfo: getLocalBuildInfo() });
       const next = { ...result, checking: false };
       setUpdateState(next);
       if (result.available && result.targetId && result.targetId !== updateSeenRef.current) {
-        notify(result.status === 'deployed-update'
-          ? `Обновление сайта · ${formatCommit(result.deployedCommit)}.`
-          : `Доступен ZIP обновления · ${formatCommit(result.latestSha)}.`);
+        let alreadyInstalledThisSession = '';
+        try {
+          alreadyInstalledThisSession = window.sessionStorage?.getItem('bee-schem-auto-installed') ?? '';
+        } catch {}
+        if (autoInstallRef.current && alreadyInstalledThisSession !== result.targetId) {
+          notify(`Обнаружено обновление ${formatCommit(result.targetId)} · запускаю автоматическую установку…`);
+          startUpdateInstall(result.targetId);
+        } else {
+          notify(`Доступно обновление · ${formatCommit(result.targetId)}.`);
+        }
       }
     } catch (error) {
       setUpdateState({ status: 'unavailable', available: false, checking: false, error: error.message || 'Не удалось проверить обновления.' });
@@ -781,8 +888,30 @@ function App() {
       tracker.inFlight = false;
       tracker.lastCheck = Date.now();
     }
-  }, [notify]);
+  }, [notify, startUpdateInstall]);
   useEffect(() => { updateSeenRef.current = seenUpdate; window.localStorage.setItem('bee-schem-update-seen', seenUpdate); }, [seenUpdate]);
+  useEffect(() => { autoInstallRef.current = autoInstall; window.localStorage.setItem('bee-schem-auto-install', autoInstall ? '1' : '0'); }, [autoInstall]);
+  useEffect(() => { autoReloadRef.current = autoReload; window.localStorage.setItem('bee-schem-auto-reload', autoReload ? '1' : '0'); }, [autoReload]);
+  useEffect(() => {
+    try {
+      const rawBackup = window.sessionStorage?.getItem('bee-schem-reload-backup');
+      if (rawBackup) {
+        window.sessionStorage?.removeItem('bee-schem-reload-backup');
+        const parsed = JSON.parse(rawBackup);
+        if (parsed?.scheme?.tiles) {
+          setScheme(parsed.scheme);
+          setHistory([parsed.scheme]);
+          setHistoryIndex(0);
+          if (parsed.name) setName(parsed.name);
+          if (parsed.settings) setSettings((current) => ({ ...current, ...parsed.settings }));
+          if (parsed.view) setView(parsed.view);
+          notify('Обновление установлено · страница перезагружена на актуальной версии!');
+        }
+      }
+    } catch {
+      // ignore corrupted session backup
+    }
+  }, [notify]);
   useEffect(() => {
     const initialCheck = window.setTimeout(() => checkUpdates(false), 1800);
     const interval = window.setInterval(() => checkUpdates(false), 30 * 60 * 1000);
@@ -793,7 +922,7 @@ function App() {
   useEffect(() => { document.documentElement.dataset.theme = theme; window.localStorage.setItem('bee-schem-theme', theme); }, [theme]);
   useEffect(() => { window.localStorage.setItem('bee-schem-saved', JSON.stringify(savedSchemes)); }, [savedSchemes]);
   useEffect(() => { if (scheme.name && scheme.name !== name) setName(scheme.name); }, [scheme.name]);
-  useEffect(() => () => window.clearTimeout(toastTimer.current), []);
+  useEffect(() => () => { window.clearTimeout(toastTimer.current); window.clearInterval(reloadTimerRef.current); }, []);
   const settingsDirty = useMemo(() => {
     const lastSettings = scheme.settings ?? {};
     return ['minimal', 'direction', 'stage', 'planet', 'goal', 'footprint', 'compactness', 'includePower', 'includeDefense', 'includeStorage', 'supplyMode', 'processorControl', 'droneUnit', 'transportItem', 'reserveThreshold', 'droneCapacity'].some((key) => {
@@ -888,7 +1017,14 @@ function App() {
   };
   const displayCatalogCount = gameCatalog.length;
   const updateAttention = Boolean(updateState.available && updateState.targetId && updateState.targetId !== seenUpdate);
-  const openUpdates = () => { setUpdateOpen(true); checkUpdates(false); };
+  const openUpdates = () => {
+    setUpdateOpen(true);
+    if (updateState.available && autoInstall && !installRunningRef.current && !installState.completed) {
+      startUpdateInstall(updateState.targetId || updateState.latestSha);
+    } else {
+      checkUpdates(false);
+    }
+  };
   const closeUpdates = () => {
     setUpdateOpen(false);
     if (updateState.available && updateState.targetId) {
@@ -898,13 +1034,13 @@ function App() {
   };
 
   return <div className="app-shell">
-    <Header view={view} setView={setView} canUndo={historyIndex > 0} canRedo={historyIndex < history.length - 1} onUndo={undo} onRedo={redo} theme={theme} setTheme={setTheme} onImport={() => importRef.current?.click()} onExport={exportFile} onCopy={copyCode} onPaste={() => setPasteOpen(true)} onSave={saveCurrent} savedCount={savedSchemes.length} catalogCount={displayCatalogCount} onOpenUpdates={openUpdates} updateState={updateState} updateAttention={updateAttention} />
+    <Header view={view} setView={setView} canUndo={historyIndex > 0} canRedo={historyIndex < history.length - 1} onUndo={undo} onRedo={redo} theme={theme} setTheme={setTheme} onImport={() => importRef.current?.click()} onExport={exportFile} onCopy={copyCode} onPaste={() => setPasteOpen(true)} onSave={saveCurrent} savedCount={savedSchemes.length} catalogCount={displayCatalogCount} onOpenUpdates={openUpdates} updateState={updateState} installState={installState} updateAttention={updateAttention} />
     <input ref={importRef} type="file" accept=".msch,.txt,application/octet-stream,text/plain" className="visually-hidden" onChange={importFile} />
     {view === 'editor' ? <EditorPage settings={settings} setSettings={setSettings} setView={setView} dirty={settingsDirty} onGenerate={generateNow} scheme={scheme} setScheme={setSchemeWithHistory} name={name} setName={setName} activeTool={activeTool} setActiveTool={setActiveTool} selectedBlock={selectedBlock} setSelectedBlock={setSelectedBlock} selectedTileKey={selectedTileKey} setSelectedTileKey={setSelectedTileKey} gridVisible={gridVisible} setGridVisible={setGridVisible} showNames={showNames} setShowNames={setShowNames} zoom={zoom} setZoom={setZoom} onSave={saveCurrent} savedSchemes={savedSchemes} onLoadSaved={loadSaved} onDeleteSaved={deleteSaved} onExport={exportFile} onCopy={copyCode} onCopyLogic={copyLogic} onPaste={() => setPasteOpen(true)} notify={notify} /> : <CatalogPage initialPlanet={settings.planet} onBack={() => setView('editor')} onUseBlock={selectCatalogBlock} selectedObject={selectedObject} setSelectedObject={setSelectedObject} />}
     <Toast toast={toast} onClose={() => setToast(null)} />
     {pasteOpen && <ImportPasteDialog value={pasteValue} setValue={setPasteValue} onClose={() => setPasteOpen(false)} onImport={applyImport} />}
     {blueprintCandidates && <BlueprintPicker candidates={blueprintCandidates} onClose={() => setBlueprintCandidates(null)} onSelect={acceptCandidate} />}
-    {updateOpen && <UpdateDialog state={updateState} onCheck={() => checkUpdates(true)} onReload={() => window.location.reload()} onClose={closeUpdates} repositoryUrl={UPDATE_REPOSITORY_URL} branch={UPDATE_BRANCH} />}
+    {updateOpen && <UpdateDialog state={updateState} installState={installState} onCheck={() => checkUpdates(true)} onInstall={startUpdateInstall} onTogglePause={toggleInstallPause} onReload={performReload} onCancelReload={cancelReloadCountdown} reloadCountdownMs={reloadCountdownMs} autoInstall={autoInstall} setAutoInstall={setAutoInstall} autoReload={autoReload} setAutoReload={setAutoReload} onClose={closeUpdates} repositoryUrl={UPDATE_REPOSITORY_URL} branch={UPDATE_BRANCH} />}
   </div>;
 }
 

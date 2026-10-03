@@ -6,7 +6,7 @@ import { GAME_VERSION } from '../src/game-version.js';
 import { decodeSchematic, encodeSchematic } from '../src/schematic-io.js';
 import { analyzeFlow } from '../src/flow.js';
 import { buildLogicProgram, getLogicLinkInstructions, needsLogicProgram } from '../src/logic.js';
-import { checkForUpdates, compareBuilds, sourceArchiveUrl } from '../src/update-checker.js';
+import { checkForUpdates, compareBuilds, installUpdate, sourceArchiveUrl } from '../src/update-checker.js';
 
 const directions = ['mining', 'production', 'defense', 'power', 'logistics', 'units', 'logic', 'campaign'];
 const planets = ['serpulo', 'erekir'];
@@ -193,6 +193,35 @@ test('update checker separates a deployed web build from source-only GitHub comm
   assert.equal(result.status, 'current');
   assert.equal(result.githubReachable, true);
   assert.equal(result.manifestReachable, true);
+
+  const progressSteps = [];
+  const nextBuild = { ...local, commit: 'd'.repeat(40), buildId: 'build-d' };
+  const installed = await installUpdate({
+    targetRef: nextBuild.commit,
+    buildInfo: local,
+    stepDelayMs: 0,
+    onProgress: (snapshot) => progressSteps.push({ step: snapshot.step, progress: snapshot.progress }),
+    fetchImpl: async (url) => {
+      if (url === '/api/update') {
+        const lines = [
+          JSON.stringify({ step: 'download', progress: 45, detail: 'Скачивание пакета обновления', bytesLoaded: 750_000, bytesTotal: 1_500_000 }),
+          JSON.stringify({ step: 'install', progress: 84, detail: 'Установка файлов и сборка', bytesLoaded: 1_500_000, bytesTotal: 1_500_000 }),
+          JSON.stringify({ step: 'reload', progress: 100, ok: true, updated: true, buildInfo: nextBuild, detail: 'Готово к перезагрузке' }),
+        ].join('\n');
+        return { ok: true, text: async () => lines };
+      }
+      return { ok: true, json: async () => nextBuild };
+    },
+  });
+  assert.equal(installed.completed, true);
+  assert.equal(installed.progress, 100);
+  assert.equal(installed.stageStatus.check, 'done');
+  assert.equal(installed.stageStatus.download, 'done');
+  assert.equal(installed.stageStatus.install, 'done');
+  assert.equal(installed.stageStatus.reload, 'done');
+  assert.ok(progressSteps.some((item) => item.step === 'download'));
+  assert.ok(progressSteps.some((item) => item.step === 'install'));
+  assert.equal(progressSteps.at(-1)?.progress, 100);
 });
 
 test('MSCH export is a valid zlib-backed Mindustry schematic and round-trips', () => {
