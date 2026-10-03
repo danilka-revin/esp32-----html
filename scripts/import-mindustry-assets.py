@@ -153,6 +153,12 @@ def block_facts(blocks: list[dict]) -> dict:
             if cost:
                 fact["cost"] = cost
 
+        # Sizes assigned in a block class constructor (not in the declaration) would otherwise default to 1.
+        class_name = re.search(r"new\s+(\w+)\s*\(", text)
+        constructor_sizes = {"PayloadConveyor": 3, "PayloadRouter": 3}
+        if class_name and class_name.group(1) in constructor_sizes:
+            fact["size"] = constructor_sizes[class_name.group(1)]
+
         for field in ("size", "craftTime", "heatRequirement", "heatOutput", "tier", "drillTime", "range", "laserRange", "maxNodes", "itemCapacity", "liquidCapacity", "displayedSpeed"):
             match = re.search(r"\b" + field + r"\s*=\s*([^;]+);", text)
             if match:
@@ -236,14 +242,15 @@ erekir_tree = tree_variables("ErekirTechTree.java")
 
 
 def inferred_planet(variable: str, region: str, old: dict | None, kind: str = "block", unit_class: str = "") -> str:
-    if old and old.get("planet"):
-        return old["planet"]
+    # The tech trees are the source of truth for where a block can be researched; older catalogs may be stale.
     if variable in serpulo_tree and variable in erekir_tree:
         return "both"
     if variable in serpulo_tree:
         return "serpulo"
     if variable in erekir_tree:
         return "erekir"
+    if old and old.get("planet"):
+        return old["planet"]
     if kind == "unit":
         return "erekir" if "Erekir" in unit_class or variable in {"latum", "renale", "manifold", "assemblyDrone", "stell", "locus", "precept", "vanquish", "conquer"} else "both" if variable in {"block", "missile", "dummy"} else "serpulo"
     explicit = {

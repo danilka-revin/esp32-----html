@@ -1,0 +1,1751 @@
+{
+ "gameVersion": "v160.2",
+ "classes": {
+  "cliff": "Cliff",
+  "deep-water": "Floor",
+  "shallow-water": "Floor",
+  "tainted-water": "Floor",
+  "deep-tainted-water": "Floor",
+  "darksand-tainted-water": "ShallowLiquid",
+  "sand-water": "ShallowLiquid",
+  "darksand-water": "ShallowLiquid",
+  "tar": "Floor",
+  "pooled-cryofluid": "Floor",
+  "molten-slag": "Floor",
+  "space": "Floor",
+  "crater-stone": "Floor",
+  "char": "Floor",
+  "basalt": "Floor",
+  "hotrock": "Floor",
+  "magmarock": "Floor",
+  "sand-floor": "Floor",
+  "darksand": "Floor",
+  "mud": "Floor",
+  "rhyolite": "Floor",
+  "rhyolite-crater": "Floor",
+  "rough-rhyolite": "Floor",
+  "regolith": "Floor",
+  "yellow-stone": "Floor",
+  "carbon-stone": "Floor",
+  "ferric-stone": "Floor",
+  "ferric-craters": "Floor",
+  "beryllic-stone": "Floor",
+  "crystalline-stone": "Floor",
+  "crystal-floor": "Floor",
+  "yellow-stone-plates": "Floor",
+  "red-stone": "Floor",
+  "dense-red-stone": "Floor",
+  "red-ice": "Floor",
+  "arkycite-floor": "Floor",
+  "arkyic-stone": "Floor",
+  "rhyolite-vent": "SteamVent",
+  "carbon-vent": "SteamVent",
+  "arkyic-vent": "SteamVent",
+  "yellow-stone-vent": "SteamVent",
+  "red-stone-vent": "SteamVent",
+  "crystalline-vent": "SteamVent",
+  "stone-vent": "SteamVent",
+  "basalt-vent": "SteamVent",
+  "grass": "Floor",
+  "salt": "Floor",
+  "snow": "Floor",
+  "ice": "Floor",
+  "ice-snow": "Floor",
+  "shale": "Floor",
+  "moss": "Floor",
+  "core-zone": "Floor",
+  "spore-moss": "Floor",
+  "stone-wall": "StaticWall",
+  "spore-wall": "StaticWall",
+  "ice-wall": "StaticWall",
+  "dune-wall": "StaticWall",
+  "regolith-wall": "StaticWall",
+  "yellow-stone-wall": "StaticWall",
+  "rhyolite-wall": "StaticWall",
+  "carbon-wall": "StaticWall",
+  "ferric-stone-wall": "StaticWall",
+  "beryllic-stone-wall": "StaticWall",
+  "arkyic-wall": "StaticWall",
+  "crystalline-stone-wall": "StaticWall",
+  "red-ice-wall": "StaticWall",
+  "red-stone-wall": "StaticWall",
+  "red-diamond-wall": "StaticTree",
+  "sand-wall": "StaticWall",
+  "spore-pine": "StaticTree",
+  "spore-cluster": "Prop",
+  "redweed": "Seaweed",
+  "pur-bush": "SeaBush",
+  "yellowcoral": "SeaBush",
+  "boulder": "StaticProp",
+  "snow-boulder": "StaticProp",
+  "shale-boulder": "StaticProp",
+  "sand-boulder": "StaticProp",
+  "dacite-boulder": "StaticProp",
+  "basalt-boulder": "StaticProp",
+  "carbon-boulder": "StaticProp",
+  "ferric-boulder": "StaticProp",
+  "beryllic-boulder": "StaticProp",
+  "yellow-stone-boulder": "StaticProp",
+  "arkyic-boulder": "Prop",
+  "crystal-cluster": "TallBlock",
+  "vibrant-crystal-cluster": "TallBlock",
+  "crystal-blocks": "TallBlock",
+  "crystal-orbs": "TallBlock",
+  "crystalline-boulder": "StaticProp",
+  "red-ice-boulder": "StaticProp",
+  "rhyolite-boulder": "StaticProp",
+  "red-stone-boulder": "StaticProp",
+  "metal-tiles-1": "Floor",
+  "metal-tiles-2": "Floor",
+  "metal-tiles-3": "Floor",
+  "metal-tiles-4": "Floor",
+  "metal-tiles-5": "Floor",
+  "metal-tiles-6": "Floor",
+  "metal-tiles-7": "Floor",
+  "metal-tiles-8": "Floor",
+  "metal-tiles-9": "Floor",
+  "metal-tiles-10": "Floor",
+  "metal-tiles-11": "Floor",
+  "metal-tiles-12": "Floor",
+  "metal-tiles-13": "Floor",
+  "metal-wall-1": "StaticWall",
+  "metal-wall-2": "StaticWall",
+  "metal-wall-3": "StaticWall",
+  "colored-floor": "ColoredFloor",
+  "colored-wall": "ColoredWall",
+  "character-overlay": "CharacterOverlay",
+  "character-overlay-white": "CharacterOverlay",
+  "rune-overlay": "RuneOverlay",
+  "graphitic-wall": "StaticWall",
+  "graphite-press": "GenericCrafter",
+  "multi-press": "GenericCrafter",
+  "silicon-smelter": "GenericCrafter",
+  "silicon-crucible": "AttributeCrafter",
+  "kiln": "GenericCrafter",
+  "plastanium-compressor": "GenericCrafter",
+  "phase-weaver": "GenericCrafter",
+  "surge-smelter": "GenericCrafter",
+  "cryofluid-mixer": "GenericCrafter",
+  "pyratite-mixer": "GenericCrafter",
+  "blast-mixer": "GenericCrafter",
+  "melter": "GenericCrafter",
+  "separator": "Separator",
+  "disassembler": "Separator",
+  "spore-press": "GenericCrafter",
+  "pulverizer": "GenericCrafter",
+  "coal-centrifuge": "GenericCrafter",
+  "incinerator": "Incinerator",
+  "silicon-arc-furnace": "GenericCrafter",
+  "electrolyzer": "GenericCrafter",
+  "atmospheric-concentrator": "HeatCrafter",
+  "oxidation-chamber": "HeatProducer",
+  "electric-heater": "HeatProducer",
+  "slag-heater": "HeatProducer",
+  "phase-heater": "HeatProducer",
+  "heat-redirector": "HeatConductor",
+  "small-heat-redirector": "HeatConductor",
+  "heat-router": "HeatConductor",
+  "slag-incinerator": "ItemIncinerator",
+  "carbide-crucible": "HeatCrafter",
+  "slag-centrifuge": "GenericCrafter",
+  "surge-crucible": "HeatCrafter",
+  "cyanogen-synthesizer": "HeatCrafter",
+  "phase-synthesizer": "HeatCrafter",
+  "heat-reactor": "HeatProducer",
+  "copper-wall": "Wall",
+  "copper-wall-large": "Wall",
+  "titanium-wall": "Wall",
+  "titanium-wall-large": "Wall",
+  "plastanium-wall": "Wall",
+  "plastanium-wall-large": "Wall",
+  "thorium-wall": "Wall",
+  "thorium-wall-large": "Wall",
+  "phase-wall": "Wall",
+  "phase-wall-large": "Wall",
+  "surge-wall": "Wall",
+  "surge-wall-large": "Wall",
+  "door": "Door",
+  "door-large": "Door",
+  "scrap-wall": "Wall",
+  "scrap-wall-large": "Wall",
+  "scrap-wall-huge": "Wall",
+  "scrap-wall-gigantic": "Wall",
+  "thruster": "Thruster",
+  "beryllium-wall": "Wall",
+  "beryllium-wall-large": "Wall",
+  "tungsten-wall": "Wall",
+  "tungsten-wall-large": "Wall",
+  "blast-door": "AutoDoor",
+  "reinforced-surge-wall": "Wall",
+  "reinforced-surge-wall-large": "Wall",
+  "carbide-wall": "Wall",
+  "carbide-wall-large": "Wall",
+  "shielded-wall": "ShieldWall",
+  "mender": "MendProjector",
+  "mend-projector": "MendProjector",
+  "overdrive-projector": "OverdriveProjector",
+  "overdrive-dome": "OverdriveProjector",
+  "force-projector": "ForceProjector",
+  "shock-mine": "ShockMine",
+  "radar": "Radar",
+  "build-tower": "BuildTurret",
+  "regen-projector": "RegenProjector",
+  "shockwave-tower": "ShockwaveTower",
+  "shield-projector": "BaseShield",
+  "large-shield-projector": "BaseShield",
+  "conveyor": "Conveyor",
+  "titanium-conveyor": "Conveyor",
+  "plastanium-conveyor": "StackConveyor",
+  "armored-conveyor": "ArmoredConveyor",
+  "junction": "Junction",
+  "bridge-conveyor": "BufferedItemBridge",
+  "phase-conveyor": "ItemBridge",
+  "sorter": "Sorter",
+  "inverted-sorter": "Sorter",
+  "router": "Router",
+  "distributor": "Router",
+  "overflow-gate": "OverflowGate",
+  "underflow-gate": "OverflowGate",
+  "unloader": "Unloader",
+  "mass-driver": "MassDriver",
+  "duct": "Duct",
+  "armored-duct": "Duct",
+  "duct-router": "DuctRouter",
+  "overflow-duct": "OverflowDuct",
+  "underflow-duct": "OverflowDuct",
+  "duct-bridge": "DuctBridge",
+  "duct-unloader": "DirectionalUnloader",
+  "surge-conveyor": "StackConveyor",
+  "surge-router": "StackRouter",
+  "unit-cargo-loader": "UnitCargoLoader",
+  "unit-cargo-unload-point": "UnitCargoUnloadPoint",
+  "mechanical-pump": "Pump",
+  "rotary-pump": "Pump",
+  "impulse-pump": "Pump",
+  "conduit": "Conduit",
+  "pulse-conduit": "Conduit",
+  "plated-conduit": "ArmoredConduit",
+  "liquid-router": "LiquidRouter",
+  "liquid-container": "LiquidRouter",
+  "liquid-tank": "LiquidRouter",
+  "liquid-junction": "LiquidJunction",
+  "bridge-conduit": "LiquidBridge",
+  "phase-conduit": "LiquidBridge",
+  "reinforced-pump": "Pump",
+  "reinforced-conduit": "ArmoredConduit",
+  "reinforced-liquid-junction": "LiquidJunction",
+  "reinforced-bridge-conduit": "DirectionLiquidBridge",
+  "reinforced-liquid-router": "LiquidRouter",
+  "reinforced-liquid-container": "LiquidRouter",
+  "reinforced-liquid-tank": "LiquidRouter",
+  "power-node": "PowerNode",
+  "power-node-large": "PowerNode",
+  "surge-tower": "PowerNode",
+  "diode": "PowerDiode",
+  "battery": "Battery",
+  "battery-large": "Battery",
+  "combustion-generator": "ConsumeGenerator",
+  "thermal-generator": "ThermalGenerator",
+  "steam-generator": "ConsumeGenerator",
+  "differential-generator": "ConsumeGenerator",
+  "rtg-generator": "ConsumeGenerator",
+  "solar-panel": "SolarGenerator",
+  "solar-panel-large": "SolarGenerator",
+  "thorium-reactor": "NuclearReactor",
+  "impact-reactor": "ImpactReactor",
+  "beam-node": "BeamNode",
+  "beam-tower": "BeamNode",
+  "beam-link": "LongPowerNode",
+  "turbine-condenser": "ThermalGenerator",
+  "chemical-combustion-chamber": "ConsumeGenerator",
+  "pyrolysis-generator": "ConsumeGenerator",
+  "flux-reactor": "VariableReactor",
+  "neoplasia-reactor": "HeaterGenerator",
+  "mechanical-drill": "Drill",
+  "pneumatic-drill": "Drill",
+  "laser-drill": "Drill",
+  "blast-drill": "Drill",
+  "water-extractor": "SolidPump",
+  "cultivator": "AttributeCrafter",
+  "oil-extractor": "Fracker",
+  "vent-condenser": "AttributeCrafter",
+  "cliff-crusher": "WallCrafter",
+  "large-cliff-crusher": "WallCrafter",
+  "plasma-bore": "BeamDrill",
+  "large-plasma-bore": "BeamDrill",
+  "impact-drill": "BurstDrill",
+  "eruption-drill": "BurstDrill",
+  "core-shard": "CoreBlock",
+  "core-foundation": "CoreBlock",
+  "core-nucleus": "CoreBlock",
+  "core-bastion": "CoreBlock",
+  "core-citadel": "CoreBlock",
+  "core-acropolis": "CoreBlock",
+  "container": "StorageBlock",
+  "vault": "StorageBlock",
+  "reinforced-container": "StorageBlock",
+  "reinforced-vault": "StorageBlock",
+  "duo": "ItemTurret",
+  "scatter": "ItemTurret",
+  "scorch": "ItemTurret",
+  "hail": "ItemTurret",
+  "wave": "LiquidTurret",
+  "lancer": "PowerTurret",
+  "arc": "PowerTurret",
+  "parallax": "TractorBeamTurret",
+  "swarmer": "ItemTurret",
+  "salvo": "ItemTurret",
+  "segment": "PointDefenseTurret",
+  "tsunami": "LiquidTurret",
+  "fuse": "ItemTurret",
+  "ripple": "ItemTurret",
+  "cyclone": "ItemTurret",
+  "foreshadow": "ItemTurret",
+  "spectre": "ItemTurret",
+  "meltdown": "LaserTurret",
+  "breach": "ItemTurret",
+  "diffuse": "ItemTurret",
+  "sublimate": "ContinuousLiquidTurret",
+  "titan": "ItemTurret",
+  "disperse": "ItemTurret",
+  "afflict": "PowerTurret",
+  "lustre": "ContinuousTurret",
+  "scathe": "ItemTurret",
+  "smite": "ItemTurret",
+  "malign": "PowerTurret",
+  "ground-factory": "UnitFactory",
+  "air-factory": "UnitFactory",
+  "naval-factory": "UnitFactory",
+  "additive-reconstructor": "Reconstructor",
+  "multiplicative-reconstructor": "Reconstructor",
+  "exponential-reconstructor": "Reconstructor",
+  "tetrative-reconstructor": "Reconstructor",
+  "repair-point": "RepairTurret",
+  "repair-turret": "RepairTurret",
+  "tank-fabricator": "UnitFactory",
+  "ship-fabricator": "UnitFactory",
+  "mech-fabricator": "UnitFactory",
+  "tank-refabricator": "Reconstructor",
+  "ship-refabricator": "Reconstructor",
+  "mech-refabricator": "Reconstructor",
+  "prime-refabricator": "Reconstructor",
+  "tank-assembler": "UnitAssembler",
+  "ship-assembler": "UnitAssembler",
+  "mech-assembler": "UnitAssembler",
+  "basic-assembler-module": "UnitAssemblerModule",
+  "unit-repair-tower": "RepairTower",
+  "payload-conveyor": "PayloadConveyor",
+  "payload-router": "PayloadRouter",
+  "reinforced-payload-conveyor": "PayloadConveyor",
+  "reinforced-payload-router": "PayloadRouter",
+  "payload-mass-driver": "PayloadMassDriver",
+  "large-payload-mass-driver": "PayloadMassDriver",
+  "small-deconstructor": "PayloadDeconstructor",
+  "deconstructor": "PayloadDeconstructor",
+  "constructor": "Constructor",
+  "large-constructor": "Constructor",
+  "payload-loader": "PayloadLoader",
+  "payload-unloader": "PayloadUnloader",
+  "power-source": "PowerSource",
+  "power-void": "PowerVoid",
+  "item-source": "ItemSource",
+  "item-void": "ItemVoid",
+  "liquid-source": "LiquidSource",
+  "liquid-void": "LiquidVoid",
+  "payload-source": "PayloadSource",
+  "payload-void": "PayloadVoid",
+  "heat-source": "HeatProducer",
+  "target-dummy": "TargetDummy",
+  "illuminator": "LightBlock",
+  "launch-pad": "LaunchPad",
+  "advanced-launch-pad": "LaunchPad",
+  "landing-pad": "LandingPad",
+  "interplanetary-accelerator": "Accelerator",
+  "message": "MessageBlock",
+  "switch": "SwitchBlock",
+  "micro-processor": "LogicBlock",
+  "logic-processor": "LogicBlock",
+  "hyper-processor": "LogicBlock",
+  "memory-cell": "MemoryBlock",
+  "memory-bank": "MemoryBlock",
+  "logic-display": "LogicDisplay",
+  "large-logic-display": "LogicDisplay",
+  "tile-logic-display": "TileableLogicDisplay",
+  "canvas": "CanvasBlock",
+  "large-canvas": "CanvasBlock",
+  "reinforced-message": "MessageBlock",
+  "world-processor": "LogicBlock",
+  "world-cell": "MemoryBlock",
+  "world-message": "MessageBlock",
+  "world-switch": "SwitchBlock"
+ },
+ "rotate": [
+  "additive-reconstructor",
+  "air-factory",
+  "armored-conveyor",
+  "armored-duct",
+  "atmospheric-concentrator",
+  "basic-assembler-module",
+  "carbide-crucible",
+  "cliff-crusher",
+  "conduit",
+  "constructor",
+  "conveyor",
+  "cyanogen-synthesizer",
+  "diode",
+  "duct",
+  "duct-bridge",
+  "duct-router",
+  "duct-unloader",
+  "electric-heater",
+  "electrolyzer",
+  "exponential-reconstructor",
+  "ground-factory",
+  "heat-reactor",
+  "heat-redirector",
+  "heat-router",
+  "heat-source",
+  "large-cliff-crusher",
+  "large-constructor",
+  "large-payload-mass-driver",
+  "large-plasma-bore",
+  "mech-assembler",
+  "mech-fabricator",
+  "mech-refabricator",
+  "multiplicative-reconstructor",
+  "naval-factory",
+  "neoplasia-reactor",
+  "overflow-duct",
+  "oxidation-chamber",
+  "payload-conveyor",
+  "payload-loader",
+  "payload-mass-driver",
+  "payload-router",
+  "payload-unloader",
+  "phase-heater",
+  "phase-synthesizer",
+  "plasma-bore",
+  "plastanium-conveyor",
+  "plated-conduit",
+  "prime-refabricator",
+  "pulse-conduit",
+  "reinforced-bridge-conduit",
+  "reinforced-conduit",
+  "reinforced-payload-conveyor",
+  "reinforced-payload-router",
+  "scathe",
+  "ship-assembler",
+  "ship-fabricator",
+  "ship-refabricator",
+  "slag-heater",
+  "small-heat-redirector",
+  "surge-conveyor",
+  "surge-crucible",
+  "tank-assembler",
+  "tank-fabricator",
+  "tank-refabricator",
+  "tetrative-reconstructor",
+  "thruster",
+  "titanium-conveyor",
+  "underflow-duct"
+ ],
+ "items": {
+  "copper": {
+   "hardness": 1,
+   "flammability": 0,
+   "explosiveness": 0,
+   "radioactivity": 0,
+   "charge": 0
+  },
+  "lead": {
+   "hardness": 1,
+   "flammability": 0,
+   "explosiveness": 0,
+   "radioactivity": 0,
+   "charge": 0
+  },
+  "metaglass": {
+   "hardness": 0,
+   "flammability": 0,
+   "explosiveness": 0,
+   "radioactivity": 0,
+   "charge": 0
+  },
+  "graphite": {
+   "hardness": 0,
+   "flammability": 0,
+   "explosiveness": 0,
+   "radioactivity": 0,
+   "charge": 0
+  },
+  "sand": {
+   "hardness": 0,
+   "flammability": 0,
+   "explosiveness": 0,
+   "radioactivity": 0,
+   "charge": 0
+  },
+  "coal": {
+   "hardness": 2,
+   "flammability": 1,
+   "explosiveness": 0.2,
+   "radioactivity": 0,
+   "charge": 0
+  },
+  "titanium": {
+   "hardness": 3,
+   "flammability": 0,
+   "explosiveness": 0,
+   "radioactivity": 0,
+   "charge": 0
+  },
+  "thorium": {
+   "hardness": 4,
+   "flammability": 0,
+   "explosiveness": 0.2,
+   "radioactivity": 1,
+   "charge": 0
+  },
+  "scrap": {
+   "hardness": 0,
+   "flammability": 0,
+   "explosiveness": 0,
+   "radioactivity": 0,
+   "charge": 0
+  },
+  "silicon": {
+   "hardness": 0,
+   "flammability": 0,
+   "explosiveness": 0,
+   "radioactivity": 0,
+   "charge": 0
+  },
+  "plastanium": {
+   "hardness": 0,
+   "flammability": 0.1,
+   "explosiveness": 0.2,
+   "radioactivity": 0,
+   "charge": 0
+  },
+  "phase-fabric": {
+   "hardness": 0,
+   "flammability": 0,
+   "explosiveness": 0,
+   "radioactivity": 0.6,
+   "charge": 0
+  },
+  "surge-alloy": {
+   "hardness": 0,
+   "flammability": 0,
+   "explosiveness": 0,
+   "radioactivity": 0,
+   "charge": 0.75
+  },
+  "spore-pod": {
+   "hardness": 0,
+   "flammability": 1.15,
+   "explosiveness": 0,
+   "radioactivity": 0,
+   "charge": 0
+  },
+  "blast-compound": {
+   "hardness": 0,
+   "flammability": 0.4,
+   "explosiveness": 1.2,
+   "radioactivity": 0,
+   "charge": 0
+  },
+  "pyratite": {
+   "hardness": 0,
+   "flammability": 1.4,
+   "explosiveness": 0.4,
+   "radioactivity": 0,
+   "charge": 0
+  },
+  "beryllium": {
+   "hardness": 3,
+   "flammability": 0,
+   "explosiveness": 0,
+   "radioactivity": 0,
+   "charge": 0
+  },
+  "tungsten": {
+   "hardness": 5,
+   "flammability": 0,
+   "explosiveness": 0,
+   "radioactivity": 0,
+   "charge": 0
+  },
+  "oxide": {
+   "hardness": 0,
+   "flammability": 0,
+   "explosiveness": 0,
+   "radioactivity": 0,
+   "charge": 0
+  },
+  "carbide": {
+   "hardness": 0,
+   "flammability": 0,
+   "explosiveness": 0,
+   "radioactivity": 0,
+   "charge": 0
+  },
+  "fissile-matter": {
+   "hardness": 0,
+   "flammability": 0,
+   "explosiveness": 0,
+   "radioactivity": 1.5,
+   "charge": 0
+  },
+  "dormant-cyst": {
+   "hardness": 0,
+   "flammability": 0.1,
+   "explosiveness": 0,
+   "radioactivity": 0,
+   "charge": 0
+  }
+ },
+ "optionalLiquids": {
+  "mechanical-drill": [
+   "water"
+  ],
+  "pneumatic-drill": [
+   "water"
+  ],
+  "laser-drill": [
+   "water"
+  ],
+  "blast-drill": [
+   "water"
+  ],
+  "large-cliff-crusher": [
+   "nitrogen"
+  ],
+  "plasma-bore": [
+   "hydrogen"
+  ],
+  "large-plasma-bore": [
+   "nitrogen"
+  ],
+  "impact-drill": [
+   "ozone"
+  ],
+  "eruption-drill": [
+   "cyanogen"
+  ]
+ },
+ "optionalItems": {
+  "mender": [
+   "silicon"
+  ],
+  "mend-projector": [
+   "phase-fabric"
+  ],
+  "overdrive-projector": [
+   "phase-fabric"
+  ],
+  "force-projector": [
+   "phase-fabric"
+  ],
+  "regen-projector": [
+   "phase-fabric"
+  ],
+  "large-cliff-crusher": [
+   "graphite"
+  ]
+ },
+ "turrets": {
+  "duo": {
+   "class": "ItemTurret",
+   "ammo": [
+    "copper",
+    "graphite",
+    "silicon"
+   ],
+   "liquidAmmo": [],
+   "needs": {},
+   "power": 0,
+   "range": 160,
+   "air": true,
+   "ground": true,
+   "coolant": true
+  },
+  "scatter": {
+   "class": "ItemTurret",
+   "ammo": [
+    "scrap",
+    "lead",
+    "metaglass"
+   ],
+   "liquidAmmo": [],
+   "needs": {},
+   "power": 0,
+   "range": 220,
+   "air": true,
+   "ground": false,
+   "coolant": true
+  },
+  "scorch": {
+   "class": "ItemTurret",
+   "ammo": [
+    "coal",
+    "pyratite"
+   ],
+   "liquidAmmo": [],
+   "needs": {},
+   "power": 0,
+   "range": 60,
+   "air": false,
+   "ground": true,
+   "coolant": true
+  },
+  "hail": {
+   "class": "ItemTurret",
+   "ammo": [
+    "graphite",
+    "silicon",
+    "pyratite"
+   ],
+   "liquidAmmo": [],
+   "needs": {},
+   "power": 0,
+   "range": 235,
+   "air": false,
+   "ground": true,
+   "coolant": true
+  },
+  "wave": {
+   "class": "LiquidTurret",
+   "ammo": [],
+   "liquidAmmo": [
+    "water",
+    "slag",
+    "cryofluid",
+    "oil"
+   ],
+   "needs": {},
+   "power": 0,
+   "range": 110,
+   "air": true,
+   "ground": true,
+   "coolant": false
+  },
+  "lancer": {
+   "class": "PowerTurret",
+   "ammo": [],
+   "liquidAmmo": [],
+   "needs": {},
+   "power": 360,
+   "range": 165,
+   "air": false,
+   "ground": true,
+   "coolant": true
+  },
+  "arc": {
+   "class": "PowerTurret",
+   "ammo": [],
+   "liquidAmmo": [],
+   "needs": {},
+   "power": 198,
+   "range": 90,
+   "air": false,
+   "ground": true,
+   "coolant": true
+  },
+  "parallax": {
+   "class": "TractorBeamTurret",
+   "ammo": [],
+   "liquidAmmo": [],
+   "needs": {},
+   "power": 198,
+   "range": 300,
+   "air": true,
+   "ground": true,
+   "coolant": false
+  },
+  "swarmer": {
+   "class": "ItemTurret",
+   "ammo": [
+    "blast-compound",
+    "pyratite",
+    "surge-alloy"
+   ],
+   "liquidAmmo": [],
+   "needs": {},
+   "power": 0,
+   "range": 240,
+   "air": true,
+   "ground": true,
+   "coolant": true
+  },
+  "salvo": {
+   "class": "ItemTurret",
+   "ammo": [
+    "copper",
+    "graphite",
+    "pyratite",
+    "silicon",
+    "thorium"
+   ],
+   "liquidAmmo": [],
+   "needs": {},
+   "power": 0,
+   "range": 190,
+   "air": true,
+   "ground": true,
+   "coolant": true
+  },
+  "segment": {
+   "class": "PointDefenseTurret",
+   "ammo": [],
+   "liquidAmmo": [],
+   "needs": {},
+   "power": 480,
+   "range": 180,
+   "air": true,
+   "ground": true,
+   "coolant": false
+  },
+  "tsunami": {
+   "class": "LiquidTurret",
+   "ammo": [],
+   "liquidAmmo": [
+    "water",
+    "slag",
+    "cryofluid",
+    "oil"
+   ],
+   "needs": {},
+   "power": 0,
+   "range": 190,
+   "air": true,
+   "ground": true,
+   "coolant": false
+  },
+  "fuse": {
+   "class": "ItemTurret",
+   "ammo": [
+    "titanium",
+    "thorium"
+   ],
+   "liquidAmmo": [],
+   "needs": {},
+   "power": 0,
+   "range": 90,
+   "air": true,
+   "ground": true,
+   "coolant": true
+  },
+  "ripple": {
+   "class": "ItemTurret",
+   "ammo": [
+    "graphite",
+    "silicon",
+    "pyratite",
+    "blast-compound",
+    "plastanium"
+   ],
+   "liquidAmmo": [],
+   "needs": {},
+   "power": 0,
+   "range": 290,
+   "air": false,
+   "ground": true,
+   "coolant": true
+  },
+  "cyclone": {
+   "class": "ItemTurret",
+   "ammo": [
+    "metaglass",
+    "blast-compound",
+    "plastanium",
+    "surge-alloy"
+   ],
+   "liquidAmmo": [],
+   "needs": {},
+   "power": 0,
+   "range": 200,
+   "air": true,
+   "ground": true,
+   "coolant": true
+  },
+  "foreshadow": {
+   "class": "ItemTurret",
+   "ammo": [
+    "surge-alloy"
+   ],
+   "liquidAmmo": [],
+   "needs": {},
+   "power": 600,
+   "range": 500,
+   "air": true,
+   "ground": true,
+   "coolant": true
+  },
+  "spectre": {
+   "class": "ItemTurret",
+   "ammo": [
+    "graphite",
+    "thorium",
+    "pyratite"
+   ],
+   "liquidAmmo": [],
+   "needs": {},
+   "power": 0,
+   "range": 260,
+   "air": true,
+   "ground": true,
+   "coolant": true
+  },
+  "meltdown": {
+   "class": "LaserTurret",
+   "ammo": [],
+   "liquidAmmo": [],
+   "needs": {},
+   "power": 1020,
+   "range": 195,
+   "air": true,
+   "ground": true,
+   "coolant": true
+  },
+  "breach": {
+   "class": "ItemTurret",
+   "ammo": [
+    "beryllium",
+    "tungsten",
+    "carbide"
+   ],
+   "liquidAmmo": [],
+   "needs": {},
+   "power": 0,
+   "range": 190,
+   "air": true,
+   "ground": true,
+   "coolant": false
+  },
+  "diffuse": {
+   "class": "ItemTurret",
+   "ammo": [
+    "graphite",
+    "oxide",
+    "silicon"
+   ],
+   "liquidAmmo": [],
+   "needs": {},
+   "power": 0,
+   "range": 125,
+   "air": true,
+   "ground": true,
+   "coolant": false
+  },
+  "sublimate": {
+   "class": "ContinuousLiquidTurret",
+   "ammo": [],
+   "liquidAmmo": [
+    "ozone",
+    "cyanogen"
+   ],
+   "needs": {},
+   "power": 0,
+   "range": 130,
+   "air": true,
+   "ground": true,
+   "coolant": false
+  },
+  "titan": {
+   "class": "ItemTurret",
+   "ammo": [
+    "thorium",
+    "carbide",
+    "oxide"
+   ],
+   "liquidAmmo": [],
+   "needs": {
+    "hydrogen": 5
+   },
+   "power": 0,
+   "range": 390,
+   "air": false,
+   "ground": true,
+   "coolant": false
+  },
+  "disperse": {
+   "class": "ItemTurret",
+   "ammo": [
+    "tungsten",
+    "thorium",
+    "silicon",
+    "surge-alloy"
+   ],
+   "liquidAmmo": [],
+   "needs": {},
+   "power": 0,
+   "range": 310,
+   "air": true,
+   "ground": false,
+   "coolant": false
+  },
+  "afflict": {
+   "class": "PowerTurret",
+   "ammo": [],
+   "liquidAmmo": [],
+   "needs": {},
+   "power": 300,
+   "range": 368,
+   "air": true,
+   "ground": true,
+   "coolant": false
+  },
+  "lustre": {
+   "class": "ContinuousTurret",
+   "ammo": [],
+   "liquidAmmo": [],
+   "needs": {
+    "nitrogen": 6
+   },
+   "power": 200,
+   "range": 250,
+   "air": true,
+   "ground": true,
+   "coolant": false
+  },
+  "scathe": {
+   "class": "ItemTurret",
+   "ammo": [
+    "carbide",
+    "phase-fabric",
+    "surge-alloy"
+   ],
+   "liquidAmmo": [],
+   "needs": {},
+   "power": 0,
+   "range": 1350,
+   "air": false,
+   "ground": true,
+   "coolant": false
+  },
+  "smite": {
+   "class": "ItemTurret",
+   "ammo": [
+    "surge-alloy"
+   ],
+   "liquidAmmo": [],
+   "needs": {},
+   "power": 0,
+   "range": 300,
+   "air": true,
+   "ground": true,
+   "coolant": false
+  },
+  "malign": {
+   "class": "PowerTurret",
+   "ammo": [],
+   "liquidAmmo": [],
+   "needs": {},
+   "power": 2400,
+   "range": 410,
+   "air": true,
+   "ground": true,
+   "coolant": false
+  }
+ },
+ "generators": {
+  "combustion-generator": {
+   "class": "ConsumeGenerator",
+   "power": 60,
+   "itemDuration": 120,
+   "fuel": "flammable",
+   "liquids": {},
+   "startupPower": 0
+  },
+  "thermal-generator": {
+   "class": "ThermalGenerator",
+   "power": 108,
+   "itemDuration": null,
+   "fuel": null,
+   "liquids": {},
+   "startupPower": 0
+  },
+  "steam-generator": {
+   "class": "ConsumeGenerator",
+   "power": 330,
+   "itemDuration": 90,
+   "fuel": "flammable",
+   "liquids": {
+    "water": 6
+   },
+   "startupPower": 0
+  },
+  "differential-generator": {
+   "class": "ConsumeGenerator",
+   "power": 1080,
+   "itemDuration": 220,
+   "fuel": [
+    "pyratite"
+   ],
+   "liquids": {
+    "cryofluid": 6
+   },
+   "startupPower": 0
+  },
+  "rtg-generator": {
+   "class": "ConsumeGenerator",
+   "power": 270,
+   "itemDuration": 840,
+   "fuel": "radioactive",
+   "liquids": {},
+   "startupPower": 0
+  },
+  "solar-panel": {
+   "class": "SolarGenerator",
+   "power": 7.2,
+   "itemDuration": null,
+   "fuel": null,
+   "liquids": {},
+   "startupPower": 0
+  },
+  "solar-panel-large": {
+   "class": "SolarGenerator",
+   "power": 96,
+   "itemDuration": null,
+   "fuel": null,
+   "liquids": {},
+   "startupPower": 0
+  },
+  "thorium-reactor": {
+   "class": "NuclearReactor",
+   "power": 900,
+   "itemDuration": 360,
+   "fuel": [
+    "thorium"
+   ],
+   "liquids": {
+    "cryofluid": 2.4
+   },
+   "startupPower": 0
+  },
+  "impact-reactor": {
+   "class": "ImpactReactor",
+   "power": 7800,
+   "itemDuration": 140,
+   "fuel": [
+    "blast-compound"
+   ],
+   "liquids": {
+    "cryofluid": 15
+   },
+   "startupPower": 1500
+  },
+  "turbine-condenser": {
+   "class": "ThermalGenerator",
+   "power": 20,
+   "itemDuration": null,
+   "fuel": null,
+   "liquids": {},
+   "startupPower": 0
+  },
+  "chemical-combustion-chamber": {
+   "class": "ConsumeGenerator",
+   "power": 550,
+   "itemDuration": null,
+   "fuel": null,
+   "liquids": {
+    "ozone": 2,
+    "arkycite": 40
+   },
+   "startupPower": 0
+  },
+  "pyrolysis-generator": {
+   "class": "ConsumeGenerator",
+   "power": 1400,
+   "itemDuration": null,
+   "fuel": null,
+   "liquids": {
+    "slag": 20,
+    "arkycite": 40
+   },
+   "startupPower": 0
+  },
+  "flux-reactor": {
+   "class": "VariableReactor",
+   "power": 18000,
+   "itemDuration": null,
+   "fuel": null,
+   "liquids": {
+    "cyanogen": 9
+   },
+   "startupPower": 0
+  },
+  "neoplasia-reactor": {
+   "class": "HeaterGenerator",
+   "power": 8400,
+   "itemDuration": 180,
+   "fuel": [
+    "phase-fabric"
+   ],
+   "liquids": {
+    "arkycite": 80,
+    "water": 10
+   },
+   "startupPower": 0
+  }
+ },
+ "unitFactories": {
+  "ground-factory": {
+   "power": 72,
+   "plans": [
+    {
+     "unit": "dagger",
+     "time": 900,
+     "cost": {
+      "silicon": 10,
+      "lead": 10
+     }
+    },
+    {
+     "unit": "crawler",
+     "time": 600,
+     "cost": {
+      "silicon": 8,
+      "coal": 10
+     }
+    },
+    {
+     "unit": "nova",
+     "time": 2400,
+     "cost": {
+      "silicon": 30,
+      "lead": 20,
+      "titanium": 20
+     }
+    }
+   ]
+  },
+  "air-factory": {
+   "power": 72,
+   "plans": [
+    {
+     "unit": "flare",
+     "time": 900,
+     "cost": {
+      "silicon": 15
+     }
+    },
+    {
+     "unit": "mono",
+     "time": 2100,
+     "cost": {
+      "silicon": 30,
+      "lead": 15
+     }
+    }
+   ]
+  },
+  "naval-factory": {
+   "power": 72,
+   "plans": [
+    {
+     "unit": "risso",
+     "time": 2700,
+     "cost": {
+      "silicon": 20,
+      "metaglass": 35
+     }
+    },
+    {
+     "unit": "retusa",
+     "time": 2100,
+     "cost": {
+      "silicon": 15,
+      "titanium": 20
+     }
+    }
+   ]
+  },
+  "tank-fabricator": {
+   "power": 90,
+   "plans": [
+    {
+     "unit": "stell",
+     "time": 2100,
+     "cost": {
+      "beryllium": 40,
+      "silicon": 50
+     }
+    }
+   ]
+  },
+  "ship-fabricator": {
+   "power": 90,
+   "plans": [
+    {
+     "unit": "elude",
+     "time": 2400,
+     "cost": {
+      "graphite": 50,
+      "silicon": 70
+     }
+    }
+   ]
+  },
+  "mech-fabricator": {
+   "power": 90,
+   "plans": [
+    {
+     "unit": "merui",
+     "time": 2400,
+     "cost": {
+      "beryllium": 50,
+      "silicon": 70
+     }
+    }
+   ]
+  }
+ },
+ "reconstructors": {
+  "additive-reconstructor": {
+   "power": 180,
+   "time": 600,
+   "cost": {
+    "silicon": 40,
+    "graphite": 40
+   },
+   "liquids": {},
+   "upgrades": [
+    [
+     "nova",
+     "pulsar"
+    ],
+    [
+     "dagger",
+     "mace"
+    ],
+    [
+     "crawler",
+     "atrax"
+    ],
+    [
+     "flare",
+     "horizon"
+    ],
+    [
+     "mono",
+     "poly"
+    ],
+    [
+     "risso",
+     "minke"
+    ],
+    [
+     "retusa",
+     "oxynoe"
+    ]
+   ]
+  },
+  "multiplicative-reconstructor": {
+   "power": 360,
+   "time": 1800,
+   "cost": {
+    "silicon": 130,
+    "titanium": 80,
+    "metaglass": 40
+   },
+   "liquids": {},
+   "upgrades": [
+    [
+     "horizon",
+     "zenith"
+    ],
+    [
+     "mace",
+     "fortress"
+    ],
+    [
+     "poly",
+     "mega"
+    ],
+    [
+     "minke",
+     "bryde"
+    ],
+    [
+     "pulsar",
+     "quasar"
+    ],
+    [
+     "atrax",
+     "spiroct"
+    ],
+    [
+     "oxynoe",
+     "cyerce"
+    ]
+   ]
+  },
+  "exponential-reconstructor": {
+   "power": 780,
+   "time": 5400,
+   "cost": {
+    "silicon": 850,
+    "titanium": 750,
+    "plastanium": 650
+   },
+   "liquids": {
+    "cryofluid": 60
+   },
+   "upgrades": [
+    [
+     "zenith",
+     "antumbra"
+    ],
+    [
+     "spiroct",
+     "arkyid"
+    ],
+    [
+     "fortress",
+     "scepter"
+    ],
+    [
+     "bryde",
+     "sei"
+    ],
+    [
+     "mega",
+     "quad"
+    ],
+    [
+     "quasar",
+     "vela"
+    ],
+    [
+     "cyerce",
+     "aegires"
+    ]
+   ]
+  },
+  "tetrative-reconstructor": {
+   "power": 1500,
+   "time": 14400,
+   "cost": {
+    "silicon": 1000,
+    "plastanium": 600,
+    "surge-alloy": 500,
+    "phase-fabric": 350
+   },
+   "liquids": {
+    "cryofluid": 180
+   },
+   "upgrades": [
+    [
+     "antumbra",
+     "eclipse"
+    ],
+    [
+     "arkyid",
+     "toxopid"
+    ],
+    [
+     "scepter",
+     "reign"
+    ],
+    [
+     "sei",
+     "omura"
+    ],
+    [
+     "quad",
+     "oct"
+    ],
+    [
+     "vela",
+     "corvus"
+    ],
+    [
+     "aegires",
+     "navanax"
+    ]
+   ]
+  },
+  "tank-refabricator": {
+   "power": 180,
+   "time": 1800,
+   "cost": {
+    "silicon": 40,
+    "tungsten": 30
+   },
+   "liquids": {
+    "hydrogen": 3
+   },
+   "upgrades": [
+    [
+     "stell",
+     "locus"
+    ]
+   ]
+  },
+  "ship-refabricator": {
+   "power": 150,
+   "time": 3000,
+   "cost": {
+    "silicon": 60,
+    "tungsten": 40
+   },
+   "liquids": {
+    "hydrogen": 3
+   },
+   "upgrades": [
+    [
+     "elude",
+     "avert"
+    ]
+   ]
+  },
+  "mech-refabricator": {
+   "power": 150,
+   "time": 2700,
+   "cost": {
+    "silicon": 50,
+    "tungsten": 40
+   },
+   "liquids": {
+    "hydrogen": 3
+   },
+   "upgrades": [
+    [
+     "merui",
+     "cleroi"
+    ]
+   ]
+  },
+  "prime-refabricator": {
+   "power": 270,
+   "time": 3600,
+   "cost": {
+    "thorium": 80,
+    "silicon": 100
+   },
+   "liquids": {
+    "nitrogen": 10
+   },
+   "upgrades": [
+    [
+     "locus",
+     "precept"
+    ],
+    [
+     "cleroi",
+     "anthicus"
+    ],
+    [
+     "avert",
+     "obviate"
+    ]
+   ]
+  }
+ },
+ "assemblers": {
+  "tank-assembler": {
+   "power": 150,
+   "liquids": {
+    "cyanogen": 9
+   },
+   "plans": [
+    {
+     "unit": "vanquish",
+     "time": 3000,
+     "payload": [
+      {
+       "id": "stell",
+       "kind": "unit",
+       "amount": 4
+      },
+      {
+       "id": "tungsten-wall-large",
+       "kind": "block",
+       "amount": 10
+      }
+     ]
+    },
+    {
+     "unit": "conquer",
+     "time": 10800,
+     "payload": [
+      {
+       "id": "locus",
+       "kind": "unit",
+       "amount": 6
+      },
+      {
+       "id": "carbide-wall-large",
+       "kind": "block",
+       "amount": 20
+      }
+     ]
+    }
+   ]
+  },
+  "ship-assembler": {
+   "power": 150,
+   "liquids": {
+    "cyanogen": 12
+   },
+   "plans": [
+    {
+     "unit": "quell",
+     "time": 3600,
+     "payload": [
+      {
+       "id": "elude",
+       "kind": "unit",
+       "amount": 4
+      },
+      {
+       "id": "beryllium-wall-large",
+       "kind": "block",
+       "amount": 12
+      }
+     ]
+    },
+    {
+     "unit": "disrupt",
+     "time": 10800,
+     "payload": [
+      {
+       "id": "avert",
+       "kind": "unit",
+       "amount": 6
+      },
+      {
+       "id": "carbide-wall-large",
+       "kind": "block",
+       "amount": 20
+      }
+     ]
+    }
+   ]
+  },
+  "mech-assembler": {
+   "power": 180,
+   "liquids": {
+    "cyanogen": 12
+   },
+   "plans": [
+    {
+     "unit": "tecta",
+     "time": 4200,
+     "payload": [
+      {
+       "id": "merui",
+       "kind": "unit",
+       "amount": 5
+      },
+      {
+       "id": "tungsten-wall-large",
+       "kind": "block",
+       "amount": 12
+      }
+     ]
+    },
+    {
+     "unit": "collaris",
+     "time": 10800,
+     "payload": [
+      {
+       "id": "cleroi",
+       "kind": "unit",
+       "amount": 6
+      },
+      {
+       "id": "carbide-wall-large",
+       "kind": "block",
+       "amount": 20
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "drills": {
+  "mechanical-drill": {
+   "class": "Drill",
+   "tier": 2,
+   "drillTime": 600,
+   "range": null,
+   "output": null,
+   "blocked": null
+  },
+  "pneumatic-drill": {
+   "class": "Drill",
+   "tier": 3,
+   "drillTime": 400,
+   "range": null,
+   "output": null,
+   "blocked": null
+  },
+  "laser-drill": {
+   "class": "Drill",
+   "tier": 4,
+   "drillTime": 280,
+   "range": null,
+   "output": null,
+   "blocked": null
+  },
+  "blast-drill": {
+   "class": "Drill",
+   "tier": 5,
+   "drillTime": 280,
+   "range": null,
+   "output": null,
+   "blocked": null
+  },
+  "cliff-crusher": {
+   "class": "WallCrafter",
+   "tier": null,
+   "drillTime": 110,
+   "range": null,
+   "output": "sand",
+   "blocked": null
+  },
+  "large-cliff-crusher": {
+   "class": "WallCrafter",
+   "tier": null,
+   "drillTime": 48,
+   "range": null,
+   "output": "sand",
+   "blocked": null
+  },
+  "plasma-bore": {
+   "class": "BeamDrill",
+   "tier": 3,
+   "drillTime": 160,
+   "range": 5,
+   "output": null,
+   "blocked": null
+  },
+  "large-plasma-bore": {
+   "class": "BeamDrill",
+   "tier": 5,
+   "drillTime": 100,
+   "range": 6,
+   "output": null,
+   "blocked": null
+  },
+  "impact-drill": {
+   "class": "BurstDrill",
+   "tier": 6,
+   "drillTime": 720,
+   "range": null,
+   "output": null,
+   "blocked": "thorium"
+  },
+  "eruption-drill": {
+   "class": "BurstDrill",
+   "tier": 7,
+   "drillTime": 281.25,
+   "range": null,
+   "output": null,
+   "blocked": null
+  }
+ }
+}

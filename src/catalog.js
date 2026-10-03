@@ -79,32 +79,39 @@ export const directionMeta = {
 
 const fixedProductsByDirection = {
   mining: [
-    { id: 'copper', label: 'Медь', block: 'mechanical-drill', erekirBlock: 'plasma-bore' },
-    { id: 'lead', label: 'Свинец', block: 'mechanical-drill', erekirBlock: 'plasma-bore' },
-    { id: 'titanium', label: 'Титан', block: 'pneumatic-drill', erekirBlock: 'large-plasma-bore' },
-    { id: 'thorium', label: 'Торий', block: 'laser-drill', erekirBlock: 'impact-drill' },
-    { id: 'beryllium', label: 'Бериллий', block: 'mechanical-drill', erekirBlock: 'plasma-bore' },
-    { id: 'tungsten', label: 'Вольфрам', block: 'blast-drill', erekirBlock: 'eruption-drill' },
+    { id: 'copper', label: 'Медь', block: 'mechanical-drill', planets: ['serpulo'] },
+    { id: 'lead', label: 'Свинец', block: 'mechanical-drill', planets: ['serpulo'] },
+    { id: 'sand', label: 'Песок', block: 'mechanical-drill', erekirBlock: 'cliff-crusher', planets: ['serpulo', 'erekir'] },
+    { id: 'coal', label: 'Уголь', block: 'mechanical-drill', planets: ['serpulo'] },
+    { id: 'scrap', label: 'Металлолом', block: 'mechanical-drill', planets: ['serpulo'] },
+    { id: 'titanium', label: 'Титан', block: 'pneumatic-drill', planets: ['serpulo'] },
+    { id: 'thorium', label: 'Торий', block: 'laser-drill', erekirBlock: 'large-plasma-bore', planets: ['serpulo', 'erekir'] },
+    { id: 'beryllium', label: 'Бериллий', erekirBlock: 'plasma-bore', planets: ['erekir'] },
+    { id: 'graphite', label: 'Графит (стеновая руда)', erekirBlock: 'plasma-bore', planets: ['erekir'] },
+    { id: 'tungsten', label: 'Вольфрам', erekirBlock: 'large-plasma-bore', planets: ['erekir'] },
   ],
   defense: [
     { id: 'frontline', label: 'Линия фронта', block: 'duo', erekirBlock: 'breach' },
     { id: 'anti-air', label: 'ПВО', block: 'scatter', erekirBlock: 'diffuse' },
-    { id: 'heavy', label: 'Тяжёлая оборона', block: 'salvo', erekirBlock: 'sublimate' },
+    { id: 'heavy', label: 'Тяжёлая оборона', block: 'salvo', erekirBlock: 'titan' },
   ],
   power: [
-    { id: 'solar', label: 'Солнечная сеть', block: 'solar-panel', erekirBlock: 'vent-condenser' },
+    { id: 'solar', label: 'Солнечная сеть', block: 'solar-panel', planets: ['serpulo'] },
+    { id: 'combustion', label: 'Генераторы на топливе', block: 'combustion-generator', planets: ['serpulo'] },
+    { id: 'steam', label: 'Паровая станция', block: 'steam-generator', planets: ['serpulo'] },
     { id: 'thermal', label: 'Тепловая станция', block: 'thermal-generator', erekirBlock: 'turbine-condenser' },
     { id: 'reactor', label: 'Реакторный узел', block: 'thorium-reactor', erekirBlock: 'flux-reactor' },
   ],
   logistics: [
     { id: 'conveyor', label: 'Конвейерная магистраль', block: 'conveyor', erekirBlock: 'duct' },
-    { id: 'sort', label: 'Сортировка ресурсов', block: 'sorter', erekirBlock: 'duct-router' },
-    { id: 'driver', label: 'Масс-драйверы', block: 'mass-driver', erekirBlock: 'payload-mass-driver' },
+    { id: 'sort', label: 'Сортировка ресурсов', block: 'inverted-sorter', planets: ['serpulo'] },
+    { id: 'driver', label: 'Масс-драйверы', block: 'mass-driver', planets: ['serpulo'] },
   ],
   units: [
-    { id: 'ground', label: 'Наземные юниты', block: 'ground-factory', erekirBlock: 'tank-fabricator' },
-    { id: 'air', label: 'Воздушные юниты', block: 'air-factory', erekirBlock: 'ship-fabricator' },
-    { id: 'naval', label: 'Морские юниты', block: 'naval-factory', erekirBlock: 'mech-fabricator' },
+    { id: 'ground', label: 'Наземные юниты', erekirLabel: 'Танки (Stell)', block: 'ground-factory', erekirBlock: 'tank-fabricator' },
+    { id: 'air', label: 'Воздушные юниты', block: 'air-factory', planets: ['serpulo'] },
+    { id: 'naval', label: 'Морские юниты', erekirLabel: 'Корабли (Elude)', block: 'naval-factory', erekirBlock: 'ship-fabricator' },
+    { id: 'mech', label: 'Мехи (Merui)', erekirBlock: 'mech-fabricator', planets: ['erekir'] },
   ],
   logic: [
     { id: 'processor', label: 'Контроллер', block: 'micro-processor', erekirBlock: 'micro-processor' },
@@ -112,8 +119,8 @@ const fixedProductsByDirection = {
     { id: 'switch', label: 'Система переключателей', block: 'switch', erekirBlock: 'message' },
   ],
   campaign: [
-    { id: 'launch', label: 'Экспортная площадка', block: 'advanced-launch-pad', erekirBlock: 'advanced-launch-pad' },
-    { id: 'accelerator', label: 'Межпланетный ускоритель', block: 'interplanetary-accelerator', erekirBlock: 'interplanetary-accelerator' },
+    { id: 'launch', label: 'Экспортная площадка', block: 'advanced-launch-pad', planets: ['serpulo'] },
+    { id: 'accelerator', label: 'Межпланетный ускоритель', block: 'interplanetary-accelerator', planets: ['serpulo'] },
   ],
 };
 
@@ -152,10 +159,11 @@ export function getProductionMachine(planet, goal, stage = 'late') {
 export function getProductsForDirection(direction, planet = 'serpulo', stage = 'late') {
   if (direction !== 'production') {
     return (fixedProductsByDirection[direction] ?? []).filter((option) => {
-      const blockId = planet === 'erekir' ? option.erekirBlock : option.block;
+      if (option.planets && !option.planets.includes(planet)) return false;
+      const blockId = planet === 'erekir' ? (option.erekirBlock ?? option.block) : (option.block ?? option.erekirBlock);
       const block = blockById.get(blockId);
       return block?.campaignBuildable && (block.planet === 'both' || block.planet === planet);
-    });
+    }).map((option) => (planet === 'erekir' && option.erekirLabel ? { ...option, label: option.erekirLabel } : option));
   }
   const outputs = new Set();
   for (const block of buildableBlocks) {

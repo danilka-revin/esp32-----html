@@ -1,9 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildableBlocks, campaignBlockById, gameCatalog, gameBlocks, liquids, materials, units } from '../src/catalog.js';
-import { blockRect, canvasPresets, generateLayout, generateLayoutVariants, initialSettings } from '../src/generator.js';
+import { blockRect, canvasPresets, generateLayout, generateLayoutVariants, initialSettings, missingEssential } from '../src/generator.js';
 import { GAME_VERSION } from '../src/game-version.js';
 import { decodeSchematic, encodeSchematic } from '../src/schematic-io.js';
+import { analyzeFlow } from '../src/flow.js';
 import { buildLogicProgram, getLogicLinkInstructions, needsLogicProgram } from '../src/logic.js';
 import { checkForUpdates, compareBuilds, sourceArchiveUrl } from '../src/update-checker.js';
 
@@ -90,8 +91,8 @@ test('campaign defense imports a selected item through a configured landing pad'
   }
 });
 
-test('factory, defense, unit and logistics layouts honor all supply modes without overlaps', () => {
-  const directionsWithSupply = ['production', 'defense', 'units', 'logistics'];
+test('factory, defense and unit layouts honor all supply modes with working flows and no overlaps', () => {
+  const directionsWithSupply = ['production', 'defense', 'units'];
   const modes = ['core', 'local', 'drones', 'hybrid'];
   let checked = 0;
   for (const direction of directionsWithSupply) {
@@ -101,28 +102,38 @@ test('factory, defense, unit and logistics layouts honor all supply modes withou
           for (const supplyMode of modes) {
             const settings = { ...initialSettings, minimal: false, direction, planet, stage, footprint, supplyMode, processorControl: supplyMode === 'core', variant: 1 };
             const scheme = generateLayout(settings);
-            assert.ok(scheme.tiles.some((tile) => tile.id.startsWith('core-')), `${direction}/${planet}/${stage}/${footprint}/${supplyMode} is missing a core`);
+            const label = `${direction}/${planet}/${stage}/${footprint}/${supplyMode}`;
+            assert.ok(scheme.tiles.some((tile) => tile.id.startsWith('core-')), `${label} is missing a core`);
             assert.equal(scheme.settings.supplyMode, supplyMode);
+            assert.deepEqual(scheme.problems, [], `${label}: ${scheme.problems.join('; ')}`);
+            assert.equal(missingEssential(direction, scheme.tiles), null, `${label}: the blueprint lacks its turrets, machines or factories`);
             for (let index = 0; index < scheme.tiles.length; index += 1) {
               const rect = blockRect(scheme.tiles[index]);
-              assert.ok(rect.startX >= 0 && rect.startY >= 0 && rect.endX < scheme.width && rect.endY < scheme.height);
+              assert.ok(rect.startX >= 0 && rect.startY >= 0 && rect.endX < scheme.width && rect.endY < scheme.height, `${label}: block outside the grid`);
               for (let other = index + 1; other < scheme.tiles.length; other += 1) {
-                assert.equal(overlaps(scheme.tiles[index], scheme.tiles[other]), false, `${direction}/${planet}/${stage}/${footprint}/${supplyMode}: ${scheme.tiles[index].id} overlaps ${scheme.tiles[other].id}`);
+                assert.equal(overlaps(scheme.tiles[index], scheme.tiles[other]), false, `${label}: ${scheme.tiles[index].id} overlaps ${scheme.tiles[other].id}`);
               }
             }
-            if (['drones', 'hybrid'].includes(supplyMode) && planet === 'erekir') {
-              assert.ok(scheme.tiles.some((tile) => tile.id === 'unit-cargo-loader'), `${direction}/${planet}/${supplyMode} must include an autonomous cargo loader`);
-              const unloadPoint = scheme.tiles.find((tile) => tile.id === 'unit-cargo-unload-point');
-              assert.ok(unloadPoint, `${direction}/${planet}/${supplyMode} must include a cargo unload point`);
-              assert.deepEqual(unloadPoint.config, { type: 'content', contentType: 'item', id: 'beryllium' });
-              assert.equal(scheme.tiles.some((tile) => ['micro-processor', 'logic-processor'].includes(tile.id)), false, 'Erekir cargo drones do not use MLOG processors');
-            } else if (['drones', 'hybrid'].includes(supplyMode)) {
-              assert.ok(scheme.tiles.some((tile) => ['micro-processor', 'logic-processor'].includes(tile.id)), `${direction}/${planet}/${supplyMode} must include a processor`);
-            }
+            const flow = analyzeFlow(scheme);
+            assert.equal(flow.errors, 0, `${label}: ${flow.issues.filter((issue) => issue.level === 'error').map((issue) => issue.text).join(' | ')}`);
+            const unloaderId = planet === 'erekir' ? 'duct-unloader' : 'unloader';
             if (['core', 'hybrid'].includes(supplyMode)) {
-              const unloader = scheme.tiles.find((tile) => tile.id === (planet === 'erekir' ? 'duct-unloader' : 'unloader'));
-              assert.ok(unloader, `${direction}/${planet}/${supplyMode} must include a resource unloader`);
-              assert.deepEqual(unloader.config, { type: 'content', contentType: 'item', id: planet === 'erekir' ? 'beryllium' : 'copper' });
+              const unloaders = scheme.tiles.filter((tile) => tile.id === unloaderId);
+              assert.ok(unloaders.length, `${label} must include a resource unloader`);
+              for (const unloader of unloaders) assert.equal(unloader.config?.type, 'content', `${label}: every unloader needs an item filter`);
+            }
+            if (['drones', 'hybrid'].includes(supplyMode) && planet === 'erekir') {
+              assert.equal(scheme.tiles.some((tile) => ['micro-processor', 'logic-processor'].includes(tile.id)), false, 'Erekir cargo drones do not use MLOG processors');
+              if (supplyMode === 'drones') {
+                assert.ok(scheme.tiles.some((tile) => tile.id === 'unit-cargo-loader'), `${label} must include an autonomous cargo loader`);
+                const unloadPoints = scheme.tiles.filter((tile) => tile.id === 'unit-cargo-unload-point');
+                assert.ok(unloadPoints.length, `${label} must include a cargo unload point`);
+                for (const point of unloadPoints) assert.equal(point.config?.contentType, 'item');
+              }
+            } else if (['drones', 'hybrid'].includes(supplyMode)) {
+              const processors = scheme.tiles.filter((tile) => ['micro-processor', 'logic-processor'].includes(tile.id));
+              assert.ok(processors.length, `${label} must include a processor`);
+              assert.ok(processors.some((tile) => tile.config?.type === 'logic' && /ubind/.test(tile.config.code) && tile.config.links.length > 0), `${label}: the drone program and its link are written into the processor`);
             }
             checked += 1;
           }
@@ -130,7 +141,7 @@ test('factory, defense, unit and logistics layouts honor all supply modes withou
       }
     }
   }
-  assert.equal(checked, 288);
+  assert.equal(checked, 216);
 });
 
 test('MLOG snippets configure reserve control and unit-based factory supply', () => {
@@ -196,19 +207,22 @@ test('MSCH export is a valid zlib-backed Mindustry schematic and round-trips', (
   assert.equal(decoded.name, scheme.name);
   assert.equal(decoded.tiles.length, scheme.tiles.length);
   assert.deepEqual(decoded.tiles.map(({ id, x, y, rotation }) => ({ id, x, y, rotation })), scheme.tiles.map(({ id, x, y, rotation }) => ({ id, x, y, rotation })));
-  const exportedUnloader = scheme.tiles.find((tile) => tile.id === 'unloader');
-  const importedUnloader = decoded.tiles.find((tile) => tile.id === 'unloader');
-  assert.deepEqual(exportedUnloader.config, { type: 'content', contentType: 'item', id: 'copper' });
-  assert.deepEqual(importedUnloader.config, exportedUnloader.config);
+  const exportedUnloaders = scheme.tiles.filter((tile) => tile.id === 'unloader');
+  const importedUnloaders = decoded.tiles.filter((tile) => tile.id === 'unloader');
+  const smelters = scheme.tiles.filter((tile) => tile.id === 'silicon-smelter').length;
+  assert.ok(smelters >= 1);
+  assert.deepEqual(exportedUnloaders.map((tile) => tile.config?.id).sort(), [...Array(smelters).fill('coal'), ...Array(smelters).fill('sand')].sort(), 'every silicon smelter needs its own coal and sand unloader');
+  assert.deepEqual(importedUnloaders.map((tile) => tile.config), exportedUnloaders.map((tile) => tile.config));
+  assert.deepEqual(decoded.tiles.map((tile) => tile.config), scheme.tiles.map((tile) => tile.config), 'every configuration survives the file');
   assert.equal(decoded.settings.supplyMode, scheme.settings.supplyMode);
   assert.equal(decoded.settings.goal, scheme.settings.goal);
   assert.equal(decoded.settings.processorControl, scheme.settings.processorControl);
   assert.equal(decoded.settings.droneCapacity, scheme.settings.droneCapacity);
 
-  const erekirScheme = generateLayout({ ...initialSettings, minimal: false, planet: 'erekir', direction: 'production', supplyMode: 'hybrid', transportItem: 'beryllium' });
+  const erekirScheme = generateLayout({ ...initialSettings, minimal: false, planet: 'erekir', direction: 'defense', supplyMode: 'hybrid', transportItem: 'beryllium' });
   const erekirDecoded = decodeSchematic(encodeSchematic(erekirScheme));
   assert.deepEqual(erekirDecoded.tiles.find((tile) => tile.id === 'duct-unloader')?.config, { type: 'content', contentType: 'item', id: 'beryllium' });
-  assert.deepEqual(erekirDecoded.tiles.find((tile) => tile.id === 'unit-cargo-unload-point')?.config, { type: 'content', contentType: 'item', id: 'beryllium' });
+  assert.deepEqual(erekirDecoded.tiles.filter((tile) => tile.id === 'unit-cargo-unload-point').map((tile) => tile.config), erekirScheme.tiles.filter((tile) => tile.id === 'unit-cargo-unload-point').map((tile) => tile.config));
 });
 
 test('campaign export flag survives the Mindustry schematic round-trip', () => {

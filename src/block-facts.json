@@ -3011,26 +3011,30 @@
     "cost": {
       "graphite": 10,
       "copper": 10
-    }
+    },
+    "size": 3
   },
   "payload-router": {
     "rotate": false,
     "cost": {
       "graphite": 15,
       "copper": 10
-    }
+    },
+    "size": 3
   },
   "reinforced-payload-conveyor": {
     "rotate": false,
     "cost": {
       "tungsten": 10
-    }
+    },
+    "size": 3
   },
   "reinforced-payload-router": {
     "rotate": false,
     "cost": {
       "tungsten": 15
-    }
+    },
+    "size": 3
   },
   "payload-mass-driver": {
     "rotate": false,
