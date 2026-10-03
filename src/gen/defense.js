@@ -153,7 +153,8 @@ export function buildDefense(frame) {
   const plan = planCount({ target, per: 1, min: 2, max: 24 });
   const rows = plan.count == null
     ? Math.max(3, Math.min(maxRows, Math.ceil(maxRows * fill)))
-    : Math.max(3, Math.min(maxRows, 2 * (Math.ceil(plan.count / 2) - 1)));
+    // Odd row counts: an even spine ends in a router that nothing takes from.
+    : Math.max(3, Math.min(maxRows, 2 * Math.ceil(plan.count / 2) - 1));
 
   const supply = importAmmo ? null : buildSupply(frame, ammo, { anchorY: yc });
   const placedTurrets = [];

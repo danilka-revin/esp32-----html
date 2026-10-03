@@ -10,6 +10,9 @@ import { addExternalPort, addPlant, connectPower, findFreeRect, powerDemand, wri
 import { planCount, rateTarget, reportRate } from './rate.js';
 import { blockName, itemName } from './profile.js';
 
+/** Flow complaints that only mean "the grid is not built yet", so a mid-build probe ignores them. */
+const powerOnlyCodes = new Set(['power-source', 'power-external', 'power-deficit', 'power-missing']);
+
 const chains = {
   serpulo: {
     ground: ['ground-factory', 'additive-reconstructor', 'multiplicative-reconstructor'],
@@ -211,7 +214,7 @@ export function buildUnits(frame) {
   const spines = [flip ? core.startY : core.endY, flip ? core.startY - maxSize : core.endY + maxSize];
   // Every extra line is built on a throw-away copy and only kept when it really runs: a second line that cannot
   // be fed would leave the whole blueprint broken, and one working line is a better answer than two broken ones.
-  const broken = frameLike => { try { return analyzeFlow(frameLike.scheme({})).errors; } catch { return 0; } };
+  const broken = frameLike => { try { const a = analyzeFlow(frameLike.scheme({ name: 'probe', description: '' })); return a.issues.filter(issue => issue.level !== 'info' && !powerOnlyCodes.has(issue.code)).length; } catch { return 0; } };
   const rows = [];
   for (let row = 0; row < chainCount; row += 1) {
     const rowFlip = row % 2 === 0 ? flip : !flip;

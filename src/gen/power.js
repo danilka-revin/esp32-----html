@@ -282,20 +282,34 @@ export { DIRS, rectCells };
 function addCondensers(frame, demand, anchor) {
   const id = 'turbine-condenser';
   if (!availableOn(id, frame.planet)) return null;
+  const board = frame.board;
   const size = blockSize(id);
   const perUnit = generatorInfo(id).power * size * size;
-  const count = Math.min(6, Math.max(1, Math.ceil(demand / perUnit)));
-  let placed = 0;
-  const spot = findFreeRect(frame.board, count * size, size, anchor, { margin: 1, region: frame.soft })
-    ?? findFreeRect(frame.board, count * size, size, anchor, { margin: 0, region: frame.soft })
-    ?? findFreeRect(frame.board, count * size, size, anchor, { margin: 0 });
-  if (!spot) return null;
-  for (let index = 0; index < count; index += 1) {
-    if (frame.board.placeAtStart(id, spot.startX + index * size, spot.startY, 0, null, { role: 'generator' })) placed += 1;
+  const count = Math.min(16, Math.max(1, Math.ceil(demand / perUnit)));
+  // Same rule as the solar field: a row that only half fits leaves the station short, so every shape is tried.
+  let best = null;
+  for (let columns = count; columns >= 1; columns -= 1) {
+    const rows = Math.ceil(count / columns);
+    const spot = findFreeRect(board, columns * size, rows * size, anchor, { margin: 1, region: frame.soft })
+      ?? findFreeRect(board, columns * size, rows * size, anchor, { margin: 0, region: frame.soft })
+      ?? findFreeRect(board, columns * size, rows * size, anchor, { margin: 0 });
+    if (!spot) continue;
+    const tiles = [];
+    for (let index = 0; index < count; index += 1) {
+      const tile = board.placeAtStart(id, spot.startX + (index % columns) * size, spot.startY + Math.floor(index / columns) * size, 0, null, { role: 'generator' });
+      if (tile) tiles.push(tile);
+    }
+    if (tiles.length >= count) {
+      frame.note(`Энергия: ${tiles.length} × ${blockName(id)} около ${Math.round(tiles.length * perUnit)} ед./с — ставь их на паровые жерла (ячейка 3×3 целиком на жерле).`);
+      return { id, count: tiles.length, supply: tiles.length * perUnit };
+    }
+    if (!best || tiles.length > best.tiles.length) best = { tiles };
+    for (const tile of tiles) board.remove(tile);
   }
-  if (!placed) return null;
-  frame.note(`Энергия: ${placed} × ${blockName(id)} около ${Math.round(placed * perUnit)} ед./с — ставь их на паровые жерла (ячейка 3×3 целиком на жерле).`);
-  return { id, count: placed, supply: placed * perUnit };
+  if (!best?.tiles.length) return null;
+  const tiles = best.tiles.map(tile => board.placeAtStart(id, footprint(tile).startX, footprint(tile).startY, 0, null, { role: 'generator' })).filter(Boolean);
+  frame.note(`Энергия: ${tiles.length} × ${blockName(id)} около ${Math.round(tiles.length * perUnit)} ед./с — это меньше запроса (${Math.round(demand)} ед./с), добавь генераторы. Ставь их на паровые жерла (ячейка 3×3 целиком на жерле).`);
+  return { id, count: tiles.length, supply: tiles.length * perUnit };
 }
 
 /** Add enough fuel-free generation for `demand` near `anchor`. Returns null when nothing fits. */

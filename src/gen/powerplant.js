@@ -5,6 +5,7 @@ import { addProcessor } from './dock.js';
 import { addStorage } from './extras.js';
 import { buildSpine, firstThatFits, itemConfig } from './frame.js';
 import { addExternalPort, connectPower, findFreeRect, writeNodeLinks } from './power.js';
+import { planCount, rateTarget, reportRate } from './rate.js';
 import { availableOn, blockName, itemName, techTier } from './profile.js';
 import { coreUnloader } from './supply.js';
 
@@ -145,12 +146,16 @@ export function buildPowerPlant(frame) {
   const density = 0.45 + 0.3 * ((settings.compactness ?? 68) - 25) / 65;
   let generators = [];
   let supplyPower = 0;
+  // A power target is a number of generators: each kind makes its own amount, so the plan is per kind.
+  const target = rateTarget(settings, 'power');
 
   if (goal === 'solar') {
     const options = ['solar-panel-large', 'solar-panel'].filter(id => availableOn(id, planet));
     const id = options.find(candidate => techTier(candidate, planet) <= frame.tier) ?? options.at(-1);
     const size = blockSize(id);
-    const count = Math.max(4, Math.min(id === 'solar-panel' ? 48 : 12, Math.floor(area * density * 0.5 / (size * size))));
+    const per = generatorInfo(id).power;
+    const solarPlan = planCount({ target, per, min: 4, max: id === 'solar-panel' ? 240 : 80 });
+    const count = solarPlan.count ?? Math.max(4, Math.min(id === 'solar-panel' ? 48 : 12, Math.floor(area * density * 0.5 / (size * size))));
     const shape = frame.variant === 2 ? { columns: Math.max(2, Math.ceil(count / 2)) } : frame.variant === 1 ? { columns: Math.max(2, Math.ceil(Math.sqrt(count) * 1.4)) } : null;
     generators = cluster(frame, id, count, anchor, { shape });
     supplyPower = generators.length * generatorInfo(id).power;
@@ -159,7 +164,9 @@ export function buildPowerPlant(frame) {
   } else if (goal === 'thermal') {
     const id = planet === 'erekir' ? 'turbine-condenser' : 'thermal-generator';
     const size = blockSize(id);
-    const count = Math.max(2, Math.min(10, Math.floor(area * density * 0.35 / (size * size))));
+    const per = describeBlock(id).powerMake;
+    const thermalPlan = planCount({ target, per, min: 2, max: 40 });
+    const count = thermalPlan.count ?? Math.max(2, Math.min(10, Math.floor(area * density * 0.35 / (size * size))));
     generators = cluster(frame, id, count, anchor, { shape: frame.variant === 1 ? { columns: count } : frame.variant === 2 ? { columns: 2 } : null });
     supplyPower = generators.reduce((sum, tile) => sum + describeBlock(tile.id).powerMake, 0);
     addBatteries(frame, generators, 3);
@@ -168,7 +175,9 @@ export function buildPowerPlant(frame) {
     const fuel = 'coal';
     const mainId = goal === 'steam' ? 'steam-generator' : 'combustion-generator';
     const perUnit = generatorInfo(mainId).power;
-    const wanted = Math.max(4, Math.min(goal === 'steam' ? 6 : 12, Math.floor(area * density * 0.12)));
+    const per = describeBlock(mainId).powerMake;
+    const fuelPlan = planCount({ target, per, min: 4, max: 48 });
+    const wanted = fuelPlan.count ?? Math.max(4, Math.min(goal === 'steam' ? 6 : 12, Math.floor(area * density * 0.12)));
     const consumers = Array.from({ length: wanted }, () => ({ id: mainId, role: 'generator' }));
     // Steam stations need a starter that works without water; combustion generators on the same lane do that.
     if (goal === 'steam' && frame.has('combustion-generator')) consumers.push({ id: 'combustion-generator', role: 'generator' }, { id: 'combustion-generator', role: 'generator' });
@@ -203,6 +212,7 @@ export function buildPowerPlant(frame) {
   finishPower(frame, { external: externalOnly, generators });
   if (settings.includeStorage) addStorage(frame);
   frame.note(`Энергетический узел: ≈ ${Math.round(supplyPower)} ед./с. Подключи потребителей к силовым узлам станции.`);
+  reportRate(frame, { direction: 'power', target, per: generators.length ? supplyPower / generators.length : 0, count: generators.length, noun: 'энергии', blocks: '× генератор' });
   return { goalId: goal, label: goalLabels[goal] ?? 'Энергия', generators };
 }
 

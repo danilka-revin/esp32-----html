@@ -1,6 +1,6 @@
 import facts from '../block-facts.json' with { type: 'json' };
 import { getProductionMachine } from '../catalog.js';
-import { describeBlock } from '../flow.js';
+import { analyzeFlow, describeBlock } from '../flow.js';
 import { blockSize, footprint, ringCells, rectCenter } from '../geometry.js';
 import { buildLogicProgram } from '../logic.js';
 import { addProcessor, addDroneDock } from './dock.js';
@@ -280,6 +280,9 @@ function buildComb(frame, machineId, recipe, count) {
   return { machines: all, failed: 0, trunk: { row: yc, westMost, rate: trunkRate } };
 }
 
+/** Flow complaints that only mean "the grid is not built yet", so a mid-build probe ignores them. */
+const powerOnlyCodes = new Set(['power-source', 'power-external', 'power-deficit', 'power-missing']);
+
 export function buildProduction(frame) {
   const settings = frame.settings;
   // `frame.board` is read fresh everywhere below: a design is adopted from a trial copy, which swaps the board.
@@ -359,10 +362,18 @@ export function buildProduction(frame) {
     design = 'lanes';
     // Fewer machines when the core runs out of unloader cells or lanes cannot be routed. A target is worth
     // trying harder for: start from the full number and only give up when a trial really cannot route it.
-    let lanes = target == null ? Math.min(wanted, 2) : wanted;
+    // Dedicated lanes are searched by permutation, so the cost explodes with the number of machines: past four
+    // they are not the right shape anyway (that is what the comb is for), so the search stops there.
+    let lanes = target == null ? Math.min(wanted, 2) : Math.min(wanted, 4);
+    // A trial has to run as well as fit: a machine whose output has nowhere to go but back into its own input
+    // line is worse than one machine less, so the number comes down until the flow checker is happy.
+    // Power is not built yet at this point, so its complaints are ignored: only transport problems count.
+    const problems = frameLike => { try { const a = analyzeFlow(frameLike.scheme({ name: 'probe', description: '' })); return a.issues.filter(issue => issue.level !== 'info' && !powerOnlyCodes.has(issue.code)).length; } catch { return 0; } };
     for (; lanes > 1; lanes -= 1) {
       const trial = frame.fork();
-      if (buildLanes(trial, machineId, recipe, lanes, { style: lanesStyle }).failed === 0) break;
+      const before = problems(trial);
+      const builtTrial = buildLanes(trial, machineId, recipe, lanes, { style: lanesStyle });
+      if (builtTrial.failed === 0 && problems(trial) <= before) break;
     }
     machines = buildLanes(frame, machineId, recipe, lanes, { style: lanesStyle }).machines;
   }
