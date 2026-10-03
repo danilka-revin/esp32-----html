@@ -11,6 +11,19 @@ export const supplyModes = [
   { id: 'hybrid', label: 'Гибрид', mark: '↔', hint: 'Конвейерная подача от ядра плюс доставка дроном для запаса.' },
 ];
 
+/** How the amount of machines is chosen: from the canvas, or from a throughput the player typed. */
+export const rateModes = [
+  { id: 'auto', label: 'По площади', hint: 'Генератор ставит столько блоков, сколько влезает в выбранный холст.' },
+  { id: 'manual', label: 'По цели', hint: 'Число блоков считается от нужного выхода. Если цель не влезает в холст, схема честно скажет, сколько удалось выжать.' },
+];
+
+/** Where the liquids a recipe needs come from. */
+export const liquidSources = [
+  { id: 'auto', label: 'Авто', hint: 'Вода добывается экстрактором внутри схемы, остальные жидкости приходят по трубе снаружи.' },
+  { id: 'internal', label: 'В схеме', hint: 'Ставить добычу жидкости внутри схемы там, где игра это позволяет (вода, масло, азот...).' },
+  { id: 'external', label: 'Снаружи', hint: 'Никакой добычи жидкости: только помеченные входы труб.' },
+];
+
 export const initialSettings = {
   minimal: true,
   direction: 'production',
@@ -29,4 +42,10 @@ export const initialSettings = {
   reserveThreshold: 40,
   droneCapacity: 50,
   campaignLink: false,
+  rateMode: 'auto',
+  rateTarget: 6,
+  liquidSource: 'auto',
+  useBridges: true,
+  allowPhase: false,
+  useGates: true,
 };

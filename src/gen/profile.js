@@ -14,6 +14,18 @@ export const PROFILES = {
     junction: 'junction', liquidJunction: 'liquid-junction', liquidRouter: 'liquid-router', router: 'router', gate: 'underflow-gate', sorter: 'sorter',
     unloader: 'unloader', node: 'power-node', largeNode: 'power-node-large', battery: 'battery', wall: 'copper-wall',
     cores: ['core-shard', 'core-foundation', 'core-nucleus'], coreUnloadable: true, defaultAmmo: 'graphite', baseItem: 'copper',
+    // Jumps a lane can make instead of going around: a cheap short bridge and an expensive long phase link.
+    itemJumps: [
+      { id: 'bridge-conveyor', range: 4, cost: 1.8, phase: false },
+      { id: 'phase-conveyor', range: 12, cost: 3.2, phase: true },
+    ],
+    liquidJumps: [
+      { id: 'bridge-conduit', range: 4, cost: 1.8, phase: false },
+      { id: 'phase-conduit', range: 12, cost: 3.2, phase: true },
+    ],
+    // A gate that feeds its sides first and only then lets items through: the right block for a spine
+    // with consumers hanging off it. `overflow` is the mirror image — front first, sides when blocked.
+    spineGate: 'underflow-gate', overflowGate: 'overflow-gate',
   },
   erekir: {
     id: 'erekir',
@@ -22,8 +34,21 @@ export const PROFILES = {
     junction: null, liquidJunction: 'reinforced-liquid-junction', liquidRouter: 'reinforced-liquid-router', router: 'duct-router', gate: 'underflow-duct', sorter: null,
     unloader: 'duct-unloader', node: 'beam-node', largeNode: 'beam-tower', battery: 'beam-node', wall: 'beryllium-wall',
     cores: ['core-bastion', 'core-citadel', 'core-acropolis'], coreUnloadable: false, defaultAmmo: 'beryllium', baseItem: 'beryllium',
+    itemJumps: [{ id: 'duct-bridge', range: 4, cost: 1.8, phase: false }],
+    liquidJumps: [{ id: 'reinforced-bridge-conduit', range: 4, cost: 1.8, phase: false }],
+    spineGate: 'underflow-duct', overflowGate: 'overflow-duct',
   },
 };
+
+/**
+ * Jump blocks a lane may use on this planet, filtered by what the player allowed.
+ * `allowPhase` gates the endgame links (they cost phase fabric and draw power); bridges are always cheap.
+ */
+export function laneJumps(planet, kind = 'item', { allowPhase = false, bridges = true } = {}) {
+  const profile = profileFor(planet);
+  const list = kind === 'liquid' ? profile.liquidJumps : profile.itemJumps;
+  return (list ?? []).filter(entry => (entry.phase ? allowPhase : bridges) && availableOn(entry.id, planet));
+}
 
 export const profileFor = planet => PROFILES[planet] ?? PROFILES.serpulo;
 

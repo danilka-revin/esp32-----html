@@ -407,13 +407,17 @@ function propagateItems(ctx, goalItem) {
         break;
       }
       case 'gate': {
-        const dir = relativeDir(ctx, from, index);
+        // `from` is -1 when the items come from outside the graph (a declared inlet or a drone drop): a gate
+        // steers by where its input arrived, so with no known input it behaves like a router.
+        const dir = from >= 0 ? relativeDir(ctx, from, index) : -1;
         const outs = [];
         if (dir >= 0) {
           for (const d of [dir, (dir + 1) % 4, (dir + 3) % 4]) {
             const other = ctx.at(tile.x + DIRS[d].x, tile.y + DIRS[d].y);
             if (other >= 0 && accepts(ctx, other, item, index)) outs.push(other);
           }
+        } else {
+          ctx.neighbors[index].forEach(n => { if (accepts(ctx, n.index, item, index)) outs.push(n.index); });
         }
         if (!outs.length) stuckAt(index, item, 'refused');
         outs.forEach(next => push(next, item, index));
@@ -430,6 +434,13 @@ function propagateItems(ctx, goalItem) {
         const target = bridgeTarget(ctx, index);
         if (target >= 0) {
           push(target, item, index);
+        } else if (bridgeSources(ctx, index).length) {
+          // Another bridge lands here, so this one is an exit: it carries on forward like a belt and does not
+          // spill sideways, or it would dump its items into whatever lane happens to run past it.
+          const front = frontIndex(ctx, index);
+          if (front < 0) stuckAt(index, item, 'void');
+          else if (!accepts(ctx, front, item, index)) stuckAt(index, item, ctx.info[front].kind === 'belt' || ctx.info[front].kind === 'armored' ? 'head-on' : 'refused', front);
+          else push(front, item, index);
         } else {
           const incoming = bridgeSources(ctx, index).map(source => relativeDir(ctx, index, source));
           const outs = ctx.neighbors[index].filter(n => {
